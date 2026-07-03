@@ -1,16 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { Price } from "@/components/Price";
-import { submitOrderAction } from "@/app/checkout/actions";
+import { submitOrderAction, type CheckoutResponse } from "@/app/checkout/actions";
 
 const SHIPPING_ZONES = [
   { id: "id-domestic", label: "Indonesia (domestic)", flatRateIdr: 150000 },
   { id: "intl", label: "International", flatRateIdr: 750000 },
 ];
+
+declare global {
+  interface Window {
+    snap?: {
+      pay: (token: string, callbacks: { onSuccess: (result: unknown) => void; onError: (error: unknown) => void }) => void;
+    };
+  }
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -19,6 +27,13 @@ export default function CheckoutPage() {
   const [zoneId, setZoneId] = useState(SHIPPING_ZONES[0].id);
   const [form, setForm] = useState({ name: "", email: "", address: "", city: "", country: "Indonesia" });
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.setAttribute("data-client-key", process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "");
+    document.body.appendChild(script);
+  }, []);
 
   const subtotal = lines.reduce(
     (sum, l) => sum + (l.unitPriceIdr + l.surchargeIdr) * l.qty,
@@ -38,29 +53,44 @@ export default function CheckoutPage() {
   async function handlePay(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
-    // Midtrans Snap integration is pending server keys (MIDTRANS_SERVER_KEY /
-    // MIDTRANS_CLIENT_KEY). This simulates a successful sandbox payment so the
-    // order-tracking flow can be demonstrated end to end.
-    const orderId = await submitOrderAction({
-      customer: form,
-      items: lines.map((l) => ({
-        productId: l.productId,
-        name: l.name,
-        image: l.image,
-        unitPriceIdr: l.unitPriceIdr,
-        surchargeIdr: l.surchargeIdr,
-        sizeMode: l.sizeMode,
-        sizePreset: l.sizePreset,
-        measurements: l.measurements,
-        qty: l.qty,
-      })),
-      currency,
-      subtotalIdr: subtotal,
-      shippingIdr: shipping,
-      totalIdr: total,
-    });
-    clear();
-    router.push(`/order-confirmation/${orderId}`);
+
+    try {
+      const response: CheckoutResponse = await submitOrderAction({
+        customer: form,
+        items: lines.map((l) => ({
+          productId: l.productId,
+          name: l.name,
+          image: l.image,
+          unitPriceIdr: l.unitPriceIdr,
+          surchargeIdr: l.surchargeIdr,
+          sizeMode: l.sizeMode,
+          sizePreset: l.sizePreset,
+          measurements: l.measurements,
+          qty: l.qty,
+        })),
+        currency,
+        subtotalIdr: subtotal,
+        shippingIdr: shipping,
+        totalIdr: total,
+      });
+
+      if (window.snap) {
+        window.snap.pay(response.snapToken, {
+          onSuccess: () => {
+            clear();
+            router.push(`/order-confirmation/${response.orderId}`);
+          },
+          onError: () => {
+            setSubmitting(false);
+            alert("Payment failed. Please try again.");
+          },
+        });
+      }
+    } catch (error) {
+      setSubmitting(false);
+      alert("Error creating order. Please try again.");
+      console.error(error);
+    }
   }
 
   return (
@@ -111,11 +141,10 @@ export default function CheckoutPage() {
           disabled={submitting}
           className="w-full bg-ink text-white text-xs tracking-wide-label uppercase py-4 hover:bg-gold transition-colors disabled:opacity-60"
         >
-          {submitting ? "Processing…" : "Pay with Midtrans (Sandbox)"}
+          {submitting ? "Processing…" : "Pay with Midtrans"}
         </button>
         <p className="text-xs text-graphite text-center">
-          Payment integration is a sandbox simulation until Midtrans server
-          keys are configured.
+          Powered by Midtrans. You'll be redirected to payment portal.
         </p>
       </form>
 
