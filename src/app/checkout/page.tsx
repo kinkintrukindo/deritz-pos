@@ -277,7 +277,7 @@ export default function CheckoutPage() {
             <Field label="Email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} full type="email" />
             <Field label="Address" value={form.address} onChange={(v) => setForm({ ...form, address: v })} full />
             <Field label="City" value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
-            <Field label="Postal Code" value={form.postalCode} onChange={(v) => setForm({ ...form, postalCode: v })} required />
+            <Field label="Postal Code" value={form.postalCode} onChange={(v) => setForm({ ...form, postalCode: v })} />
             <Field label="Country" value={form.country} onChange={(v) => setForm({ ...form, country: v })} />
           </div>
         </div>
