@@ -115,6 +115,7 @@ export default async function AdminDashboardPage() {
             <CollectionSelect collections={collections} />
             <AdminField label="Description" name="description" textarea />
             <AdminField label="Base Price (IDR)" name="basePriceIdr" type="number" required />
+            <AdminField label="Lead Time (days)" name="leadTimeDays" type="number" defaultValue="21" />
 
             <ImageGalleryEditor />
 

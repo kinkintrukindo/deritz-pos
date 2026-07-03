@@ -75,6 +75,17 @@ export default async function AdminCollectionsPage({
                 className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
               />
             </label>
+            <label className="block">
+              <span className="text-xs tracking-wide-label uppercase text-graphite">
+                Collection Image (optional)
+              </span>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+              />
+            </label>
             <button
               type="submit"
               className="w-full bg-ink text-white text-xs tracking-wide-label uppercase py-2.5 hover:bg-gold transition-colors"
@@ -130,6 +141,27 @@ export default async function AdminCollectionsPage({
                         name="caption"
                         defaultValue={collection.caption ?? ""}
                         placeholder="Optional caption for display"
+                        className="mt-1 w-full border border-mist px-2 py-1.5 text-xs bg-paper focus:outline-none focus:border-ink"
+                      />
+                    </label>
+                    {collection.image && (
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={collection.image}
+                          alt={collection.name}
+                          className="w-12 h-16 object-cover border border-mist"
+                        />
+                        <span className="text-xs text-graphite">Current image</span>
+                      </div>
+                    )}
+                    <label className="block">
+                      <span className="text-xs tracking-wide-label uppercase text-graphite">
+                        Collection Image (optional)
+                      </span>
+                      <input
+                        type="file"
+                        name="image"
+                        accept="image/*"
                         className="mt-1 w-full border border-mist px-2 py-1.5 text-xs bg-paper focus:outline-none focus:border-ink"
                       />
                     </label>

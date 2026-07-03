@@ -51,6 +51,12 @@ export default async function EditProductPage({
           required
           defaultValue={product.basePriceIdr}
         />
+        <AdminField
+          label="Lead Time (days)"
+          name="leadTimeDays"
+          type="number"
+          defaultValue={product.leadTimeDays}
+        />
 
         <ImageGalleryEditor initial={product.images} />
 

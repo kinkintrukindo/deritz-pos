@@ -5,6 +5,7 @@ export type Collection = {
   id: string;
   name: string;
   caption?: string;
+  image?: string;
   order: number;
 };
 
@@ -15,7 +16,7 @@ export async function getAllCollections(): Promise<Collection[]> {
   return [...collections].sort((a, b) => a.order - b.order);
 }
 
-export async function addCollection(name: string, caption?: string): Promise<Collection> {
+export async function addCollection(name: string, caption?: string, image?: string): Promise<Collection> {
   const collections = await readJson<Collection[]>(STORE_KEY, []);
   const maxOrder = collections.length > 0 ? Math.max(...collections.map((c) => c.order)) : 0;
   const newCollection: Collection = {
@@ -26,6 +27,7 @@ export async function addCollection(name: string, caption?: string): Promise<Col
       .replace(/(^-|-$)/g, ""),
     name,
     caption,
+    image,
     order: maxOrder + 1,
   };
   collections.push(newCollection);
@@ -33,9 +35,9 @@ export async function addCollection(name: string, caption?: string): Promise<Col
   return newCollection;
 }
 
-export async function updateCollection(id: string, name: string, caption?: string): Promise<void> {
+export async function updateCollection(id: string, name: string, caption?: string, image?: string): Promise<void> {
   const collections = await readJson<Collection[]>(STORE_KEY, []);
-  const updated = collections.map((c) => (c.id === id ? { ...c, name, caption: caption || c.caption } : c));
+  const updated = collections.map((c) => (c.id === id ? { ...c, name, caption: caption || c.caption, image: image || c.image } : c));
   await writeJson(STORE_KEY, updated);
 }
 

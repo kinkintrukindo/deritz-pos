@@ -78,17 +78,25 @@ export default async function HomePage() {
             <Link
               key={collection.id}
               href={`/collection?c=${encodeURIComponent(collection.id)}`}
-              className="group flex items-center justify-between px-8 py-6 border border-mist hover:border-ink transition-colors min-h-24"
+              className="group relative overflow-hidden min-h-64 border border-mist hover:border-ink transition-colors flex flex-col justify-end"
             >
-              <div>
-                <span className="text-lg font-medium text-ink block">{collection.name}</span>
+              {collection.image && (
+                <Image
+                  src={collection.image}
+                  alt={collection.name}
+                  fill
+                  className="object-cover absolute inset-0 group-hover:scale-105 transition-transform"
+                />
+              )}
+              <div className="relative z-10 px-8 py-6 bg-gradient-to-t from-ink/90 to-transparent">
+                <span className="text-lg font-medium text-white block">{collection.name}</span>
                 {collection.caption && (
-                  <span className="text-sm text-graphite">{collection.caption}</span>
+                  <span className="text-sm text-white/80">{collection.caption}</span>
                 )}
+                <span className="text-white group-hover:text-gold group-hover:translate-x-1 transition-all inline-block mt-3">
+                  &rarr;
+                </span>
               </div>
-              <span className="text-graphite group-hover:text-gold group-hover:translate-x-1 transition-all shrink-0 ml-4">
-                &rarr;
-              </span>
             </Link>
           ))}
         </div>

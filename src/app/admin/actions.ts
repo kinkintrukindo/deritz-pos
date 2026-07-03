@@ -12,6 +12,7 @@ import {
 } from "@/lib/products";
 import { markOrderDelivered, markOrderProcessed, markOrderShipped, deleteOrder, markOrderRefunded } from "@/lib/orders";
 import { saveSiteMedia, updateSiteSettings } from "@/lib/settings";
+import { uploadMedia } from "@/lib/media";
 import {
   addCollection,
   deleteCollection,
@@ -85,6 +86,7 @@ export async function createProductAction(formData: FormData) {
     collection: String(formData.get("collection") ?? ""),
     description: String(formData.get("description") ?? ""),
     basePriceIdr: Number(formData.get("basePriceIdr") ?? 0),
+    leadTimeDays: Number(formData.get("leadTimeDays") ?? 21),
     images,
     published: formData.get("published") === "on",
     isNew: formData.get("isNew") === "on",
@@ -104,6 +106,7 @@ export async function updateProductAction(id: string, formData: FormData) {
     collection: String(formData.get("collection") ?? ""),
     description: String(formData.get("description") ?? ""),
     basePriceIdr: Number(formData.get("basePriceIdr") ?? 0),
+    leadTimeDays: Number(formData.get("leadTimeDays") ?? 21),
     images,
     published: formData.get("published") === "on",
     isNew: formData.get("isNew") === "on",
@@ -178,10 +181,17 @@ export async function addCollectionAction(formData: FormData) {
   await requireAdminSession();
   const name = String(formData.get("name") ?? "").trim();
   const caption = String(formData.get("caption") ?? "").trim() || undefined;
+  const imageFile = formData.get("image");
+  let imageUrl: string | undefined;
+
+  if (imageFile instanceof File && imageFile.size > 0) {
+    imageUrl = await uploadMedia(imageFile, "collections");
+  }
+
   if (!name) {
     redirect("/admin/collections?error=empty-name");
   }
-  await addCollection(name, caption);
+  await addCollection(name, caption, imageUrl);
   redirect("/admin/collections?saved=1");
 }
 
@@ -189,10 +199,17 @@ export async function updateCollectionAction(id: string, formData: FormData) {
   await requireAdminSession();
   const name = String(formData.get("name") ?? "").trim();
   const caption = String(formData.get("caption") ?? "").trim() || undefined;
+  const imageFile = formData.get("image");
+  let imageUrl: string | undefined;
+
+  if (imageFile instanceof File && imageFile.size > 0) {
+    imageUrl = await uploadMedia(imageFile, "collections");
+  }
+
   if (!name) {
     redirect("/admin/collections?error=empty-name");
   }
-  await updateCollection(id, name, caption);
+  await updateCollection(id, name, caption, imageUrl);
   redirect("/admin/collections?saved=1");
 }
 
