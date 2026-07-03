@@ -1,33 +1,111 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
 import { useCurrency } from "@/components/CurrencyProvider";
+import { useAuth } from "@/components/AuthProvider";
 import { Price } from "@/components/Price";
 import { submitOrderAction, confirmMockPaymentAction, type CheckoutResponse } from "@/app/checkout/actions";
-
-const SHIPPING_ZONES = [
-  { id: "id-domestic", label: "Indonesia (domestic)", flatRateIdr: 150000 },
-  { id: "intl", label: "International", flatRateIdr: 750000 },
-];
+import { estimateShipping, type ShippingRate } from "@/lib/shipping";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { lines, clear } = useCart();
   const { currency } = useCurrency();
-  const [zoneId, setZoneId] = useState(SHIPPING_ZONES[0].id);
-  const [form, setForm] = useState({ name: "", email: "", address: "", city: "", country: "Indonesia" });
+  const { user, loading: authLoading } = useAuth();
+
+  const [shippingType, setShippingType] = useState<'domestic' | 'international'>('domestic');
+  const [destination, setDestination] = useState('');
+  const [shippingRates, setShippingRates] = useState<ShippingRate[]>([]);
+  const [selectedRateId, setSelectedRateId] = useState<string>('');
+  const [loadingRates, setLoadingRates] = useState(false);
+  const [form, setForm] = useState({
+    name: user?.user_metadata?.full_name || '',
+    email: user?.email || '',
+    address: '',
+    city: '',
+    country: 'Indonesia'
+  });
   const [submitting, setSubmitting] = useState(false);
   const [paymentResponse, setPaymentResponse] = useState<CheckoutResponse | null>(null);
   const [confirmingPayment, setConfirmingPayment] = useState(false);
+
+  useEffect(() => {
+    if (user?.email && !form.email) {
+      setForm(prev => ({
+        ...prev,
+        email: user.email || '',
+        name: user.user_metadata?.full_name || ''
+      }));
+    }
+  }, [user]);
 
   const subtotal = lines.reduce(
     (sum, l) => sum + (l.unitPriceIdr + l.surchargeIdr) * l.qty,
     0
   );
-  const shipping = SHIPPING_ZONES.find((z) => z.id === zoneId)?.flatRateIdr ?? 0;
+
+  const selectedRate = shippingRates.find(r => r.id === selectedRateId);
+  const shipping = selectedRate?.cost || 0;
   const total = subtotal + shipping;
+
+  async function handleEstimateShipping() {
+    if (!destination.trim()) {
+      alert('Please enter a destination');
+      return;
+    }
+
+    setLoadingRates(true);
+    try {
+      const rates = await estimateShipping({
+        origin: 'surabaya',
+        destination,
+        weight: 2000,
+        type: shippingType,
+      });
+      setShippingRates(rates);
+      if (rates.length > 0) {
+        setSelectedRateId(rates[0].id);
+      }
+    } catch (error) {
+      alert('Failed to estimate shipping. Please try again.');
+      console.error(error);
+    } finally {
+      setLoadingRates(false);
+    }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 lg:px-10 py-24 text-center">
+        <p className="text-graphite">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 lg:px-10 py-24 text-center">
+        <h1 className="text-3xl font-medium tracking-tight text-ink mb-4">Sign in to Checkout</h1>
+        <p className="text-graphite mb-6">Please sign in or create an account to proceed</p>
+        <div className="space-x-4">
+          <button
+            onClick={() => router.push('/login')}
+            className="inline-block bg-ink text-white text-xs tracking-wide-label uppercase py-3 px-6 hover:bg-gold transition-colors"
+          >
+            Sign In
+          </button>
+          <button
+            onClick={() => router.push('/signup')}
+            className="inline-block border border-ink text-ink text-xs tracking-wide-label uppercase py-3 px-6 hover:bg-ink hover:text-white transition-colors"
+          >
+            Create Account
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (lines.length === 0) {
     return (
@@ -39,6 +117,12 @@ export default function CheckoutPage() {
 
   async function handlePay(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!selectedRate) {
+      alert('Please select a shipping option');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -163,36 +247,92 @@ export default function CheckoutPage() {
 
         <div>
           <h2 className="text-2xl font-medium tracking-tight text-ink mb-5">Shipping Estimate</h2>
-          <div className="space-y-2">
-            {SHIPPING_ZONES.map((zone) => (
-              <label
-                key={zone.id}
-                className={`flex items-center justify-between border px-4 py-3 cursor-pointer text-sm ${
-                  zoneId === zone.id ? "border-ink" : "border-mist"
-                }`}
-              >
-                <span className="flex items-center gap-3">
+
+          <div className="space-y-4 mb-4">
+            <div>
+              <label className="flex items-center gap-3 mb-2">
+                <input
+                  type="radio"
+                  checked={shippingType === 'domestic'}
+                  onChange={() => {
+                    setShippingType('domestic');
+                    setShippingRates([]);
+                    setSelectedRateId('');
+                  }}
+                />
+                <span className="text-sm text-ink">Indonesia (Domestic)</span>
+              </label>
+              <label className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  checked={shippingType === 'international'}
+                  onChange={() => {
+                    setShippingType('international');
+                    setShippingRates([]);
+                    setSelectedRateId('');
+                  }}
+                />
+                <span className="text-sm text-ink">International</span>
+              </label>
+            </div>
+
+            <div>
+              <label className="block text-xs tracking-wide-label uppercase text-graphite mb-1.5">
+                Destination {shippingType === 'domestic' ? '(City Name)' : '(Country Name)'}
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                  placeholder={shippingType === 'domestic' ? 'Jakarta, Surabaya, Bandung...' : 'Singapore, Australia, USA...'}
+                  className="flex-1 border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+                />
+                <button
+                  type="button"
+                  onClick={handleEstimateShipping}
+                  disabled={loadingRates || !destination.trim()}
+                  className="bg-ink text-white text-xs tracking-wide-label uppercase px-4 py-2.5 hover:bg-gold transition-colors disabled:opacity-60"
+                >
+                  {loadingRates ? 'Loading...' : 'Estimate'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {shippingRates.length > 0 && (
+            <div className="space-y-2">
+              {shippingRates.map((rate) => (
+                <label
+                  key={rate.id}
+                  className={`flex items-start gap-3 border px-4 py-3 cursor-pointer text-sm ${
+                    selectedRateId === rate.id ? 'border-ink' : 'border-mist'
+                  }`}
+                >
                   <input
                     type="radio"
-                    name="zone"
-                    checked={zoneId === zone.id}
-                    onChange={() => setZoneId(zone.id)}
+                    checked={selectedRateId === rate.id}
+                    onChange={() => setSelectedRateId(rate.id)}
                   />
-                  {zone.label}
-                </span>
-                <Price amountIdr={zone.flatRateIdr} className="text-graphite" />
-              </label>
-            ))}
-          </div>
-          <p className="text-xs text-graphite mt-2">
-            Flat-rate placeholder — production will call a live courier rate
-            API for domestic shipments.
-          </p>
+                  <div className="flex-1">
+                    <div className="font-medium text-ink">{rate.courier} - {rate.service}</div>
+                    <div className="text-xs text-graphite">{rate.description}</div>
+                    <div className="text-xs text-graphite">{rate.etaText}</div>
+                  </div>
+                  <Price amountIdr={rate.cost} className="font-medium text-ink flex-shrink-0" />
+                </label>
+              ))}
+            </div>
+          )}
+
+          {shippingRates.length === 0 && destination && !loadingRates && (
+            <p className="text-xs text-graphite">Enter destination and click "Estimate" to see shipping options</p>
+          )}
         </div>
 
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || !selectedRate}
           className="w-full bg-ink text-white text-xs tracking-wide-label uppercase py-4 hover:bg-gold transition-colors disabled:opacity-60"
         >
           {submitting ? "Processing…" : "Review Payment"}

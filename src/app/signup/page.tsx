@@ -1,0 +1,137 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/components/AuthProvider';
+
+export default function SignupPage() {
+  const router = useRouter();
+  const { signUp } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleSignup(e: React.FormEvent) {
+    e.preventDefault();
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await signUp(email, password, name);
+      router.push('/login?message=Check your email to confirm your account');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Signup failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-sm px-6 py-28">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-medium tracking-tight text-ink mb-2">Create Account</h1>
+        <p className="text-sm text-graphite">Join De Ritz for a better shopping experience</p>
+      </div>
+
+      <form onSubmit={handleSignup} className="space-y-4">
+        {error && (
+          <div className="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        <div>
+          <label className="block text-xs tracking-wide-label uppercase text-graphite mb-1.5">
+            Full Name
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+            placeholder="Jane Doe"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs tracking-wide-label uppercase text-graphite mb-1.5">
+            Email
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+            placeholder="jane@example.com"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs tracking-wide-label uppercase text-graphite mb-1.5">
+            Password
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs tracking-wide-label uppercase text-graphite mb-1.5">
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            className="w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-ink text-white text-xs tracking-wide-label uppercase py-3 hover:bg-gold transition-colors disabled:opacity-60"
+        >
+          {loading ? 'Creating account...' : 'Create Account'}
+        </button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-graphite">
+        Already have an account?{' '}
+        <Link href="/login" className="text-ink hover:text-gold underline">
+          Sign in
+        </Link>
+      </p>
+
+      <p className="mt-4 text-center text-xs text-graphite">
+        <Link href="/" className="hover:text-ink underline">
+          Back to home
+        </Link>
+      </p>
+    </div>
+  );
+}
