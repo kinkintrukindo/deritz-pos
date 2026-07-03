@@ -6,6 +6,7 @@ export function AdminField({
   placeholder,
   textarea,
   defaultValue,
+  step,
 }: {
   label: string;
   name: string;
@@ -14,6 +15,7 @@ export function AdminField({
   placeholder?: string;
   textarea?: boolean;
   defaultValue?: string | number;
+  step?: string;
 }) {
   return (
     <label className="block">
@@ -34,6 +36,7 @@ export function AdminField({
           required={required}
           placeholder={placeholder}
           defaultValue={defaultValue}
+          step={step}
           className="mt-1.5 w-full border border-mist px-3 py-2 text-sm bg-paper focus:outline-none focus:border-ink"
         />
       )}

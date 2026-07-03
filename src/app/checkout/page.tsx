@@ -9,6 +9,11 @@ import { Price } from "@/components/Price";
 import { submitOrderAction, confirmPaymentAction, type CheckoutResponse } from "@/app/checkout/actions";
 import { estimateShipping, type ShippingRate } from "@/lib/shipping-real";
 
+interface LocationOption {
+  code?: string;
+  name: string;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { lines, clear } = useCart();
@@ -16,18 +21,112 @@ export default function CheckoutPage() {
   const { user, loading: authLoading } = useAuth();
 
   const [shippingType, setShippingType] = useState<'domestic' | 'international'>('domestic');
-  const [destination, setDestination] = useState('');
   const [shippingRates, setShippingRates] = useState<ShippingRate[]>([]);
   const [selectedRateId, setSelectedRateId] = useState<string>('');
   const [loadingRates, setLoadingRates] = useState(false);
+
+  // Location dropdowns
+  const [countries, setCountries] = useState<LocationOption[]>([]);
+  const [states, setStates] = useState<LocationOption[]>([]);
+  const [cities, setCities] = useState<LocationOption[]>([]);
+  const [loadingCountries, setLoadingCountries] = useState(false);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
+
   const [form, setForm] = useState({
     name: user?.user_metadata?.full_name || '',
     email: user?.email || '',
     address: '',
+    country: 'ID',
+    state: '',
     city: '',
-    postalCode: '',
-    country: 'Indonesia'
+    postalCode: ''
   });
+
+  // Define API loading functions first (before useEffect)
+  const loadCountries = async () => {
+    setLoadingCountries(true);
+    try {
+      const response = await fetch('/api/shipping/locations?type=countries');
+      if (response.ok) {
+        const data = await response.json();
+        setCountries(data);
+      }
+    } catch (error) {
+      console.error('Failed to load countries:', error);
+    } finally {
+      setLoadingCountries(false);
+    }
+  };
+
+  const loadStates = async (countryCode: string) => {
+    if (!countryCode) return;
+    setLoadingStates(true);
+    try {
+      const response = await fetch(`/api/shipping/locations?type=states&countryCode=${countryCode}`);
+      if (response.ok) {
+        const data = await response.json();
+        setStates(data);
+      }
+    } catch (error) {
+      console.error('Failed to load states:', error);
+    } finally {
+      setLoadingStates(false);
+    }
+  };
+
+  const loadCities = async (countryCode: string, stateCode: string) => {
+    if (!countryCode) return;
+    setLoadingCities(true);
+    try {
+      let url = `/api/shipping/locations?type=cities&countryCode=${countryCode}`;
+      if (stateCode) {
+        url += `&stateCode=${stateCode}`;
+      }
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        setCities(data);
+      }
+    } catch (error) {
+      console.error('Failed to load cities:', error);
+    } finally {
+      setLoadingCities(false);
+    }
+  };
+
+  // Load countries on mount
+  useEffect(() => {
+    loadCountries();
+  }, []);
+
+  // Load states when country changes
+  useEffect(() => {
+    if (form.country && shippingType === 'international') {
+      loadStates(form.country);
+      setCities([]);
+      setForm(prev => ({ ...prev, state: '', city: '' }));
+    } else if (shippingType === 'domestic') {
+      setStates([]);
+      setCities([]);
+      setForm(prev => ({ ...prev, state: '', city: '' }));
+    }
+  }, [form.country, shippingType]);
+
+  // Load cities when state changes
+  useEffect(() => {
+    if (form.country && form.state && shippingType === 'international') {
+      loadCities(form.country, form.state);
+      setForm(prev => ({ ...prev, city: '' }));
+    }
+  }, [form.state, shippingType]);
+
+  // Load domestic cities when country changes to Indonesia
+  useEffect(() => {
+    if (shippingType === 'domestic') {
+      loadCities('ID', '');
+    }
+  }, [shippingType]);
 
   // Auto-calculate shipping when postal code changes
   useEffect(() => {
@@ -38,6 +137,7 @@ export default function CheckoutPage() {
       setSelectedRateId('');
     }
   }, [form.postalCode, shippingType]);
+
   const [submitting, setSubmitting] = useState(false);
   const [paymentResponse, setPaymentResponse] = useState<CheckoutResponse | null>(null);
   const [confirmingPayment, setConfirmingPayment] = useState(false);
@@ -62,8 +162,8 @@ export default function CheckoutPage() {
   const shipping = selectedRate?.cost || 0;
   const total = subtotal + shipping;
 
-  async function handleEstimateShipping(postalCode?: string) {
-    const destPostal = postalCode || destination;
+  const handleEstimateShipping = async (postalCode?: string) => {
+    const destPostal = postalCode || form.postalCode;
 
     if (!destPostal.trim()) {
       return;
@@ -71,9 +171,24 @@ export default function CheckoutPage() {
 
     setLoadingRates(true);
     try {
+      // Calculate total weight from cart items
+      let totalWeightKg = 0;
+      for (const line of lines) {
+        try {
+          const response = await fetch(`/api/products/${line.productId}`);
+          if (response.ok) {
+            const product = await response.json();
+            totalWeightKg += (product.weightKg || 5) * line.qty;
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch weight for product ${line.productId}`, error);
+          totalWeightKg += 5 * line.qty; // Fallback to 5kg default
+        }
+      }
+
       const rates = await estimateShipping({
         destinationPostalCode: destPostal,
-        weight: 2000,
+        weight: Math.round(totalWeightKg * 1000), // Convert kg to grams
         type: shippingType,
       });
       setShippingRates(rates);
@@ -85,7 +200,7 @@ export default function CheckoutPage() {
     } finally {
       setLoadingRates(false);
     }
-  }
+  };
 
   if (authLoading) {
     return (
@@ -281,9 +396,46 @@ export default function CheckoutPage() {
             <Field label="Full name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} full />
             <Field label="Email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} full type="email" />
             <Field label="Address" value={form.address} onChange={(v) => setForm({ ...form, address: v })} full />
-            <Field label="City" value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
+
+            {shippingType === 'domestic' ? (
+              <>
+                <DropdownField
+                  label="City"
+                  value={form.city}
+                  onChange={(v) => setForm({ ...form, city: v })}
+                  options={cities}
+                  loading={loadingCities}
+                />
+              </>
+            ) : (
+              <>
+                <DropdownField
+                  label="Country"
+                  value={form.country}
+                  onChange={(v) => setForm({ ...form, country: v })}
+                  options={countries}
+                  loading={loadingCountries}
+                />
+                {needsStateDropdown(form.country) && (
+                  <DropdownField
+                    label="State/Region"
+                    value={form.state}
+                    onChange={(v) => setForm({ ...form, state: v })}
+                    options={states}
+                    loading={loadingStates}
+                  />
+                )}
+                <DropdownField
+                  label="City"
+                  value={form.city}
+                  onChange={(v) => setForm({ ...form, city: v })}
+                  options={cities}
+                  loading={loadingCities}
+                />
+              </>
+            )}
+
             <Field label="Postal Code" value={form.postalCode} onChange={(v) => setForm({ ...form, postalCode: v })} />
-            <Field label="Country" value={form.country} onChange={(v) => setForm({ ...form, country: v })} />
           </div>
         </div>
 
@@ -317,21 +469,6 @@ export default function CheckoutPage() {
             </label>
           </div>
 
-          {shippingType === 'international' && (
-            <div className="mb-6">
-              <label className="block text-xs tracking-wide-label uppercase text-graphite mb-1.5">
-                Destination Country
-              </label>
-              <input
-                type="text"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                placeholder="e.g., Singapore, Australia, USA..."
-                className="w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
-              />
-            </div>
-          )}
-
           {loadingRates && (
             <p className="text-sm text-graphite mb-4">Calculating shipping options...</p>
           )}
@@ -359,10 +496,6 @@ export default function CheckoutPage() {
                 </label>
               ))}
             </div>
-          )}
-
-          {shippingRates.length === 0 && destination && !loadingRates && (
-            <p className="text-xs text-graphite">Enter destination and click "Estimate" to see shipping options</p>
           )}
         </div>
 
@@ -446,6 +579,12 @@ export default function CheckoutPage() {
   );
 }
 
+function needsStateDropdown(countryCode: string): boolean {
+  // Countries that have state/region subdivisions
+  const stateCountries = ['US', 'IN', 'AU', 'BR', 'CA', 'MX', 'DE', 'GB', 'FR', 'RU'];
+  return stateCountries.includes(countryCode);
+}
+
 function Field({
   label,
   value,
@@ -469,6 +608,40 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
       />
+    </label>
+  );
+}
+
+function DropdownField({
+  label,
+  value,
+  onChange,
+  options,
+  loading,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: LocationOption[];
+  loading?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="text-xs tracking-wide-label uppercase text-graphite">{label}</span>
+      <select
+        required
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={loading || options.length === 0}
+        className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink disabled:opacity-60"
+      >
+        <option value="">{loading ? 'Loading...' : `Select ${label.toLowerCase()}`}</option>
+        {options.map((option) => (
+          <option key={option.code || option.name} value={option.code || option.name}>
+            {option.name}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }

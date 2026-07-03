@@ -58,6 +58,44 @@ export default async function EditProductPage({
           defaultValue={product.leadTimeDays}
         />
 
+        <AdminField
+          label="Weight (kg) - for shipping calculation only"
+          name="weightKg"
+          type="number"
+          step="0.1"
+          placeholder="5"
+          defaultValue={product.weightKg ?? 5}
+        />
+
+        <div className="space-y-2">
+          <label className="block text-xs tracking-wide-label uppercase text-graphite">
+            Dimensions (cm) - for shipping calculation only
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            <AdminField
+              label="Width"
+              name="dimensionsCm.width"
+              type="number"
+              placeholder="20"
+              defaultValue={product.dimensionsCm?.width ?? 20}
+            />
+            <AdminField
+              label="Height"
+              name="dimensionsCm.height"
+              type="number"
+              placeholder="20"
+              defaultValue={product.dimensionsCm?.height ?? 20}
+            />
+            <AdminField
+              label="Depth"
+              name="dimensionsCm.depth"
+              type="number"
+              placeholder="5"
+              defaultValue={product.dimensionsCm?.depth ?? 5}
+            />
+          </div>
+        </div>
+
         <ImageGalleryEditor initial={product.images} />
 
         <div className="space-y-2 pt-1">

@@ -40,6 +40,12 @@ export type Product = {
   isNew: boolean;
   isPromo: boolean;
   soldOut: boolean;
+  weightKg?: number;
+  dimensionsCm?: {
+    width: number;
+    height: number;
+    depth: number;
+  };
 };
 
 export type OrderStatus = "received" | "processed" | "shipped" | "delivered" | "refunded";

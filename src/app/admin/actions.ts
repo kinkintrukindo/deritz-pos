@@ -80,6 +80,12 @@ export async function createProductAction(formData: FormData) {
   await requireAdminSession();
 
   const images = await parseImagesFromFormData(formData);
+  const weightKg = Number(formData.get("weightKg") ?? 5);
+  const dimensionsCm = {
+    width: Number(formData.get("dimensionsCm.width") ?? 20),
+    height: Number(formData.get("dimensionsCm.height") ?? 20),
+    depth: Number(formData.get("dimensionsCm.depth") ?? 5),
+  };
 
   await addProduct({
     name: String(formData.get("name") ?? ""),
@@ -91,6 +97,8 @@ export async function createProductAction(formData: FormData) {
     published: formData.get("published") === "on",
     isNew: formData.get("isNew") === "on",
     isPromo: formData.get("isPromo") === "on",
+    weightKg,
+    dimensionsCm,
   });
 
   redirect("/admin/dashboard");
@@ -100,6 +108,12 @@ export async function updateProductAction(id: string, formData: FormData) {
   await requireAdminSession();
 
   const images = await parseImagesFromFormData(formData);
+  const weightKg = Number(formData.get("weightKg") ?? 5);
+  const dimensionsCm = {
+    width: Number(formData.get("dimensionsCm.width") ?? 20),
+    height: Number(formData.get("dimensionsCm.height") ?? 20),
+    depth: Number(formData.get("dimensionsCm.depth") ?? 5),
+  };
 
   await updateProduct(id, {
     name: String(formData.get("name") ?? ""),
@@ -112,6 +126,8 @@ export async function updateProductAction(id: string, formData: FormData) {
     isNew: formData.get("isNew") === "on",
     isPromo: formData.get("isPromo") === "on",
     soldOut: formData.get("soldOut") === "on",
+    weightKg,
+    dimensionsCm,
   });
 
   redirect("/admin/dashboard");

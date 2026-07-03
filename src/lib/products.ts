@@ -79,6 +79,12 @@ export type NewProductInput = {
   published: boolean;
   isNew: boolean;
   isPromo: boolean;
+  weightKg?: number;
+  dimensionsCm?: {
+    width: number;
+    height: number;
+    depth: number;
+  };
 };
 
 const DEFAULT_MADE_TO_MEASURE_SURCHARGE_IDR = 0;
@@ -127,6 +133,8 @@ export async function addProduct(input: NewProductInput): Promise<Product> {
     isNew: input.isNew,
     isPromo: input.isPromo,
     soldOut: false,
+    weightKg: input.weightKg ?? 5,
+    dimensionsCm: input.dimensionsCm ?? { width: 20, height: 20, depth: 5 },
   };
 
   products.push(product);
@@ -145,6 +153,12 @@ export type UpdateProductInput = {
   isNew: boolean;
   isPromo: boolean;
   soldOut: boolean;
+  weightKg?: number;
+  dimensionsCm?: {
+    width: number;
+    height: number;
+    depth: number;
+  };
 };
 
 export async function updateProduct(id: string, input: UpdateProductInput): Promise<void> {
@@ -164,6 +178,8 @@ export async function updateProduct(id: string, input: UpdateProductInput): Prom
           isNew: input.isNew,
           isPromo: input.isPromo,
           soldOut: input.soldOut,
+          weightKg: input.weightKg ?? p.weightKg ?? 5,
+          dimensionsCm: input.dimensionsCm ?? p.dimensionsCm ?? { width: 20, height: 20, depth: 5 },
         }
       : p
   );

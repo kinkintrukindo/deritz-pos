@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.0",
+    "country-state-city": "^3.2.1",
     "docx": "^9.7.1",
     "midtrans-client": "^1.4.3",
     "next": "16.2.10",
