@@ -66,9 +66,8 @@ export function AddToCartPanel({ product }: { product: Product }) {
         Size &amp; Measurements
       </p>
       <SizeSelector
-        sizePresets={product.sizePresets}
-        measurementRanges={product.measurementRanges}
-        onChange={setSelection}
+        onSizeChange={setSelection}
+        defaultSize={selection.sizePreset}
       />
 
       <div className="mt-8 border-t border-mist pt-6 space-y-2">
