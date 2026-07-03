@@ -1,0 +1,471 @@
+[
+  {
+    "id": "look-06",
+    "slug": "look-06-blossom-cheongsam",
+    "name": "Look 06 — Blossom Cheongsam",
+    "lookNumber": "Look 06",
+    "collection": "chinese-new-year-2026",
+    "description": "A halter cheongsam gown in dusted rose satin, framed by hand-embroidered peony panels and a silk cord tie at the waist.",
+    "details": [
+      "Hand-embroidered floral panels",
+      "Satin base fabric, halter neckline",
+      "Side slit with embroidered hem trim",
+      "Silk cord waist tie with tassel"
+    ],
+    "image": "/products/look-06-blossom-cheongsam.jpg",
+    "basePriceIdr": 4500000,
+    "madeToMeasureSurchargeIdr": 750000,
+    "leadTimeDays": 21,
+    "sizePresets": {
+      "XS": {
+        "bust": 80,
+        "waist": 62,
+        "hip": 86
+      },
+      "S": {
+        "bust": 84,
+        "waist": 66,
+        "hip": 90
+      },
+      "M": {
+        "bust": 88,
+        "waist": 70,
+        "hip": 94
+      }
+    },
+    "measurementRanges": {
+      "bust": {
+        "min": 74,
+        "max": 104
+      },
+      "waist": {
+        "min": 56,
+        "max": 90
+      },
+      "hip": {
+        "min": 80,
+        "max": 112
+      }
+    },
+    "published": true,
+    "isNew": false,
+    "isPromo": false,
+    "images": [
+      {
+        "url": "/products/look-06-blossom-cheongsam.jpg",
+        "caption": ""
+      }
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "look-07",
+    "slug": "look-07-halter-peony",
+    "name": "Look 07 — Halter Peony",
+    "lookNumber": "Look 07",
+    "collection": "chinese-new-year-2026",
+    "description": "A structured halter peplum in mauve, embroidered in crimson peonies with a knotted tassel belt and asymmetric hem drape.",
+    "details": [
+      "Structured peplum bodice",
+      "Crimson floral embroidery",
+      "Knotted tassel belt",
+      "Asymmetric draped hem, side slit"
+    ],
+    "image": "/products/look-07-halter-peony.jpg",
+    "basePriceIdr": 4500000,
+    "madeToMeasureSurchargeIdr": 750000,
+    "leadTimeDays": 21,
+    "sizePresets": {
+      "XS": {
+        "bust": 80,
+        "waist": 62,
+        "hip": 86
+      },
+      "S": {
+        "bust": 84,
+        "waist": 66,
+        "hip": 90
+      },
+      "M": {
+        "bust": 88,
+        "waist": 70,
+        "hip": 94
+      }
+    },
+    "measurementRanges": {
+      "bust": {
+        "min": 74,
+        "max": 104
+      },
+      "waist": {
+        "min": 56,
+        "max": 90
+      },
+      "hip": {
+        "min": 80,
+        "max": 112
+      }
+    },
+    "published": true,
+    "isNew": false,
+    "isPromo": false,
+    "images": [
+      {
+        "url": "/products/look-07-halter-peony.jpg",
+        "caption": ""
+      }
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "look-09",
+    "slug": "look-09-tulle-bloom",
+    "name": "Look 09 — Tulle Bloom",
+    "lookNumber": "Look 09",
+    "collection": "chinese-new-year-2026",
+    "description": "A cropped embroidered bodice paired with a flowing dusty-rose tulle skirt — romantic movement grounded by rich beadwork.",
+    "details": [
+      "Cropped embroidered bodice, high neckline",
+      "Layered tulle skirt",
+      "Beaded floral motifs",
+      "Two-piece set"
+    ],
+    "image": "/products/look-09-tulle-bloom.jpg",
+    "basePriceIdr": 4250000,
+    "madeToMeasureSurchargeIdr": 700000,
+    "leadTimeDays": 21,
+    "sizePresets": {
+      "XS": {
+        "bust": 80,
+        "waist": 62,
+        "hip": 86
+      },
+      "S": {
+        "bust": 84,
+        "waist": 66,
+        "hip": 90
+      },
+      "M": {
+        "bust": 88,
+        "waist": 70,
+        "hip": 94
+      }
+    },
+    "measurementRanges": {
+      "bust": {
+        "min": 74,
+        "max": 104
+      },
+      "waist": {
+        "min": 56,
+        "max": 90
+      },
+      "hip": {
+        "min": 80,
+        "max": 112
+      }
+    },
+    "published": true,
+    "isNew": false,
+    "isPromo": false,
+    "images": [
+      {
+        "url": "/products/look-09-tulle-bloom.jpg",
+        "caption": ""
+      }
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "look-12",
+    "slug": "look-12-asymmetric-ruby",
+    "name": "Look 12 — Asymmetric Ruby",
+    "lookNumber": "Look 12",
+    "collection": "chinese-new-year-2026",
+    "description": "A ruby and blush colour-blocked sheath with an asymmetric embroidered wrap bodice and clean front slit.",
+    "details": [
+      "Colour-blocked sheath silhouette",
+      "Asymmetric wrap bodice, embroidered trim",
+      "Knot button closures",
+      "Front slit"
+    ],
+    "image": "/products/look-12-asymmetric-ruby.jpg",
+    "basePriceIdr": 4000000,
+    "madeToMeasureSurchargeIdr": 700000,
+    "leadTimeDays": 18,
+    "sizePresets": {
+      "XS": {
+        "bust": 80,
+        "waist": 62,
+        "hip": 86
+      },
+      "S": {
+        "bust": 84,
+        "waist": 66,
+        "hip": 90
+      },
+      "M": {
+        "bust": 88,
+        "waist": 70,
+        "hip": 94
+      }
+    },
+    "measurementRanges": {
+      "bust": {
+        "min": 74,
+        "max": 104
+      },
+      "waist": {
+        "min": 56,
+        "max": 90
+      },
+      "hip": {
+        "min": 80,
+        "max": 112
+      }
+    },
+    "published": true,
+    "isNew": false,
+    "isPromo": false,
+    "images": [
+      {
+        "url": "/products/look-12-asymmetric-ruby.jpg",
+        "caption": ""
+      }
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "look-18",
+    "slug": "look-18-olive-corset-set",
+    "name": "Look 18 — Olive Corset Set",
+    "lookNumber": "Look 18",
+    "collection": "chinese-new-year-2026",
+    "description": "A boned corset top in olive silk, richly embroidered, paired with matching wide-leg trousers for a modern take on festive dress.",
+    "details": [
+      "Boned corset bodice",
+      "Floral embroidery at bust and hem",
+      "Matching wide-leg trousers",
+      "Two-piece set"
+    ],
+    "image": "/products/look-18-olive-corset-set.jpg",
+    "basePriceIdr": 4250000,
+    "madeToMeasureSurchargeIdr": 700000,
+    "leadTimeDays": 21,
+    "sizePresets": {
+      "XS": {
+        "bust": 80,
+        "waist": 62,
+        "hip": 86
+      },
+      "S": {
+        "bust": 84,
+        "waist": 66,
+        "hip": 90
+      },
+      "M": {
+        "bust": 88,
+        "waist": 70,
+        "hip": 94
+      }
+    },
+    "measurementRanges": {
+      "bust": {
+        "min": 74,
+        "max": 104
+      },
+      "waist": {
+        "min": 56,
+        "max": 90
+      },
+      "hip": {
+        "min": 80,
+        "max": 112
+      }
+    },
+    "published": true,
+    "isNew": false,
+    "isPromo": false,
+    "images": [
+      {
+        "url": "/products/look-18-olive-corset-set.jpg",
+        "caption": ""
+      }
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "merona-standart-ivory",
+    "slug": "merona-standart-ivory-batik",
+    "name": "Merona Standart — Ivory Batik Set",
+    "collection": "merona-kebaya-peranakan",
+    "description": "A fitted ivory silk bodice kebaya with off-shoulder drape and detachable train, paired with a hand-batik classic span in slate and gold.",
+    "details": [
+      "Bodice Kebaya, Classic Span, and Detachable Trains",
+      "Off-shoulder silk bodice with gold button trim",
+      "Hand-drawn batik span skirt",
+      "Set of 2 pieces"
+    ],
+    "image": "/products/merona-standart-ivory-batik.jpg",
+    "basePriceIdr": 5500000,
+    "madeToMeasureSurchargeIdr": 900000,
+    "leadTimeDays": 28,
+    "sizePresets": {
+      "XS": {
+        "bust": 80,
+        "waist": 62,
+        "hip": 86
+      },
+      "S": {
+        "bust": 84,
+        "waist": 66,
+        "hip": 90
+      },
+      "M": {
+        "bust": 88,
+        "waist": 70,
+        "hip": 94
+      }
+    },
+    "measurementRanges": {
+      "bust": {
+        "min": 74,
+        "max": 106
+      },
+      "waist": {
+        "min": 56,
+        "max": 92
+      },
+      "hip": {
+        "min": 80,
+        "max": 114
+      }
+    },
+    "published": true,
+    "isNew": false,
+    "isPromo": false,
+    "images": [
+      {
+        "url": "/products/merona-standart-ivory-batik.jpg",
+        "caption": ""
+      }
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "merona-standart-teal",
+    "slug": "merona-standart-teal-batik",
+    "name": "Merona Standart — Teal Batik Set",
+    "collection": "merona-kebaya-peranakan",
+    "description": "A structured teal silk bodice kebaya with puffed sleeves and gold filigree buttons, paired with a golden hand-batik classic span.",
+    "details": [
+      "Bodice Kebaya and Classic Span",
+      "Puffed sleeve silk bodice, mandarin collar",
+      "Gold filigree button closures",
+      "Hand-drawn batik span skirt"
+    ],
+    "image": "/products/merona-standart-teal-batik.jpg",
+    "basePriceIdr": 5000000,
+    "madeToMeasureSurchargeIdr": 900000,
+    "leadTimeDays": 28,
+    "sizePresets": {
+      "XS": {
+        "bust": 80,
+        "waist": 62,
+        "hip": 86
+      },
+      "S": {
+        "bust": 84,
+        "waist": 66,
+        "hip": 90
+      },
+      "M": {
+        "bust": 88,
+        "waist": 70,
+        "hip": 94
+      }
+    },
+    "measurementRanges": {
+      "bust": {
+        "min": 74,
+        "max": 106
+      },
+      "waist": {
+        "min": 56,
+        "max": 92
+      },
+      "hip": {
+        "min": 80,
+        "max": 114
+      }
+    },
+    "published": true,
+    "isNew": false,
+    "isPromo": false,
+    "images": [
+      {
+        "url": "/products/merona-standart-teal-batik.jpg",
+        "caption": ""
+      }
+    ],
+    "soldOut": false
+  },
+  {
+    "id": "merona-standart-red",
+    "slug": "merona-standart-red-batik",
+    "name": "Merona Standart — Red Batik Set",
+    "collection": "merona-kebaya-peranakan",
+    "description": "A jewel-red silk bodice kebaya with a delicate lace hem and ornate brooch closures, set against an intricate crane-motif batik span.",
+    "details": [
+      "Bodice Kebaya and Classic Span",
+      "Lace-trimmed silk bodice",
+      "Ornate brooch closures",
+      "Crane-motif hand-batik span skirt"
+    ],
+    "image": "/products/merona-standart-red-batik.jpg",
+    "basePriceIdr": 6000000,
+    "madeToMeasureSurchargeIdr": 900000,
+    "leadTimeDays": 28,
+    "sizePresets": {
+      "XS": {
+        "bust": 80,
+        "waist": 62,
+        "hip": 86
+      },
+      "S": {
+        "bust": 84,
+        "waist": 66,
+        "hip": 90
+      },
+      "M": {
+        "bust": 88,
+        "waist": 70,
+        "hip": 94
+      }
+    },
+    "measurementRanges": {
+      "bust": {
+        "min": 74,
+        "max": 106
+      },
+      "waist": {
+        "min": 56,
+        "max": 92
+      },
+      "hip": {
+        "min": 80,
+        "max": 114
+      }
+    },
+    "published": true,
+    "isNew": false,
+    "isPromo": false,
+    "images": [
+      {
+        "url": "/products/merona-standart-red-batik.jpg",
+        "caption": ""
+      }
+    ],
+    "soldOut": false
+  }
+]
