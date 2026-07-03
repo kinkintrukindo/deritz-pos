@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Admin Dashboard - De Ritz L'Atelier</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: white;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin: 30px 0 20px 0;
+            color: #1a1a1a;
+            border-bottom: 3px solid #8b8b6b;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin: 25px 0 15px 0;
+            color: #2a2a2a;
+            margin-top: 30px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            margin: 15px 0 10px 0;
+            color: #3a3a3a;
+        }
+
+        p {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .section {
+            page-break-inside: avoid;
+            margin-bottom: 30px;
+        }
+
+        .highlight {
+            background-color: #ffffcc;
+            padding: 15px;
+            border-left: 4px solid #8b8b6b;
+            margin: 15px 0;
+        }
+
+        .icon {
+            margin-right: 5px;
+        }
+
+        code {
+            background-color: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .checklist li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            color: #228B22;
+        }
+
+        .dontlist li:before {
+            content: "✗";
+            color: #DC143C;
+        }
+
+        .workflow {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        .workflow-step {
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .workflow-arrow {
+            font-size: 1.5em;
+            color: #8b8b6b;
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+            h1 {
+                page-break-after: avoid;
+            }
+            h2 {
+                page-break-after: avoid;
+            }
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📘 Panduan Admin Dashboard - De Ritz L'Atelier</h1>
+
+        <div class="section">
+            <h2>Pengenalan Sistem Manajemen</h2>
+            <p>Selamat datang di dashboard admin De Ritz L'Atelier! Panduan ini akan memandu Anda melalui semua fitur yang tersedia untuk mengelola katalog produk, koleksi, dan pesanan.</p>
+        </div>
+
+        <div class="section">
+            <h2>🏠 1. Halaman Utama - Katalog (Catalogue)</h2>
+
+            <h3>Akses</h3>
+            <ul>
+                <li>Klik tab <strong>"CATALOGUE"</strong> di menu navigasi</li>
+                <li>Url: <code>/admin/dashboard</code></li>
+            </ul>
+
+            <h3>Fitur Utama</h3>
+
+            <h4>Melihat Semua Produk</h4>
+            <ul>
+                <li><strong>Bagian Kiri</strong>: Daftar semua produk (76+ items)</li>
+                <li>Setiap produk menampilkan:
+                    <ul>
+                        <li><strong>Thumbnail gambar</strong> produk</li>
+                        <li><strong>Nama produk</strong> (contoh: "Look 01")</li>
+                        <li><strong>Koleksi</strong> (contoh: "chinese-new-year-2026")</li>
+                        <li><strong>Harga</strong> dalam IDR (Rupiah)</li>
+                        <li><strong>Status publikasi</strong> (Published/Hidden)</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>Tombol Aksi untuk Setiap Produk</h4>
+            <table>
+                <tr>
+                    <th>Tombol</th>
+                    <th>Fungsi</th>
+                </tr>
+                <tr>
+                    <td><strong>EDIT</strong></td>
+                    <td>Ubah detail produk (nama, harga, deskripsi, gambar, dll)</td>
+                </tr>
+                <tr>
+                    <td><strong>HIDE</strong></td>
+                    <td>Sembunyikan produk dari website (tidak terlihat pelanggan)</td>
+                </tr>
+                <tr>
+                    <td><strong>PUBLISH</strong></td>
+                    <td>Publikasikan produk ke website (jika sembunyikan)</td>
+                </tr>
+                <tr>
+                    <td><strong>MARK SOLD OUT</strong></td>
+                    <td>Tandai produk sebagai terjual habis (tombol tidak aktif untuk checkout)</td>
+                </tr>
+                <tr>
+                    <td><strong>DELETE</strong></td>
+                    <td>Hapus produk dari katalog (hati-hati: tidak bisa dikembalikan)</td>
+                </tr>
+            </table>
+
+            <h4>Menambahkan Produk Baru</h4>
+            <p>Gulir ke bawah ke bagian <strong>"Add a Piece"</strong> untuk menambahkan produk baru:</p>
+
+            <h5>Field yang Wajib Diisi:</h5>
+            <ol>
+                <li><strong>NAME</strong> (Nama)
+                    <ul>
+                        <li>Contoh: "Look 01", "Cream Botanical Batik Kebaya"</li>
+                        <li>Harus unik dan jelas</li>
+                    </ul>
+                </li>
+                <li><strong>COLLECTION</strong> (Koleksi)
+                    <ul>
+                        <li>Dropdown dengan pilihan: "Chinese New Year 2026" atau "Merona Kebaya Peranakan"</li>
+                        <li>Pilih koleksi yang sesuai</li>
+                    </ul>
+                </li>
+                <li><strong>DESCRIPTION</strong> (Deskripsi)
+                    <ul>
+                        <li>Textarea untuk menjelaskan detail produk</li>
+                        <li>Contoh: "Elegant ivory kebaya peranakan with sophisticated dark navy botanical batik sarong"</li>
+                    </ul>
+                </li>
+                <li><strong>BASE PRICE (IDR)</strong> (Harga Dasar)
+                    <ul>
+                        <li>Harga dalam Rupiah (tanpa titik/koma)</li>
+                        <li>Contoh: 3500000 (untuk Rp 3.500.000)</li>
+                    </ul>
+                </li>
+                <li><strong>IMAGES</strong> (Gambar)
+                    <ul>
+                        <li>Upload minimal 1 gambar</li>
+                        <li>Bisa upload multiple gambar dengan keterangan</li>
+                        <li>Gambar pertama akan menjadi thumbnail</li>
+                    </ul>
+                </li>
+                <li><strong>CHECKBOXES</strong> (Pilihan Tambahan)
+                    <ul>
+                        <li>☐ "Highlight as New Collection" - Tampilkan di atas dengan badge "NEW"</li>
+                        <li>☐ "Discount Promo" - Tampilkan di atas dengan badge "PROMO"</li>
+                        <li>☐ "Publish immediately" - Langsung tampil di website</li>
+                        <li>☐ "Sold Out (disables Add to Bag on the storefront)" - Produk tidak bisa dibeli</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h5>Cara Menambahkan Produk:</h5>
+            <ol>
+                <li>Isi semua field yang diperlukan</li>
+                <li>Upload gambar-gambar produk</li>
+                <li>Centang "Publish immediately" jika ingin langsung tampil</li>
+                <li>Klik tombol <strong>"SAVE PIECE"</strong> di bawah</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>📁 2. Koleksi (Collections)</h2>
+
+            <h3>Akses</h3>
+            <ul>
+                <li>Klik tab <strong>"COLLECTIONS"</strong> di menu navigasi</li>
+                <li>Url: <code>/admin/collections</code></li>
+            </ul>
+
+            <h3>Fitur Utama</h3>
+
+            <h4>Melihat Koleksi yang Ada</h4>
+            <p>Di bagian <strong>"Manage Collections"</strong>, Anda bisa melihat:</p>
+            <ul>
+                <li>Nama koleksi: "Chinese New Year 2026" (42 produk)</li>
+                <li>Nama koleksi: "Merona Kebaya Peranakan" (18 produk)</li>
+            </ul>
+
+            <h4>Edit Koleksi</h4>
+            <p>Untuk setiap koleksi, Anda bisa:</p>
+            <ol>
+                <li><strong>Ubah Nama</strong> - Ganti nama koleksi</li>
+                <li><strong>Tambah Caption</strong> - Tambahkan deskripsi koleksi (opsional)</li>
+                <li><strong>Ubah Gambar</strong> - Upload gambar koleksi (opsional)</li>
+                <li><strong>SAVE CHANGES</strong> - Simpan perubahan</li>
+                <li><strong>DELETE</strong> - Hapus koleksi (hati-hati: produk bisa terpengaruh)</li>
+            </ol>
+
+            <h4>Menambahkan Koleksi Baru</h4>
+            <p>Di bagian <strong>"Add Collection"</strong>:</p>
+            <ol>
+                <li>Masukkan <strong>COLLECTION NAME</strong> (Nama Koleksi)
+                    <ul>
+                        <li>Contoh: "Summer 2026", "Wedding Collection"</li>
+                    </ul>
+                </li>
+                <li>Masukkan <strong>COLLECTION CAPTION</strong> (Opsional)
+                    <ul>
+                        <li>Deskripsi singkat koleksi</li>
+                        <li>Contoh: "Koleksi eksklusif untuk musim panas"</li>
+                    </ul>
+                </li>
+                <li>Upload <strong>COLLECTION IMAGE</strong> (Opsional)
+                    <ul>
+                        <li>Gambar yang mewakili koleksi</li>
+                        <li>Akan ditampilkan di halaman website</li>
+                    </ul>
+                </li>
+                <li>Klik <strong>"ADD COLLECTION"</strong></li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>📦 3. Pesanan (Orders)</h2>
+
+            <h3>Akses</h3>
+            <ul>
+                <li>Klik tab <strong>"ORDERS"</strong> di menu navigasi</li>
+                <li>Url: <code>/admin/orders</code></li>
+            </ul>
+
+            <h3>Melihat Pesanan</h3>
+
+            <h4>Informasi Pesanan</h4>
+            <p>Setiap pesanan menampilkan:</p>
+            <ul>
+                <li><strong>Status pesanan</strong> (pending, processing, shipped, delivered, refunded)</li>
+                <li><strong>Nama pelanggan</strong></li>
+                <li><strong>Items</strong> - Produk yang dipesan dengan:
+                    <ul>
+                        <li>📸 Gambar thumbnail</li>
+                        <li>Nama produk</li>
+                        <li>Jumlah</li>
+                        <li>Harga</li>
+                    </ul>
+                </li>
+                <li><strong>Total harga</strong></li>
+                <li><strong>Tanggal pesanan</strong></li>
+            </ul>
+
+            <h4>Mengubah Status Pesanan</h4>
+            <p>Untuk setiap pesanan, gunakan tombol status:</p>
+            <table>
+                <tr>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                    <th>Deskripsi</th>
+                </tr>
+                <tr>
+                    <td><strong>MARK PROCESSED</strong></td>
+                    <td>Tandai sedang diproses</td>
+                    <td>Dari pending → processing</td>
+                </tr>
+                <tr>
+                    <td><strong>MARK SHIPPED</strong></td>
+                    <td>Tandai sudah dikirim</td>
+                    <td>Dari processing → shipped (masukkan nomor resi)</td>
+                </tr>
+                <tr>
+                    <td><strong>MARK DELIVERED</strong></td>
+                    <td>Tandai sudah diterima</td>
+                    <td>Dari shipped → delivered</td>
+                </tr>
+                <tr>
+                    <td><strong>MARK REFUNDED</strong></td>
+                    <td>Tandai refund</td>
+                    <td>Set status menjadi refunded dengan timestamp</td>
+                </tr>
+                <tr>
+                    <td><strong>DELETE ORDER</strong></td>
+                    <td>Hapus pesanan</td>
+                    <td>Menghapus dari database (hati-hati!)</td>
+                </tr>
+            </table>
+
+            <h4>Workflow Pesanan Standar</h4>
+            <div class="workflow">
+                <div class="workflow-step">Pending</div>
+                <div class="workflow-arrow">→</div>
+                <div class="workflow-step">Processing</div>
+                <div class="workflow-arrow">→</div>
+                <div class="workflow-step">Shipped</div>
+                <div class="workflow-arrow">→</div>
+                <div class="workflow-step">Delivered</div>
+            </div>
+            <div class="highlight">
+                <strong>Refund:</strong> Jika ada refund, gunakan tombol "MARK REFUNDED" untuk mengubah status menjadi refunded.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🏠 4. Halaman Depan (Homepage)</h2>
+
+            <h3>Akses</h3>
+            <ul>
+                <li>Klik tab <strong>"HOMEPAGE"</strong> di menu navigasi</li>
+                <li>Url: <code>/admin/homepage</code></li>
+            </ul>
+
+            <h3>Fitur</h3>
+            <p>Di sini Anda bisa mengubah:</p>
+            <ul>
+                <li><strong>Hero Eyebrow</strong> - Text di atas headline (contoh: "MADE TO MEASURE")</li>
+                <li><strong>Hero Headline</strong> - Judul besar halaman depan</li>
+                <li><strong>Hero Button Label</strong> - Text tombol (contoh: "EXPLORE THE COLLECTION")</li>
+                <li><strong>Hero Media</strong> - Upload gambar/video untuk hero section</li>
+            </ul>
+            <p>Klik <strong>"SAVE CHANGES"</strong> untuk menyimpan.</p>
+        </div>
+
+        <div class="section">
+            <h2>🔐 5. Logout</h2>
+            <ul>
+                <li>Klik <strong>"LOG OUT"</strong> di sudut kanan atas untuk logout</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>📋 TIPS & TRIK</h2>
+
+            <h3>Tips Mengelola Produk</h3>
+
+            <h4>✅ Lakukan</h4>
+            <ul class="checklist">
+                <li>Selalu upload gambar berkualitas tinggi</li>
+                <li>Tulis deskripsi yang detail dan menarik</li>
+                <li>Gunakan "MARK SOLD OUT" untuk produk terbatas, bukan DELETE</li>
+                <li>Simpan riwayat pesanan untuk referensi</li>
+                <li>Publish produk baru sebelum mengumumkan ke pelanggan</li>
+            </ul>
+
+            <h4>❌ Jangan</h4>
+            <ul class="checklist dontlist">
+                <li>Tidak perlu khawatir tentang "size charts" - semua produk menggunakan preset standar</li>
+                <li>Jangan hapus koleksi jika masih ada produk di dalamnya</li>
+                <li>Jangan gunakan DELETE untuk pesanan - gunakan MARK REFUNDED</li>
+            </ul>
+
+            <h3>Manajemen Status Pesanan</h3>
+            <ol>
+                <li><strong>Ketika pesanan baru masuk</strong>: Status otomatis "pending"</li>
+                <li><strong>Ketika mulai proses</strong>: Klik "MARK PROCESSED"</li>
+                <li><strong>Ketika siap kirim</strong>: Klik "MARK SHIPPED" dan masukkan nomor resi pengiriman</li>
+                <li><strong>Ketika sampai ke pelanggan</strong>: Klik "MARK DELIVERED"</li>
+                <li><strong>Jika ada refund</strong>: Klik "MARK REFUNDED"</li>
+            </ol>
+
+            <h3>Upload Gambar Produk</h3>
+            <ul>
+                <li>Format: JPG atau PNG</li>
+                <li>Ukuran ideal: 600x800 pixels</li>
+                <li>Ukuran file: maksimal 5MB per gambar</li>
+                <li>Bisa upload multiple gambar per produk (hingga 10 gambar)</li>
+                <li>Gambar pertama akan jadi thumbnail di katalog</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>📞 Dukungan</h2>
+            <p>Jika ada pertanyaan atau masalah dengan dashboard:</p>
+            <ol>
+                <li>Hubungi WhatsApp: +62 813-3583-8367</li>
+                <li>Instagram DM: @deritz</li>
+                <li>Email ke administrator sistem</li>
+            </ol>
+        </div>
+
+        <div class="footer">
+            <p><strong>Versi Panduan:</strong> 1.0</p>
+            <p><strong>Terakhir Diperbarui:</strong> 3 Juli 2026</p>
+            <p><strong>Platform:</strong> De Ritz L'Atelier Admin Dashboard</p>
+            <p style="margin-top: 15px;">📧 Untuk mencetak ke PDF: Tekan Ctrl+P (Windows) atau Cmd+P (Mac) dan pilih "Save as PDF"</p>
+        </div>
+    </div>
+</body>
+</html>
