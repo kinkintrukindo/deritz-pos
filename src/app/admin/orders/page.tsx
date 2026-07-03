@@ -1,18 +1,23 @@
+import Image from "next/image";
 import { getAllOrders } from "@/lib/orders";
 import {
   requireAdminSession,
   markProcessedAction,
   markShippedAction,
   markDeliveredAction,
+  deleteOrderAction,
+  markRefundedAction,
   logout,
 } from "@/app/admin/actions";
 import { AdminNav } from "@/components/AdminNav";
+import { OrderDeleteButton } from "@/components/OrderDeleteButton";
 
 const STATUS_LABEL: Record<string, string> = {
   received: "Received",
   processed: "Processed",
   shipped: "Shipped",
   delivered: "Delivered",
+  refunded: "Refunded",
 };
 
 export default async function AdminOrdersPage({
@@ -74,18 +79,31 @@ export default async function AdminOrdersPage({
               </span>
             </div>
 
-            <ul className="text-xs text-graphite mt-3 space-y-0.5">
+            <ul className="text-xs text-graphite mt-3 space-y-2">
               {order.items.map((item, i) => (
-                <li key={i}>
-                  {item.name} —{" "}
-                  {item.sizeMode === "preset"
-                    ? `Size ${item.sizePreset}`
-                    : `Custom (Bust ${item.measurements.bust}, Waist ${item.measurements.waist}, Hip ${item.measurements.hip} ${item.measurements.unit})`}
+                <li key={i} className="flex items-start gap-3">
+                  {item.image && (
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      width={64}
+                      height={80}
+                      className="object-cover shrink-0"
+                    />
+                  )}
+                  <div>
+                    <p className="font-medium text-graphite">{item.name}</p>
+                    <p>
+                      {item.sizeMode === "preset"
+                        ? `Size ${item.sizePreset}`
+                        : `Custom (Bust ${item.measurements.bust}, Waist ${item.measurements.waist}, Hip ${item.measurements.hip} ${item.measurements.unit})`}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-3 flex items-center gap-3 flex-wrap">
               {order.status === "received" && (
                 <form action={markProcessedAction.bind(null, order.id)}>
                   <button className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink underline">
@@ -119,6 +137,19 @@ export default async function AdminOrdersPage({
               {order.status === "delivered" && (
                 <span className="text-xs text-graphite">Completed</span>
               )}
+              {order.status === "refunded" && (
+                <span className="text-xs text-graphite">Refunded</span>
+              )}
+
+              {order.status !== "refunded" && (
+                <form action={markRefundedAction.bind(null, order.id)}>
+                  <button className="text-xs tracking-wide-label uppercase text-graphite hover:text-red-600 underline">
+                    Mark Refunded
+                  </button>
+                </form>
+              )}
+
+              <OrderDeleteButton orderId={order.id} action={deleteOrderAction.bind(null, order.id)} />
             </div>
           </div>
         ))}

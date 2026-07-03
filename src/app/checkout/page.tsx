@@ -33,11 +33,11 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<'qris' | 'card' | 'bank_transfer'>('qris');
 
   useEffect(() => {
-    if (user?.email && !form.email) {
+    if (user?.email) {
       setForm(prev => ({
         ...prev,
         email: user.email || '',
-        name: user.user_metadata?.full_name || ''
+        name: user.user_metadata?.full_name || prev.name
       }));
     }
   }, [user]);
@@ -85,28 +85,6 @@ export default function CheckoutPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="mx-auto max-w-3xl px-6 lg:px-10 py-24 text-center">
-        <h1 className="text-3xl font-medium tracking-tight text-ink mb-4">Sign in to Checkout</h1>
-        <p className="text-graphite mb-6">Please sign in or create an account to proceed</p>
-        <div className="space-x-4">
-          <button
-            onClick={() => router.push('/login')}
-            className="inline-block bg-ink text-white text-xs tracking-wide-label uppercase py-3 px-6 hover:bg-gold transition-colors"
-          >
-            Sign In
-          </button>
-          <button
-            onClick={() => router.push('/signup')}
-            className="inline-block border border-ink text-ink text-xs tracking-wide-label uppercase py-3 px-6 hover:bg-ink hover:text-white transition-colors"
-          >
-            Create Account
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   if (lines.length === 0) {
     return (

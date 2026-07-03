@@ -88,3 +88,16 @@ export async function markOrderDelivered(id: string): Promise<void> {
     orders.map((o) => (o.id === id ? { ...o, status: "delivered" as const, deliveredAt: now } : o))
   );
 }
+
+export async function deleteOrder(id: string): Promise<void> {
+  const orders = await readAll();
+  await writeAll(orders.filter((o) => o.id !== id));
+}
+
+export async function markOrderRefunded(id: string): Promise<void> {
+  const orders = await readAll();
+  const now = new Date().toISOString();
+  await writeAll(
+    orders.map((o) => (o.id === id ? { ...o, status: "refunded" as const, refundedAt: now } : o))
+  );
+}

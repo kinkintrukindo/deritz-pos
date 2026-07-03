@@ -10,7 +10,7 @@ import {
   setProductSoldOut,
   updateProduct,
 } from "@/lib/products";
-import { markOrderDelivered, markOrderProcessed, markOrderShipped } from "@/lib/orders";
+import { markOrderDelivered, markOrderProcessed, markOrderShipped, deleteOrder, markOrderRefunded } from "@/lib/orders";
 import { saveSiteMedia, updateSiteSettings } from "@/lib/settings";
 import {
   addCollection,
@@ -209,4 +209,16 @@ export async function reorderCollectionsAction(formData: FormData) {
   const ids = JSON.parse(orderJson) as string[];
   await reorderCollections(ids);
   redirect("/admin/collections?saved=1");
+}
+
+export async function deleteOrderAction(id: string, _formData: FormData) {
+  await requireAdminSession();
+  await deleteOrder(id);
+  redirect("/admin/orders");
+}
+
+export async function markRefundedAction(id: string, _formData: FormData) {
+  await requireAdminSession();
+  await markOrderRefunded(id);
+  redirect("/admin/orders");
 }

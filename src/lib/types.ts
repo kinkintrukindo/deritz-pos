@@ -42,7 +42,7 @@ export type Product = {
   soldOut: boolean;
 };
 
-export type OrderStatus = "received" | "processed" | "shipped" | "delivered";
+export type OrderStatus = "received" | "processed" | "shipped" | "delivered" | "refunded";
 
 export type OrderItem = {
   productId: string;
@@ -72,6 +72,7 @@ export type Order = {
   processedAt?: string;
   shippedAt?: string;
   deliveredAt?: string;
+  refundedAt?: string;
   deliveryId?: string;
   customer: OrderCustomer;
   items: OrderItem[];
