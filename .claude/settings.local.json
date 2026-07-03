@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.gentlemonster.com)",
+      "WebFetch(domain:www.instagram.com)"
+    ]
+  }
+}
