@@ -10,7 +10,7 @@ export interface SizeSelection {
     bust: number;
     waist: number;
     hip: number;
-    unit: string;
+    unit: 'cm' | 'in';
   };
 }
 
@@ -42,7 +42,7 @@ export function SizeSelector({ onSizeChange, defaultSize = 'S' }: SizeSelectorPr
         bust: presetData.bust[0],
         waist: presetData.waist[0],
         hip: presetData.hip[0],
-        unit: 'cm',
+        unit: 'cm' as const,
       },
     });
   };
@@ -58,7 +58,7 @@ export function SizeSelector({ onSizeChange, defaultSize = 'S' }: SizeSelectorPr
         bust: field === 'bust' ? value : bust,
         waist: field === 'waist' ? value : waist,
         hip: field === 'hip' ? value : hip,
-        unit: 'cm',
+        unit: 'cm' as const,
       },
     });
   };
