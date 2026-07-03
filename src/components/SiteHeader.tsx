@@ -25,9 +25,6 @@ export function SiteHeader() {
           <Link href="/collection" className="hover:text-ink transition-colors">
             Collection
           </Link>
-          <Link href="/collection#merona" className="hover:text-ink transition-colors">
-            Merona
-          </Link>
           <Link href="/appointments" className="hover:text-ink transition-colors">
             Book a Fitting
           </Link>
