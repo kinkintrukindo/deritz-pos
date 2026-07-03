@@ -28,8 +28,9 @@ export function SiteHeader() {
             className="h-8 w-8 object-contain"
             priority
           />
-          <span className="text-lg font-semibold tracking-tight text-ink hidden sm:inline">
-            De Ritz
+          <span className="hidden sm:inline" style={{ fontFamily: 'var(--font-trajan)' }}>
+            <div className="text-xs tracking-wider text-ink">De Ritz</div>
+            <div className="text-[10px] tracking-widest text-graphite">Online Atelier</div>
           </span>
         </Link>
 

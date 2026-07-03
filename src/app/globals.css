@@ -11,6 +11,11 @@
   --gold-bright: #c7ae74;
 }
 
+@font-face {
+  font-family: 'Trajan Pro';
+  src: local('Trajan Pro'), local('TrajanPro');
+}
+
 @theme inline {
   --color-paper: var(--paper);
   --color-surface: var(--surface);
