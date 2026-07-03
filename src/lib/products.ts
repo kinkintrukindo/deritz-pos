@@ -87,6 +87,7 @@ const DEFAULT_SIZE_PRESETS = {
   XS: { bust: 80, waist: 62, hip: 86 },
   S: { bust: 84, waist: 66, hip: 90 },
   M: { bust: 88, waist: 70, hip: 94 },
+  L: { bust: 92, waist: 77, hip: 102 },
 };
 
 const DEFAULT_MEASUREMENT_RANGES = {
