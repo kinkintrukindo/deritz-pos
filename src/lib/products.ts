@@ -74,6 +74,7 @@ export type NewProductInput = {
   collection: string;
   description: string;
   basePriceIdr: number;
+  leadTimeDays?: number;
   images: ProductImage[];
   published: boolean;
   isNew: boolean;
@@ -138,6 +139,7 @@ export type UpdateProductInput = {
   collection: string;
   description: string;
   basePriceIdr: number;
+  leadTimeDays?: number;
   images: ProductImage[];
   published: boolean;
   isNew: boolean;
