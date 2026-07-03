@@ -17,12 +17,20 @@ export async function submitOrderAction(input: NewOrderInput): Promise<CheckoutR
     customerEmail: order.customer.email,
     customerName: order.customer.name,
     customerPhone: "",
-    items: order.items.map((item) => ({
-      id: item.productId,
-      price: item.unitPriceIdr + item.surchargeIdr,
-      quantity: item.qty,
-      name: item.name,
-    })),
+    items: [
+      ...order.items.map((item) => ({
+        id: item.productId,
+        price: item.unitPriceIdr + item.surchargeIdr,
+        quantity: item.qty,
+        name: item.name,
+      })),
+      {
+        id: "shipping",
+        price: order.shippingIdr,
+        quantity: 1,
+        name: "Shipping",
+      },
+    ],
   };
 
   const snapToken = await createSnapToken(paymentParams);
