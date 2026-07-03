@@ -1,24 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { Price } from "@/components/Price";
-import { submitOrderAction, type CheckoutResponse } from "@/app/checkout/actions";
+import { submitOrderAction, confirmMockPaymentAction, type CheckoutResponse } from "@/app/checkout/actions";
 
 const SHIPPING_ZONES = [
   { id: "id-domestic", label: "Indonesia (domestic)", flatRateIdr: 150000 },
   { id: "intl", label: "International", flatRateIdr: 750000 },
 ];
-
-declare global {
-  interface Window {
-    snap?: {
-      pay: (token: string, callbacks: { onSuccess: (result: unknown) => void; onError: (error: unknown) => void }) => void;
-    };
-  }
-}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -27,13 +19,8 @@ export default function CheckoutPage() {
   const [zoneId, setZoneId] = useState(SHIPPING_ZONES[0].id);
   const [form, setForm] = useState({ name: "", email: "", address: "", city: "", country: "Indonesia" });
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
-    script.setAttribute("data-client-key", process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "");
-    document.body.appendChild(script);
-  }, []);
+  const [paymentResponse, setPaymentResponse] = useState<CheckoutResponse | null>(null);
+  const [confirmingPayment, setConfirmingPayment] = useState(false);
 
   const subtotal = lines.reduce(
     (sum, l) => sum + (l.unitPriceIdr + l.surchargeIdr) * l.qty,
@@ -74,23 +61,90 @@ export default function CheckoutPage() {
         totalIdr: total,
       });
 
-      if (window.snap) {
-        window.snap.pay(response.snapToken, {
-          onSuccess: () => {
-            clear();
-            router.push(`/order-confirmation/${response.orderId}`);
-          },
-          onError: () => {
-            setSubmitting(false);
-            alert("Payment failed. Please try again.");
-          },
-        });
-      }
+      setPaymentResponse(response);
+      setSubmitting(false);
     } catch (error) {
       setSubmitting(false);
       alert("Error creating order. Please try again.");
       console.error(error);
     }
+  }
+
+  async function handleConfirmPayment() {
+    if (!paymentResponse) return;
+    setConfirmingPayment(true);
+
+    try {
+      await confirmMockPaymentAction(paymentResponse.orderId);
+      clear();
+      router.push(`/order-confirmation/${paymentResponse.orderId}`);
+    } catch (error) {
+      setConfirmingPayment(false);
+      alert("Error confirming payment. Please try again.");
+      console.error(error);
+    }
+  }
+
+  if (paymentResponse) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 lg:px-10 py-16">
+        <div className="border border-mist p-8 space-y-6">
+          <div>
+            <p className="text-xs tracking-wide-label uppercase text-gold mb-2">Demo Mode</p>
+            <h1 className="text-3xl font-medium tracking-tight text-ink">Payment Summary</h1>
+          </div>
+
+          <div className="border-t border-mist pt-6">
+            <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Order Details</h2>
+            <div className="space-y-3 text-sm mb-6">
+              {paymentResponse.paymentToken.items.map((item) => (
+                <div key={item.id} className="flex justify-between text-graphite">
+                  <span>{item.name} {item.quantity > 1 && `(x${item.quantity})`}</span>
+                  <Price amountIdr={item.price * item.quantity} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-paper border border-mist p-4 rounded">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-medium text-ink">Total Amount</span>
+              <Price amountIdr={paymentResponse.paymentToken.amount} className="text-2xl font-medium" />
+            </div>
+          </div>
+
+          <div className="border-t border-mist pt-6">
+            <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Customer Information</h2>
+            <div className="space-y-2 text-sm text-graphite">
+              <p><strong>Name:</strong> {paymentResponse.paymentToken.customer.name}</p>
+              <p><strong>Email:</strong> {paymentResponse.paymentToken.customer.email}</p>
+              <p><strong>Order ID:</strong> {paymentResponse.orderId}</p>
+            </div>
+          </div>
+
+          <div className="border-t border-mist pt-6">
+            <p className="text-xs text-graphite mb-4">
+              This is a demo payment. In production, this would redirect to Midtrans payment gateway. Click "Confirm Payment" to proceed with the order.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPaymentResponse(null)}
+                className="flex-1 border border-ink text-ink text-xs tracking-wide-label uppercase py-3 hover:bg-ink hover:text-white transition-colors"
+              >
+                Back
+              </button>
+              <button
+                onClick={handleConfirmPayment}
+                disabled={confirmingPayment}
+                className="flex-1 bg-ink text-white text-xs tracking-wide-label uppercase py-3 hover:bg-gold transition-colors disabled:opacity-60"
+              >
+                {confirmingPayment ? "Processing…" : "Confirm Payment"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -141,10 +195,10 @@ export default function CheckoutPage() {
           disabled={submitting}
           className="w-full bg-ink text-white text-xs tracking-wide-label uppercase py-4 hover:bg-gold transition-colors disabled:opacity-60"
         >
-          {submitting ? "Processing…" : "Pay with Midtrans"}
+          {submitting ? "Processing…" : "Review Payment"}
         </button>
         <p className="text-xs text-graphite text-center">
-          Powered by Midtrans. You'll be redirected to payment portal.
+          Demo mode: Review your order details and confirm payment.
         </p>
       </form>
 
