@@ -25,6 +25,7 @@ export default function CheckoutPage() {
     email: user?.email || '',
     address: '',
     city: '',
+    postalCode: '',
     country: 'Indonesia'
   });
   const [submitting, setSubmitting] = useState(false);
@@ -53,15 +54,19 @@ export default function CheckoutPage() {
 
   async function handleEstimateShipping() {
     if (!destination.trim()) {
-      alert('Please enter a destination');
+      alert('Please enter a destination postal code');
+      return;
+    }
+
+    if (shippingType === 'domestic' && !form.postalCode.trim()) {
+      alert('Please enter your postal code');
       return;
     }
 
     setLoadingRates(true);
     try {
       const rates = await estimateShipping({
-        origin: 'surabaya',
-        destination,
+        destinationPostalCode: destination,
         weight: 2000,
         type: shippingType,
       });
@@ -272,6 +277,7 @@ export default function CheckoutPage() {
             <Field label="Email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} full type="email" />
             <Field label="Address" value={form.address} onChange={(v) => setForm({ ...form, address: v })} full />
             <Field label="City" value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
+            <Field label="Postal Code" value={form.postalCode} onChange={(v) => setForm({ ...form, postalCode: v })} required />
             <Field label="Country" value={form.country} onChange={(v) => setForm({ ...form, country: v })} />
           </div>
         </div>
@@ -309,14 +315,14 @@ export default function CheckoutPage() {
 
             <div>
               <label className="block text-xs tracking-wide-label uppercase text-graphite mb-1.5">
-                Destination {shippingType === 'domestic' ? '(City Name)' : '(Country Name)'}
+                Destination {shippingType === 'domestic' ? '(Postal Code)' : '(Country Name)'}
               </label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
-                  placeholder={shippingType === 'domestic' ? 'Jakarta, Surabaya, Bandung...' : 'Singapore, Australia, USA...'}
+                  placeholder={shippingType === 'domestic' ? 'e.g., 12345' : 'e.g., Singapore, Australia...'}
                   className="flex-1 border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
                 />
                 <button

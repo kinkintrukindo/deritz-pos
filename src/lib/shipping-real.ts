@@ -9,20 +9,20 @@ export interface ShippingRate {
 }
 
 export interface ShippingEstimateParams {
-  origin: 'surabaya';
-  destination: string;
+  destinationPostalCode: string;
   weight: number;
   type: 'domestic' | 'international';
 }
 
-async function getDomesticRates(destination: string): Promise<ShippingRate[]> {
+async function getDomesticRates(destinationPostalCode: string): Promise<ShippingRate[]> {
   if (!process.env.SHIPPING_COST_API_KEY) {
     console.warn('SHIPPING_COST_API_KEY not set, using fallback rates');
     return getFallbackDomesticRates();
   }
 
   try {
-    // Call shipping cost API
+    // Call shipping cost API with postal codes for more accuracy
+    // Origin is hardcoded to 60134 (Surabaya) on backend
     const response = await fetch('https://api.shippingcost.co.id/rates', {
       method: 'POST',
       headers: {
@@ -30,8 +30,8 @@ async function getDomesticRates(destination: string): Promise<ShippingRate[]> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        origin: 'surabaya',
-        destination: destination,
+        originPostalCode: '60134',
+        destinationPostalCode: destinationPostalCode,
         weight: 2000, // 2kg estimate for bridal wear
         couriers: ['jne', 'tiki', 'pos'],
       }),
@@ -110,7 +110,7 @@ async function getInternationalRates(destination: string): Promise<ShippingRate[
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        origin: 'surabaya',
+        originPostalCode: '60134',
         destination: destination,
         weight: 2000,
         couriers: ['dhl', 'fedex', 'ups'],
@@ -178,8 +178,8 @@ export async function estimateShipping(
   params: ShippingEstimateParams
 ): Promise<ShippingRate[]> {
   if (params.type === 'domestic') {
-    return getDomesticRates(params.destination);
+    return getDomesticRates(params.destinationPostalCode);
   } else {
-    return getInternationalRates(params.destination);
+    return getInternationalRates(params.destinationPostalCode);
   }
 }
