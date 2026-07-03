@@ -28,6 +28,16 @@ export default function CheckoutPage() {
     postalCode: '',
     country: 'Indonesia'
   });
+
+  // Auto-calculate shipping when postal code changes
+  useEffect(() => {
+    if (form.postalCode.trim().length >= 4) {
+      handleEstimateShipping(form.postalCode);
+    } else {
+      setShippingRates([]);
+      setSelectedRateId('');
+    }
+  }, [form.postalCode, shippingType]);
   const [submitting, setSubmitting] = useState(false);
   const [paymentResponse, setPaymentResponse] = useState<CheckoutResponse | null>(null);
   const [confirmingPayment, setConfirmingPayment] = useState(false);
@@ -52,21 +62,17 @@ export default function CheckoutPage() {
   const shipping = selectedRate?.cost || 0;
   const total = subtotal + shipping;
 
-  async function handleEstimateShipping() {
-    if (!destination.trim()) {
-      alert('Please enter a destination postal code');
-      return;
-    }
+  async function handleEstimateShipping(postalCode?: string) {
+    const destPostal = postalCode || destination;
 
-    if (shippingType === 'domestic' && !form.postalCode.trim()) {
-      alert('Please enter your postal code');
+    if (!destPostal.trim()) {
       return;
     }
 
     setLoadingRates(true);
     try {
       const rates = await estimateShipping({
-        destinationPostalCode: destination,
+        destinationPostalCode: destPostal,
         weight: 2000,
         type: shippingType,
       });
@@ -75,8 +81,7 @@ export default function CheckoutPage() {
         setSelectedRateId(rates[0].id);
       }
     } catch (error) {
-      alert('Failed to estimate shipping. Please try again.');
-      console.error(error);
+      console.error('Shipping estimation failed:', error);
     } finally {
       setLoadingRates(false);
     }
@@ -283,59 +288,53 @@ export default function CheckoutPage() {
         </div>
 
         <div>
-          <h2 className="text-2xl font-medium tracking-tight text-ink mb-5">Shipping Estimate</h2>
+          <h2 className="text-2xl font-medium tracking-tight text-ink mb-5">Shipping Type</h2>
 
-          <div className="space-y-4 mb-4">
-            <div>
-              <label className="flex items-center gap-3 mb-2">
-                <input
-                  type="radio"
-                  checked={shippingType === 'domestic'}
-                  onChange={() => {
-                    setShippingType('domestic');
-                    setShippingRates([]);
-                    setSelectedRateId('');
-                  }}
-                />
-                <span className="text-sm text-ink">Indonesia (Domestic)</span>
-              </label>
-              <label className="flex items-center gap-3">
-                <input
-                  type="radio"
-                  checked={shippingType === 'international'}
-                  onChange={() => {
-                    setShippingType('international');
-                    setShippingRates([]);
-                    setSelectedRateId('');
-                  }}
-                />
-                <span className="text-sm text-ink">International</span>
-              </label>
-            </div>
-
-            <div>
-              <label className="block text-xs tracking-wide-label uppercase text-graphite mb-1.5">
-                Destination {shippingType === 'domestic' ? '(Postal Code)' : '(Country Name)'}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  placeholder={shippingType === 'domestic' ? 'e.g., 12345' : 'e.g., Singapore, Australia...'}
-                  className="flex-1 border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
-                />
-                <button
-                  type="button"
-                  onClick={handleEstimateShipping}
-                  disabled={loadingRates || !destination.trim()}
-                  className="bg-ink text-white text-xs tracking-wide-label uppercase px-4 py-2.5 hover:bg-gold transition-colors disabled:opacity-60"
-                >
-                  {loadingRates ? 'Loading...' : 'Estimate'}
-                </button>
-              </div>
-            </div>
+          <div className="space-y-3 mb-6">
+            <label className="flex items-center gap-3">
+              <input
+                type="radio"
+                checked={shippingType === 'domestic'}
+                onChange={() => {
+                  setShippingType('domestic');
+                  setShippingRates([]);
+                  setSelectedRateId('');
+                }}
+              />
+              <span className="text-sm text-ink">Indonesia (Domestic)</span>
+            </label>
+            <label className="flex items-center gap-3">
+              <input
+                type="radio"
+                checked={shippingType === 'international'}
+                onChange={() => {
+                  setShippingType('international');
+                  setShippingRates([]);
+                  setSelectedRateId('');
+                }}
+              />
+              <span className="text-sm text-ink">International</span>
+            </label>
           </div>
+
+          {shippingType === 'international' && (
+            <div className="mb-6">
+              <label className="block text-xs tracking-wide-label uppercase text-graphite mb-1.5">
+                Destination Country
+              </label>
+              <input
+                type="text"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+                placeholder="e.g., Singapore, Australia, USA..."
+                className="w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+              />
+            </div>
+          )}
+
+          {loadingRates && (
+            <p className="text-sm text-graphite mb-4">Calculating shipping options...</p>
+          )}
 
           {shippingRates.length > 0 && (
             <div className="space-y-2">
