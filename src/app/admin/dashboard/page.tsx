@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getAllProducts } from "@/lib/products";
 import { getAllCollections } from "@/lib/collections";
 import {
@@ -44,7 +45,15 @@ export default async function AdminDashboardPage() {
           </h2>
           <div className="border border-mist divide-y divide-mist">
             {products.map((product) => (
-              <div key={product.id} className="p-4 flex items-center gap-4">
+              <div key={product.id} className="p-4 flex items-start gap-4">
+                <div className="relative w-16 h-20 flex-shrink-0">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
                 <div className="flex-1">
                   <p className="text-sm text-ink">
                     {product.name}
