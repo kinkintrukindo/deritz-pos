@@ -1,4 +1,4 @@
-export type SizePresetKey = "XS" | "S" | "M";
+export type SizePresetKey = "XS" | "S" | "M" | "L";
 
 export type Measurements = {
   bust: number;
