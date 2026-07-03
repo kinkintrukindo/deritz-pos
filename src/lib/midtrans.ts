@@ -1,10 +1,15 @@
 import midtransClient from "midtrans-client";
 
-const snap = new midtransClient.Snap({
-  isProduction: process.env.NODE_ENV === "production",
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
-  clientKey: process.env.MIDTRANS_CLIENT_KEY,
-});
+function getSnapClient() {
+  if (!process.env.MIDTRANS_SERVER_KEY) {
+    throw new Error("MIDTRANS_SERVER_KEY is not set");
+  }
+  return new midtransClient.Snap({
+    isProduction: process.env.NODE_ENV === "production",
+    serverKey: process.env.MIDTRANS_SERVER_KEY,
+    clientKey: process.env.MIDTRANS_CLIENT_KEY,
+  });
+}
 
 export interface MidtransPaymentParams {
   orderId: string;
@@ -46,20 +51,22 @@ export async function createSnapToken(params: MidtransPaymentParams): Promise<st
   };
 
   try {
+    const snap = getSnapClient();
     const token = await snap.createTransactionToken(parameter);
     return token;
   } catch (error) {
     console.error("Midtrans error:", error);
-    throw new Error("Failed to create payment token");
+    throw new Error(`Failed to create payment token: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 }
 
 export async function getTransactionStatus(orderId: string) {
   try {
+    const snap = getSnapClient();
     const status = await snap.transaction.status(orderId);
     return status;
   } catch (error) {
     console.error("Midtrans status error:", error);
-    throw new Error("Failed to get transaction status");
+    throw new Error(`Failed to get transaction status: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 }
