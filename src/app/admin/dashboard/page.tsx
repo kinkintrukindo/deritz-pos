@@ -45,8 +45,8 @@ export default async function AdminDashboardPage() {
           </h2>
           <div className="border border-mist divide-y divide-mist">
             {products.map((product) => (
-              <div key={product.id} className="p-4 flex items-start gap-4">
-                <div className="relative w-16 h-20 flex-shrink-0">
+              <div key={product.id} className="p-3 sm:p-4 grid grid-cols-[auto_1fr_auto] gap-3 sm:gap-4 sm:items-start">
+                <div className="relative w-14 h-18 sm:w-16 sm:h-20 flex-shrink-0 row-span-2 sm:row-span-1">
                   <Image
                     src={product.image}
                     alt={product.name}
@@ -55,51 +55,53 @@ export default async function AdminDashboardPage() {
                   />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-ink">
+                  <p className="text-xs sm:text-sm text-ink">
                     {product.name}
                     {product.isNew && (
-                      <span className="ml-2 text-[10px] tracking-wide-label uppercase text-gold">
+                      <span className="ml-2 text-[8px] sm:text-[10px] tracking-wide-label uppercase text-gold">
                         New
                       </span>
                     )}
                     {product.isPromo && (
-                      <span className="ml-2 text-[10px] tracking-wide-label uppercase text-ink/70">
+                      <span className="ml-2 text-[8px] sm:text-[10px] tracking-wide-label uppercase text-ink/70">
                         Promo
                       </span>
                     )}
                     {product.soldOut && (
-                      <span className="ml-2 text-[10px] tracking-wide-label uppercase text-red-700">
+                      <span className="ml-2 text-[8px] sm:text-[10px] tracking-wide-label uppercase text-red-700">
                         Sold Out
                       </span>
                     )}
                   </p>
-                  <p className="text-xs text-graphite">
+                  <p className="text-[10px] sm:text-xs text-graphite mt-1">
                     {product.collection} · Rp{" "}
                     {new Intl.NumberFormat("id-ID").format(product.basePriceIdr)} ·{" "}
                     {product.published ? "Published" : "Hidden"}
                   </p>
                 </div>
-                <Link
-                  href={`/admin/edit/${product.id}`}
-                  className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink underline"
-                >
-                  Edit
-                </Link>
-                <form action={togglePublishedAction.bind(null, product.id, !product.published)}>
-                  <button className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink underline">
-                    {product.published ? "Hide" : "Publish"}
-                  </button>
-                </form>
-                <form action={toggleSoldOutAction.bind(null, product.id, !product.soldOut)}>
-                  <button className="text-xs tracking-wide-label uppercase text-graphite hover:text-red-700 underline">
-                    {product.soldOut ? "Mark In Stock" : "Mark Sold Out"}
-                  </button>
-                </form>
-                <form action={deleteProductAction.bind(null, product.id)}>
-                  <button className="text-xs tracking-wide-label uppercase text-graphite hover:text-red-600 underline">
-                    Delete
-                  </button>
-                </form>
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                  <Link
+                    href={`/admin/edit/${product.id}`}
+                    className="text-[10px] sm:text-xs tracking-wide-label uppercase text-graphite hover:text-ink underline whitespace-nowrap"
+                  >
+                    Edit
+                  </Link>
+                  <form action={togglePublishedAction.bind(null, product.id, !product.published)}>
+                    <button className="text-[10px] sm:text-xs tracking-wide-label uppercase text-graphite hover:text-ink underline whitespace-nowrap">
+                      {product.published ? "Hide" : "Pub"}
+                    </button>
+                  </form>
+                  <form action={toggleSoldOutAction.bind(null, product.id, !product.soldOut)}>
+                    <button className="text-[10px] sm:text-xs tracking-wide-label uppercase text-graphite hover:text-red-700 underline whitespace-nowrap">
+                      {product.soldOut ? "Stock" : "Sold"}
+                    </button>
+                  </form>
+                  <form action={deleteProductAction.bind(null, product.id)}>
+                    <button className="text-[10px] sm:text-xs tracking-wide-label uppercase text-graphite hover:text-red-600 underline whitespace-nowrap">
+                      Del
+                    </button>
+                  </form>
+                </div>
               </div>
             ))}
             {products.length === 0 && (

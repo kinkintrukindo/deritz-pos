@@ -13,20 +13,22 @@ export function AdminNav({
   active: "catalogue" | "collections" | "orders" | "homepage";
 }) {
   return (
-    <div className="flex gap-6 border-b border-mist mb-10">
-      {TABS.map((tab) => (
-        <Link
-          key={tab.key}
-          href={tab.href}
-          className={`pb-3 text-xs tracking-wide-label uppercase border-b-2 -mb-px transition-colors ${
-            active === tab.key
-              ? "border-ink text-ink"
-              : "border-transparent text-graphite hover:text-ink"
-          }`}
-        >
-          {tab.label}
-        </Link>
-      ))}
+    <div className="overflow-x-auto border-b border-mist mb-10">
+      <div className="flex gap-4 sm:gap-6 min-w-min">
+        {TABS.map((tab) => (
+          <Link
+            key={tab.key}
+            href={tab.href}
+            className={`pb-3 text-[11px] sm:text-xs tracking-wide-label uppercase border-b-2 -mb-px transition-colors whitespace-nowrap ${
+              active === tab.key
+                ? "border-ink text-ink"
+                : "border-transparent text-graphite hover:text-ink"
+            }`}
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

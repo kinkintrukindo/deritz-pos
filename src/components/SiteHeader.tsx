@@ -19,18 +19,18 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 bg-paper/95 backdrop-blur-sm border-b border-mist">
       <div className="mx-auto max-w-7xl px-6 lg:px-10 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 shrink-0">
+        <Link href="/" className="flex items-center gap-2 shrink-0">
           <Image
             src="/brand/logo.png"
             alt="De Ritz"
             width={36}
             height={36}
-            className="h-8 w-8 object-contain"
+            className="h-7 w-7 object-contain"
             priority
           />
-          <span className="hidden sm:inline" style={{ fontFamily: 'var(--font-trajan)' }}>
-            <div className="text-xs tracking-wider text-ink">De Ritz</div>
-            <div className="text-[10px] tracking-widest text-graphite italic">L&apos;Atelier</div>
+          <span style={{ fontFamily: 'var(--font-trajan)' }}>
+            <div className="text-[11px] sm:text-xs tracking-wider text-ink leading-none">De Ritz</div>
+            <div className="text-[8px] sm:text-[10px] tracking-widest text-graphite italic leading-none">L&apos;Atelier</div>
           </span>
         </Link>
 
