@@ -6,8 +6,8 @@ import { useCart } from "@/components/CartProvider";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useAuth } from "@/components/AuthProvider";
 import { Price } from "@/components/Price";
-import { submitOrderAction, confirmMockPaymentAction, type CheckoutResponse } from "@/app/checkout/actions";
-import { estimateShipping, type ShippingRate } from "@/lib/shipping";
+import { submitOrderAction, confirmPaymentAction, type CheckoutResponse } from "@/app/checkout/actions";
+import { estimateShipping, type ShippingRate } from "@/lib/shipping-real";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -30,6 +30,7 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [paymentResponse, setPaymentResponse] = useState<CheckoutResponse | null>(null);
   const [confirmingPayment, setConfirmingPayment] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'qris' | 'card' | 'bank_transfer'>('qris');
 
   useEffect(() => {
     if (user?.email && !form.email) {
@@ -126,24 +127,27 @@ export default function CheckoutPage() {
     setSubmitting(true);
 
     try {
-      const response: CheckoutResponse = await submitOrderAction({
-        customer: form,
-        items: lines.map((l) => ({
-          productId: l.productId,
-          name: l.name,
-          image: l.image,
-          unitPriceIdr: l.unitPriceIdr,
-          surchargeIdr: l.surchargeIdr,
-          sizeMode: l.sizeMode,
-          sizePreset: l.sizePreset,
-          measurements: l.measurements,
-          qty: l.qty,
-        })),
-        currency,
-        subtotalIdr: subtotal,
-        shippingIdr: shipping,
-        totalIdr: total,
-      });
+      const response: CheckoutResponse = await submitOrderAction(
+        {
+          customer: form,
+          items: lines.map((l) => ({
+            productId: l.productId,
+            name: l.name,
+            image: l.image,
+            unitPriceIdr: l.unitPriceIdr,
+            surchargeIdr: l.surchargeIdr,
+            sizeMode: l.sizeMode,
+            sizePreset: l.sizePreset,
+            measurements: l.measurements,
+            qty: l.qty,
+          })),
+          currency,
+          subtotalIdr: subtotal,
+          shippingIdr: shipping,
+          totalIdr: total,
+        },
+        paymentMethod
+      );
 
       setPaymentResponse(response);
       setSubmitting(false);
@@ -159,7 +163,7 @@ export default function CheckoutPage() {
     setConfirmingPayment(true);
 
     try {
-      await confirmMockPaymentAction(paymentResponse.orderId);
+      await confirmPaymentAction(paymentResponse.orderId);
       clear();
       router.push(`/order-confirmation/${paymentResponse.orderId}`);
     } catch (error) {
@@ -170,46 +174,95 @@ export default function CheckoutPage() {
   }
 
   if (paymentResponse) {
+    const isQris = paymentResponse.paymentMethod === 'qris';
+    const isCard = paymentResponse.paymentMethod === 'card';
+
     return (
       <div className="mx-auto max-w-3xl px-6 lg:px-10 py-16">
         <div className="border border-mist p-8 space-y-6">
           <div>
-            <p className="text-xs tracking-wide-label uppercase text-gold mb-2">Demo Mode</p>
+            <p className="text-xs tracking-wide-label uppercase text-gold mb-2">
+              {paymentResponse.paymentMethod.toUpperCase()} Payment
+            </p>
             <h1 className="text-3xl font-medium tracking-tight text-ink">Payment Summary</h1>
-          </div>
-
-          <div className="border-t border-mist pt-6">
-            <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Order Details</h2>
-            <div className="space-y-3 text-sm mb-6">
-              {paymentResponse.paymentToken.items.map((item) => (
-                <div key={item.id} className="flex justify-between text-graphite">
-                  <span>{item.name} {item.quantity > 1 && `(x${item.quantity})`}</span>
-                  <Price amountIdr={item.price * item.quantity} />
-                </div>
-              ))}
-            </div>
           </div>
 
           <div className="bg-paper border border-mist p-4 rounded">
             <div className="flex justify-between items-center">
               <span className="text-lg font-medium text-ink">Total Amount</span>
-              <Price amountIdr={paymentResponse.paymentToken.amount} className="text-2xl font-medium" />
+              <Price amountIdr={total} className="text-2xl font-medium text-gold" />
             </div>
           </div>
 
+          {isQris && paymentResponse.qrisCode && (
+            <div className="border-t border-mist pt-6 text-center">
+              <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Scan to Pay</h2>
+              <div className="bg-white p-6 border border-mist rounded inline-block">
+                <div className="text-sm text-graphite mb-2">QRIS Code</div>
+                <div className="w-48 h-48 bg-gray-100 flex items-center justify-center">
+                  <span className="text-xs text-graphite">QR Code Image</span>
+                </div>
+              </div>
+              <p className="text-xs text-graphite mt-4">
+                Scan with your mobile banking or e-wallet app (GCash, Gcash, Dana, OVO, etc.)
+              </p>
+            </div>
+          )}
+
+          {isCard && paymentResponse.paymentUrl && (
+            <div className="border-t border-mist pt-6">
+              <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Card Payment</h2>
+              <p className="text-sm text-graphite mb-4">
+                You will be redirected to the secure payment gateway to enter your card details.
+              </p>
+              <a
+                href={paymentResponse.paymentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center bg-gold text-white text-xs tracking-wide-label uppercase py-3 hover:bg-ink transition-colors"
+              >
+                Go to Payment Gateway
+              </a>
+            </div>
+          )}
+
+          {paymentResponse.paymentMethod === 'bank_transfer' && (
+            <div className="border-t border-mist pt-6">
+              <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Bank Transfer Details</h2>
+              <div className="bg-surface p-4 space-y-3 text-sm">
+                <div>
+                  <p className="text-graphite">Bank Name</p>
+                  <p className="font-medium text-ink">Bank BCA</p>
+                </div>
+                <div>
+                  <p className="text-graphite">Account Number</p>
+                  <p className="font-medium text-ink font-mono">1234567890</p>
+                </div>
+                <div>
+                  <p className="text-graphite">Account Name</p>
+                  <p className="font-medium text-ink">PT DE RITZ</p>
+                </div>
+                <div>
+                  <p className="text-graphite">Amount to Transfer</p>
+                  <p className="font-medium text-ink"><Price amountIdr={total} /></p>
+                </div>
+              </div>
+              <p className="text-xs text-graphite mt-4">
+                Please include your Order ID ({paymentResponse.orderId}) in the transfer reference/note.
+              </p>
+            </div>
+          )}
+
           <div className="border-t border-mist pt-6">
-            <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Customer Information</h2>
+            <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Order Details</h2>
             <div className="space-y-2 text-sm text-graphite">
-              <p><strong>Name:</strong> {paymentResponse.paymentToken.customer.name}</p>
-              <p><strong>Email:</strong> {paymentResponse.paymentToken.customer.email}</p>
               <p><strong>Order ID:</strong> {paymentResponse.orderId}</p>
+              <p><strong>Transaction ID:</strong> {paymentResponse.transactionId}</p>
+              <p><strong>Payment Method:</strong> {paymentResponse.paymentMethod.toUpperCase().replace('_', ' ')}</p>
             </div>
           </div>
 
           <div className="border-t border-mist pt-6">
-            <p className="text-xs text-graphite mb-4">
-              This is a demo payment. In production, this would redirect to Midtrans payment gateway. Click "Confirm Payment" to proceed with the order.
-            </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setPaymentResponse(null)}
@@ -222,7 +275,7 @@ export default function CheckoutPage() {
                 disabled={confirmingPayment}
                 className="flex-1 bg-ink text-white text-xs tracking-wide-label uppercase py-3 hover:bg-gold transition-colors disabled:opacity-60"
               >
-                {confirmingPayment ? "Processing…" : "Confirm Payment"}
+                {confirmingPayment ? "Processing…" : "Confirm & Continue"}
               </button>
             </div>
           </div>
@@ -330,6 +383,45 @@ export default function CheckoutPage() {
           )}
         </div>
 
+        <div>
+          <h2 className="text-2xl font-medium tracking-tight text-ink mb-5">Payment Method</h2>
+          <div className="space-y-2 mb-6">
+            <label className="flex items-center gap-3 p-3 border border-mist cursor-pointer hover:bg-surface">
+              <input
+                type="radio"
+                checked={paymentMethod === 'qris'}
+                onChange={() => setPaymentMethod('qris')}
+              />
+              <div>
+                <div className="font-medium text-sm text-ink">QRIS</div>
+                <div className="text-xs text-graphite">Quick Response Code Indonesian Standard</div>
+              </div>
+            </label>
+            <label className="flex items-center gap-3 p-3 border border-mist cursor-pointer hover:bg-surface">
+              <input
+                type="radio"
+                checked={paymentMethod === 'bank_transfer'}
+                onChange={() => setPaymentMethod('bank_transfer')}
+              />
+              <div>
+                <div className="font-medium text-sm text-ink">Bank Transfer</div>
+                <div className="text-xs text-graphite">Direct bank transfer to De Ritz account</div>
+              </div>
+            </label>
+            <label className="flex items-center gap-3 p-3 border border-mist cursor-pointer hover:bg-surface">
+              <input
+                type="radio"
+                checked={paymentMethod === 'card'}
+                onChange={() => setPaymentMethod('card')}
+              />
+              <div>
+                <div className="font-medium text-sm text-ink">Credit/Debit Card</div>
+                <div className="text-xs text-graphite">Visa, Mastercard, and other cards</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <button
           type="submit"
           disabled={submitting || !selectedRate}
@@ -338,7 +430,7 @@ export default function CheckoutPage() {
           {submitting ? "Processing…" : "Review Payment"}
         </button>
         <p className="text-xs text-graphite text-center">
-          Demo mode: Review your order details and confirm payment.
+          Secure payment processing with {paymentMethod === 'qris' ? 'QRIS' : paymentMethod === 'bank_transfer' ? 'bank transfer' : 'card'}.
         </p>
       </form>
 
