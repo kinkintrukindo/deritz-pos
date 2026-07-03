@@ -5,6 +5,7 @@ import { useCurrency } from "@/components/CurrencyProvider";
 
 export function CurrencySwitcher() {
   const { currency, setCurrency } = useCurrency();
+  const currentCurrency = CURRENCIES.find((c) => c.code === currency);
 
   return (
     <select
@@ -15,7 +16,7 @@ export function CurrencySwitcher() {
     >
       {CURRENCIES.map((c) => (
         <option key={c.code} value={c.code}>
-          {c.code}
+          {c.flag} {c.code}
         </option>
       ))}
     </select>

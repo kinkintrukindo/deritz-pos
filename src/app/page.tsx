@@ -87,15 +87,13 @@ export default async function HomePage() {
       <section className="border-t border-mist">
         <div className="mx-auto max-w-3xl px-6 lg:px-10 py-20 text-center">
           <p className="text-xs tracking-wide-label uppercase text-gold mb-4">
-            The De Ritz Difference
+            De Ritz Couture
           </p>
           <h2 className="text-2xl font-medium text-ink tracking-tight mb-6">
-            Every piece, cut to you
+            Tailored to your story. Hand-finished for your perfect day.
           </h2>
           <p className="text-graphite leading-relaxed">
-            Choose a preset size or submit your own bust, waist, and hip
-            measurements — every gown and set is finished by hand to your
-            exact fit before it ships.
+            Every De Ritz gown and set is individually hand-cut and finished to your exact dimensions, ensuring couture quality delivered straight to your door.
           </p>
         </div>
       </section>

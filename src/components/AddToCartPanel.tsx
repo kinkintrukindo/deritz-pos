@@ -71,18 +71,8 @@ export function AddToCartPanel({ product }: { product: Product }) {
       />
 
       <div className="mt-8 border-t border-mist pt-6 space-y-2">
-        <div className="flex justify-between text-sm text-graphite">
-          <span>Base price</span>
-          <Price amountIdr={product.basePriceIdr} />
-        </div>
-        {surcharge > 0 && (
-          <div className="flex justify-between text-sm text-graphite">
-            <span>Made-to-measure finishing</span>
-            <Price amountIdr={surcharge} />
-          </div>
-        )}
-        <div className="flex justify-between text-base text-ink pt-2 font-medium">
-          <span>Total</span>
+        <div className="flex justify-between text-base text-ink font-medium">
+          <span>Price</span>
           <Price amountIdr={total} />
         </div>
         <p className="text-xs text-graphite pt-1">

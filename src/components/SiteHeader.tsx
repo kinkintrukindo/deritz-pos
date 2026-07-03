@@ -30,7 +30,7 @@ export function SiteHeader() {
           />
           <span className="hidden sm:inline" style={{ fontFamily: 'var(--font-trajan)' }}>
             <div className="text-xs tracking-wider text-ink">De Ritz</div>
-            <div className="text-[10px] tracking-widest text-graphite">Online Atelier</div>
+            <div className="text-[10px] tracking-widest text-graphite italic">L&apos;Atelier</div>
           </span>
         </Link>
 

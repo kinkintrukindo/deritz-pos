@@ -1,10 +1,15 @@
-export type CurrencyCode = "IDR" | "USD" | "SGD" | "AUD";
+export type CurrencyCode = "IDR" | "USD" | "SGD" | "AUD" | "MYR" | "THB" | "VND" | "EUR" | "PHP";
 
-export const CURRENCIES: { code: CurrencyCode; label: string; symbol: string; rateFromIdr: number }[] = [
-  { code: "IDR", label: "Rupiah (IDR)", symbol: "Rp", rateFromIdr: 1 },
-  { code: "USD", label: "US Dollar (USD)", symbol: "$", rateFromIdr: 1 / 15800 },
-  { code: "SGD", label: "Singapore Dollar (SGD)", symbol: "S$", rateFromIdr: 1 / 11700 },
-  { code: "AUD", label: "Australian Dollar (AUD)", symbol: "A$", rateFromIdr: 1 / 10300 },
+export const CURRENCIES: { code: CurrencyCode; label: string; symbol: string; flag: string; rateFromIdr: number }[] = [
+  { code: "IDR", label: "Rupiah", symbol: "Rp", flag: "🇮🇩", rateFromIdr: 1 },
+  { code: "USD", label: "US Dollar", symbol: "$", flag: "🇺🇸", rateFromIdr: 1 / 15800 },
+  { code: "SGD", label: "Singapore Dollar", symbol: "S$", flag: "🇸🇬", rateFromIdr: 1 / 11700 },
+  { code: "AUD", label: "Australian Dollar", symbol: "A$", flag: "🇦🇺", rateFromIdr: 1 / 10300 },
+  { code: "MYR", label: "Malaysian Ringgit", symbol: "RM", flag: "🇲🇾", rateFromIdr: 1 / 3550 },
+  { code: "THB", label: "Thai Baht", symbol: "฿", flag: "🇹🇭", rateFromIdr: 1 / 450 },
+  { code: "VND", label: "Vietnamese Dong", symbol: "₫", flag: "🇻🇳", rateFromIdr: 1 / 630 },
+  { code: "EUR", label: "Euro", symbol: "€", flag: "🇪🇺", rateFromIdr: 1 / 17200 },
+  { code: "PHP", label: "Philippine Peso", symbol: "₱", flag: "🇵🇭", rateFromIdr: 1 / 280 },
 ];
 
 export const DEFAULT_CURRENCY: CurrencyCode = "IDR";
