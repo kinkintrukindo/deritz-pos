@@ -64,6 +64,17 @@ export default async function AdminCollectionsPage({
                 className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
               />
             </label>
+            <label className="block">
+              <span className="text-xs tracking-wide-label uppercase text-graphite">
+                Collection Caption (optional)
+              </span>
+              <input
+                type="text"
+                name="caption"
+                placeholder="e.g. A celebration of spring's renewal"
+                className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+              />
+            </label>
             <button
               type="submit"
               className="w-full bg-ink text-white text-xs tracking-wide-label uppercase py-2.5 hover:bg-gold transition-colors"
@@ -80,27 +91,55 @@ export default async function AdminCollectionsPage({
           ) : (
             <div className="space-y-3 border border-mist divide-y divide-mist">
               {collectionProductCounts.map((collection) => (
-                <div key={collection.id} className="p-4">
-                  <div className="flex items-center justify-between gap-4">
+                <div key={collection.id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-sm font-medium text-ink">{collection.name}</p>
+                      {collection.caption && (
+                        <p className="text-xs text-graphite mt-1">{collection.caption}</p>
+                      )}
                       <p className="text-xs text-graphite mt-0.5">
                         {collection.count} product{collection.count === 1 ? "" : "s"}
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      <form action={updateCollectionAction.bind(null, collection.id)}>
-                        <input type="hidden" name="name" value={collection.name} />
-                        <button className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink underline">
-                          Edit
-                        </button>
-                      </form>
                       <CollectionDeleteButton
                         collectionId={collection.id}
                         collectionName={collection.name}
                       />
                     </div>
                   </div>
+                  <form action={updateCollectionAction.bind(null, collection.id)} className="space-y-2 pt-2 border-t border-mist">
+                    <label className="block">
+                      <span className="text-xs tracking-wide-label uppercase text-graphite">
+                        Collection Name
+                      </span>
+                      <input
+                        type="text"
+                        name="name"
+                        defaultValue={collection.name}
+                        className="mt-1 w-full border border-mist px-2 py-1.5 text-xs bg-paper focus:outline-none focus:border-ink"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs tracking-wide-label uppercase text-graphite">
+                        Caption
+                      </span>
+                      <input
+                        type="text"
+                        name="caption"
+                        defaultValue={collection.caption ?? ""}
+                        placeholder="Optional caption for display"
+                        className="mt-1 w-full border border-mist px-2 py-1.5 text-xs bg-paper focus:outline-none focus:border-ink"
+                      />
+                    </label>
+                    <button
+                      type="submit"
+                      className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink underline"
+                    >
+                      Save Changes
+                    </button>
+                  </form>
                 </div>
               ))}
             </div>

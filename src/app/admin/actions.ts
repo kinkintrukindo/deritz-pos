@@ -177,20 +177,22 @@ export async function updateHomepageAction(formData: FormData) {
 export async function addCollectionAction(formData: FormData) {
   await requireAdminSession();
   const name = String(formData.get("name") ?? "").trim();
+  const caption = String(formData.get("caption") ?? "").trim() || undefined;
   if (!name) {
     redirect("/admin/collections?error=empty-name");
   }
-  await addCollection(name);
+  await addCollection(name, caption);
   redirect("/admin/collections?saved=1");
 }
 
 export async function updateCollectionAction(id: string, formData: FormData) {
   await requireAdminSession();
   const name = String(formData.get("name") ?? "").trim();
+  const caption = String(formData.get("caption") ?? "").trim() || undefined;
   if (!name) {
     redirect("/admin/collections?error=empty-name");
   }
-  await updateCollection(id, name);
+  await updateCollection(id, name, caption);
   redirect("/admin/collections?saved=1");
 }
 

@@ -2,14 +2,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { getPublishedProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/settings";
+import { getAllCollections } from "@/lib/collections";
 import { ProductCard } from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [products, settings] = await Promise.all([getPublishedProducts(), getSiteSettings()]);
+  const [products, settings, allCollections] = await Promise.all([
+    getPublishedProducts(),
+    getSiteSettings(),
+    getAllCollections(),
+  ]);
   const featured = products.slice(0, 4);
-  const collections = Array.from(new Set(products.map((p) => p.collection)));
+  const collections = allCollections;
 
   return (
     <div>
@@ -71,12 +76,17 @@ export default async function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {collections.map((collection) => (
             <Link
-              key={collection}
-              href={`/collection?c=${encodeURIComponent(collection)}`}
-              className="group flex items-center justify-between h-24 px-8 border border-mist hover:border-ink transition-colors"
+              key={collection.id}
+              href={`/collection?c=${encodeURIComponent(collection.id)}`}
+              className="group flex items-center justify-between px-8 py-6 border border-mist hover:border-ink transition-colors min-h-24"
             >
-              <span className="text-lg font-medium text-ink">{collection}</span>
-              <span className="text-graphite group-hover:text-gold group-hover:translate-x-1 transition-all">
+              <div>
+                <span className="text-lg font-medium text-ink block">{collection.name}</span>
+                {collection.caption && (
+                  <span className="text-sm text-graphite">{collection.caption}</span>
+                )}
+              </div>
+              <span className="text-graphite group-hover:text-gold group-hover:translate-x-1 transition-all shrink-0 ml-4">
                 &rarr;
               </span>
             </Link>
