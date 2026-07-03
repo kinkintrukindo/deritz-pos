@@ -10,7 +10,7 @@ export function CartLink() {
   return (
     <Link
       href="/cart"
-      className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors"
+      className="text-[9px] sm:text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors whitespace-nowrap"
     >
       Bag{count > 0 ? ` (${count})` : ""}
     </Link>

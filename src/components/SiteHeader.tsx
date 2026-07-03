@@ -18,7 +18,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 bg-paper/95 backdrop-blur-sm border-b border-mist">
-      <div className="mx-auto max-w-7xl px-6 lg:px-10 h-20 flex items-center justify-between">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-10 h-14 sm:h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <Image
             src="/brand/logo.png"
@@ -43,19 +43,19 @@ export function SiteHeader() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <CurrencySwitcher />
           {!loading && !user && (
             <>
               <Link
                 href="/login"
-                className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors"
+                className="text-[9px] sm:text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors whitespace-nowrap"
               >
                 Sign In
               </Link>
               <Link
                 href="/signup"
-                className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors"
+                className="text-[9px] sm:text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors whitespace-nowrap"
               >
                 Sign Up
               </Link>
