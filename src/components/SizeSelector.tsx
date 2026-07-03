@@ -3,12 +3,19 @@
 import { useState } from 'react';
 import { SIZE_PRESETS } from '@/lib/sizes';
 
-interface SizeSelectorProps {
-  onSizeChange: (measurements: {
+export interface SizeSelection {
+  sizeMode: 'preset' | 'custom';
+  sizePreset?: 'XS' | 'S' | 'M' | 'L';
+  measurements: {
     bust: number;
     waist: number;
     hip: number;
-  }) => void;
+    unit: string;
+  };
+}
+
+interface SizeSelectorProps {
+  onSizeChange: (selection: SizeSelection) => void;
   defaultSize?: 'XS' | 'S' | 'M' | 'L' | 'custom';
 }
 
@@ -29,9 +36,14 @@ export function SizeSelector({ onSizeChange, defaultSize = 'S' }: SizeSelectorPr
     setWaist(presetData.waist[0]);
     setHip(presetData.hip[0]);
     onSizeChange({
-      bust: presetData.bust[0],
-      waist: presetData.waist[0],
-      hip: presetData.hip[0],
+      sizeMode: 'preset',
+      sizePreset: preset,
+      measurements: {
+        bust: presetData.bust[0],
+        waist: presetData.waist[0],
+        hip: presetData.hip[0],
+        unit: 'cm',
+      },
     });
   };
 
@@ -41,9 +53,13 @@ export function SizeSelector({ onSizeChange, defaultSize = 'S' }: SizeSelectorPr
     if (field === 'hip') setHip(value);
 
     onSizeChange({
-      bust: field === 'bust' ? value : bust,
-      waist: field === 'waist' ? value : waist,
-      hip: field === 'hip' ? value : hip,
+      sizeMode: 'custom',
+      measurements: {
+        bust: field === 'bust' ? value : bust,
+        waist: field === 'waist' ? value : waist,
+        hip: field === 'hip' ? value : hip,
+        unit: 'cm',
+      },
     });
   };
 
