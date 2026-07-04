@@ -14,7 +14,7 @@ export interface ShippingEstimateParams {
   type: 'domestic' | 'international';
 }
 
-async function getDomesticRates(destinationPostalCode: string): Promise<ShippingRate[]> {
+async function getDomesticRates(destinationPostalCode: string, weight: number): Promise<ShippingRate[]> {
   if (!process.env.SHIPPING_COST_API_KEY) {
     console.warn('SHIPPING_COST_API_KEY not set, using fallback rates');
     return getFallbackDomesticRates();
@@ -32,7 +32,7 @@ async function getDomesticRates(destinationPostalCode: string): Promise<Shipping
       body: JSON.stringify({
         originPostalCode: '60134',
         destinationPostalCode: destinationPostalCode,
-        weight: 2000, // 2kg estimate for bridal wear
+        weight: weight, // Use actual product weight in grams
         couriers: ['jne', 'tiki', 'pos'],
       }),
     });
@@ -97,7 +97,7 @@ function getFallbackDomesticRates(): ShippingRate[] {
   ];
 }
 
-async function getInternationalRates(destination: string): Promise<ShippingRate[]> {
+async function getInternationalRates(destination: string, weight: number): Promise<ShippingRate[]> {
   if (!process.env.SHIPPING_COST_API_KEY) {
     return getFallbackInternationalRates();
   }
@@ -112,7 +112,7 @@ async function getInternationalRates(destination: string): Promise<ShippingRate[
       body: JSON.stringify({
         originPostalCode: '60134',
         destination: destination,
-        weight: 2000,
+        weight: weight, // Use actual product weight in grams
         couriers: ['dhl', 'fedex', 'ups'],
       }),
     });
@@ -178,8 +178,8 @@ export async function estimateShipping(
   params: ShippingEstimateParams
 ): Promise<ShippingRate[]> {
   if (params.type === 'domestic') {
-    return getDomesticRates(params.destinationPostalCode);
+    return getDomesticRates(params.destinationPostalCode, params.weight);
   } else {
-    return getInternationalRates(params.destinationPostalCode);
+    return getInternationalRates(params.destinationPostalCode, params.weight);
   }
 }
