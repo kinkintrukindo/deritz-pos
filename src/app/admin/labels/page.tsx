@@ -1,16 +1,23 @@
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getSupabase } from '@/lib/supabase';
 import { AdminLabelsClient } from '@/components/AdminLabelsClient';
+import { AdminNav } from '@/components/AdminNav';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminLabelsPage() {
-  const supabase = getSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
+const SESSION_COOKIE = 'deritz_admin_session';
+const SESSION_VALUE = 'granted';
 
-  if (!user) {
-    redirect('/login');
+export default async function AdminLabelsPage() {
+  const cookieStore = await cookies();
+  const session = cookieStore.get(SESSION_COOKIE);
+
+  if (session?.value !== SESSION_VALUE) {
+    redirect('/admin');
   }
+
+  const supabase = getSupabase();
 
   // Fetch all labels
   const { data: labels } = await supabase
@@ -35,25 +42,31 @@ export default async function AdminLabelsPage() {
       .order('sort_order', { ascending: true });
 
     return (
+      <div>
+        <AdminNav active="labels" />
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-medium text-ink tracking-tight">Product Labels</h1>
+            <p className="text-sm text-graphite mt-1">Create and manage product badge labels</p>
+          </div>
+
+          <AdminLabelsClient initialLabels={newLabels || []} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <AdminNav active="labels" />
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-medium text-ink tracking-tight">Product Labels</h1>
           <p className="text-sm text-graphite mt-1">Create and manage product badge labels</p>
         </div>
 
-        <AdminLabelsClient initialLabels={newLabels || []} />
+        <AdminLabelsClient initialLabels={labels || []} />
       </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-medium text-ink tracking-tight">Product Labels</h1>
-        <p className="text-sm text-graphite mt-1">Create and manage product badge labels</p>
-      </div>
-
-      <AdminLabelsClient initialLabels={labels || []} />
     </div>
   );
 }
