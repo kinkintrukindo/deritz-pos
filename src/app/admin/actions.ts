@@ -183,6 +183,7 @@ export async function markDeliveredAction(id: string, _formData: FormData) {
 }
 
 export async function updateHomepageAction(formData: FormData) {
+  // Allow up to 5 minutes for large file uploads (173MB video)
   await requireAdminSession();
 
   const mediaFile = formData.get("heroMedia");
