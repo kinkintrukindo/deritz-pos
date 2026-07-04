@@ -1,0 +1,141 @@
+'use client';
+
+import { useRef, useState } from 'react';
+import { useToast } from '@/components/Toast';
+
+const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+}
+
+export function MediaUploader({
+  name,
+  label,
+  onUploadComplete,
+}: {
+  name: string;
+  label: string;
+  onUploadComplete?: (file: File) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileSize, setFileSize] = useState<number | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const { addToast } = useToast();
+
+  const handleFileSelect = async (file: File) => {
+    if (file.size > MAX_FILE_SIZE) {
+      addToast(`File too large. Max: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
+      return;
+    }
+
+    setFileName(file.name);
+    setFileSize(file.size);
+    setPreview(URL.createObjectURL(file));
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // Store file in hidden input for form submission
+      if (inputRef.current) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        inputRef.current.files = dataTransfer.files;
+      }
+
+      // Simulate upload progress for large files
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 95) progress = 95;
+        setUploadProgress(progress);
+      }, 300);
+
+      // Simulate upload completion after file size calculation
+      const estimatedTime = Math.max(2000, (file.size / (1024 * 1024)) * 1000);
+      await new Promise(resolve => setTimeout(resolve, estimatedTime));
+
+      clearInterval(interval);
+      setUploadProgress(100);
+      addToast(`File ready: ${file.name}`, 'success');
+
+      setTimeout(() => {
+        setIsUploading(false);
+        onUploadComplete?.(file);
+      }, 500);
+    } catch (error) {
+      addToast('Upload failed', 'error');
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <label className="text-xs tracking-wide-label uppercase text-graphite block">{label}</label>
+
+      <div
+        onClick={() => inputRef.current?.click()}
+        className="border-2 border-dashed border-mist hover:border-ink transition-colors p-6 text-center cursor-pointer rounded-lg"
+      >
+        {preview && !isUploading ? (
+          <div className="space-y-2">
+            {preview.includes('blob') ? (
+              <video src={preview} className="h-24 w-full object-cover rounded mb-2" muted />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={preview} alt="Preview" className="h-24 w-full object-cover rounded mb-2" />
+            )}
+            <p className="text-sm font-medium text-ink">{fileName}</p>
+            <p className="text-xs text-graphite">{fileSize && formatFileSize(fileSize)}</p>
+            <p className="text-xs text-gold">✓ Ready to upload</p>
+          </div>
+        ) : isUploading ? (
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-ink">{fileName}</p>
+            <div className="w-full bg-mist rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-gold h-full transition-all duration-300"
+                style={{ width: `${Math.min(uploadProgress, 100)}%` }}
+              />
+            </div>
+            <p className="text-xs text-gold font-medium">
+              Uploading... {Math.round(uploadProgress)}%
+            </p>
+            <p className="text-xs text-graphite">{fileSize && formatFileSize(fileSize)}</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-graphite text-sm">Drag & drop or click to select</p>
+            <p className="text-xs text-graphite">Max size: {formatFileSize(MAX_FILE_SIZE)}</p>
+          </div>
+        )}
+      </div>
+
+      <input
+        ref={inputRef}
+        type="file"
+        name={name}
+        accept="image/*,video/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFileSelect(file);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          const file = e.dataTransfer?.files?.[0];
+          if (file) handleFileSelect(file);
+        }}
+      />
+    </div>
+  );
+}
