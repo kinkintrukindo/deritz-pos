@@ -1,15 +1,10 @@
 {
   "functions": {
     "src/app/admin/actions.ts": {
-      "maxDuration": 300,
-      "memory": 2048
+      "maxDuration": 300
     },
     "src/app/api/**/*.ts": {
-      "maxDuration": 300,
-      "memory": 2048
+      "maxDuration": 300
     }
-  },
-  "env": {
-    "NODE_OPTIONS": "--max-old-space-size=1536"
   }
 }
