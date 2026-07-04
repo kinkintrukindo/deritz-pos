@@ -72,3 +72,9 @@ export async function confirmPaymentAction(orderId: string) {
   await markOrderProcessed(orderId);
   return { success: true, orderId };
 }
+
+export async function submitOrderBypassAction(input: NewOrderInput): Promise<{ orderId: string }> {
+  const order = await createOrder(input);
+  await markOrderProcessed(order.id);
+  return { orderId: order.id };
+}

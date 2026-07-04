@@ -6,7 +6,7 @@ import { useCart } from "@/components/CartProvider";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useAuth } from "@/components/AuthProvider";
 import { Price } from "@/components/Price";
-import { submitOrderAction, confirmPaymentAction, type CheckoutResponse } from "@/app/checkout/actions";
+import { submitOrderAction, confirmPaymentAction, submitOrderBypassAction, type CheckoutResponse } from "@/app/checkout/actions";
 import { estimateShipping, type ShippingRate } from "@/lib/shipping-real";
 import { COUNTRY_CODES } from "@/lib/countries";
 import { isValidEmail, isValidPhone, isValidName, isValidAddress, isValidCity, isValidCountry } from "@/lib/validation";
@@ -278,37 +278,32 @@ export default function CheckoutPage() {
 
     // Check for special code
     if (specialCode === 'LILYYANG') {
-      // Bypass payment and directly confirm
+      // Bypass payment gateway entirely and create a pre-confirmed order
       setSubmitting(true);
       try {
         // Combine country code + phone
         const fullPhone = phoneCountryCode + form.phone;
-        const response: CheckoutResponse = await submitOrderAction(
-          {
-            customer: { ...form, phone: fullPhone },
-            items: lines.map((l) => ({
-              productId: l.productId,
-              name: l.name,
-              image: l.image,
-              unitPriceIdr: l.unitPriceIdr,
-              surchargeIdr: l.surchargeIdr,
-              sizeMode: l.sizeMode,
-              sizePreset: l.sizePreset,
-              measurements: l.measurements,
-              qty: l.qty,
-            })),
-            currency,
-            subtotalIdr: subtotal,
-            shippingIdr: shipping,
-            totalIdr: total,
-          },
-          paymentMethod
-        );
+        const { orderId } = await submitOrderBypassAction({
+          customer: { ...form, phone: fullPhone },
+          items: lines.map((l) => ({
+            productId: l.productId,
+            name: l.name,
+            image: l.image,
+            unitPriceIdr: l.unitPriceIdr,
+            surchargeIdr: l.surchargeIdr,
+            sizeMode: l.sizeMode,
+            sizePreset: l.sizePreset,
+            measurements: l.measurements,
+            qty: l.qty,
+          })),
+          currency,
+          subtotalIdr: subtotal,
+          shippingIdr: shipping,
+          totalIdr: total,
+        });
 
-        // Directly confirm payment
-        await confirmPaymentAction(response.orderId);
         clear();
-        router.push(`/order-confirmation/${response.orderId}`);
+        router.push(`/order-confirmation/${orderId}`);
       } catch (error) {
         setSubmitting(false);
         alert("Error creating order with special code. Please try again.");
