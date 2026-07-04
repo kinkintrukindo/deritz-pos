@@ -16,8 +16,16 @@ export function LocationSection() {
               </div>
               <div>
                 <p className="text-xs tracking-wide-label uppercase text-graphite mb-2">Hours</p>
-                <p className="text-sm text-ink">By Appointment Only</p>
-                <p className="text-xs text-graphite mt-1">Please call or WhatsApp to book a fitting</p>
+                <p className="text-sm text-ink">Tuesday - Sunday, 9am - 5pm</p>
+                <p className="text-sm text-ink mt-2">
+                  Or{' '}
+                  <a
+                    href="/appointments"
+                    className="underline hover:text-gold transition-colors font-medium"
+                  >
+                    Schedule an Appointment
+                  </a>
+                </p>
               </div>
               <div>
                 <p className="text-xs tracking-wide-label uppercase text-graphite mb-2">Contact</p>
