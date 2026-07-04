@@ -11,11 +11,6 @@ import { estimateShipping, type ShippingRate } from "@/lib/shipping-real";
 import { COUNTRY_CODES } from "@/lib/countries";
 import { isValidEmail, isValidPhone, isValidName, isValidAddress, isValidCity, isValidCountry } from "@/lib/validation";
 
-interface LocationOption {
-  code?: string;
-  name: string;
-}
-
 interface DestinationResult {
   id?: string | number;
   label?: string;
@@ -29,12 +24,21 @@ interface DestinationResult {
 
 function formatDestinationLabel(item: DestinationResult): string {
   if (item.label) return item.label;
+  // International response has country_name
+  if ((item as Record<string, unknown>).country_name) {
+    return String((item as Record<string, unknown>).country_name);
+  }
+  // Domestic response has subdistrict, district, city, province
   const parts = [item.subdistrict_name, item.district_name, item.city_name, item.province_name].filter(Boolean);
   if (parts.length > 0) return parts.join(', ');
-  return JSON.stringify(item);
+  return '';
 }
 
 function getDestinationId(item: DestinationResult): string {
+  // International uses country_id
+  const countryId = (item as Record<string, unknown>).country_id;
+  if (countryId !== undefined && countryId !== null) return String(countryId);
+  // Domestic uses id / subdistrict_id / district_id
   const id = item.id ?? (item as Record<string, unknown>).subdistrict_id ?? (item as Record<string, unknown>).district_id;
   return id !== undefined && id !== null ? String(id) : '';
 }
@@ -55,15 +59,7 @@ export default function CheckoutPage() {
   const [selectedRateId, setSelectedRateId] = useState<string>('');
   const [loadingRates, setLoadingRates] = useState(false);
 
-  // Location dropdowns
-  const [countries, setCountries] = useState<LocationOption[]>([]);
-  const [states, setStates] = useState<LocationOption[]>([]);
-  const [cities, setCities] = useState<LocationOption[]>([]);
-  const [loadingCountries, setLoadingCountries] = useState(false);
-  const [loadingStates, setLoadingStates] = useState(false);
-  const [loadingCities, setLoadingCities] = useState(false);
-
-  // Live destination search (RajaOngkir domestic-destination)
+  // Live destination search (RajaOngkir domestic/international-destination)
   const [destinationQuery, setDestinationQuery] = useState('');
   const [destinationResults, setDestinationResults] = useState<DestinationResult[]>([]);
   const [destinationDropdownOpen, setDestinationDropdownOpen] = useState(false);
@@ -103,107 +99,40 @@ export default function CheckoutPage() {
       errors.address = 'Address is required';
     }
     if (!form.city.trim()) {
-      errors.city = 'City is required';
+      errors.city = shippingType === 'domestic' ? 'City/District is required' : 'Country is required';
     }
-    if (!form.postalCode.trim()) {
+    if (shippingType === 'domestic' && !form.postalCode.trim()) {
       errors.postalCode = 'Postal code is required';
-    }
-    if (shippingType === 'international' && !form.country) {
-      errors.country = 'Country is required';
     }
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Define API loading functions first (before useEffect)
-  const loadCountries = async () => {
-    setLoadingCountries(true);
-    try {
-      const response = await fetch('/api/shipping/locations?type=countries');
-      if (response.ok) {
-        const data = await response.json();
-        setCountries(data);
-      }
-    } catch (error) {
-      console.error('Failed to load countries:', error);
-    } finally {
-      setLoadingCountries(false);
-    }
-  };
-
-  const loadStates = async (countryCode: string) => {
-    if (!countryCode) return;
-    setLoadingStates(true);
-    try {
-      const response = await fetch(`/api/shipping/locations?type=states&countryCode=${countryCode}`);
-      if (response.ok) {
-        const data = await response.json();
-        setStates(data);
-      }
-    } catch (error) {
-      console.error('Failed to load states:', error);
-    } finally {
-      setLoadingStates(false);
-    }
-  };
-
-  const loadCities = async (countryCode: string, stateCode: string) => {
-    if (!countryCode) return;
-    setLoadingCities(true);
-    try {
-      let url = `/api/shipping/locations?type=cities&countryCode=${countryCode}`;
-      if (stateCode) {
-        url += `&stateCode=${stateCode}`;
-      }
-      const response = await fetch(url);
-      if (response.ok) {
-        const data = await response.json();
-        setCities(data);
-      }
-    } catch (error) {
-      console.error('Failed to load cities:', error);
-    } finally {
-      setLoadingCities(false);
-    }
-  };
-
-  // Load countries on mount
+  // Clear search box when switching between domestic/international
   useEffect(() => {
-    loadCountries();
-  }, []);
+    setDestinationQuery('');
+    setDestinationResults([]);
+    setDestinationDropdownOpen(false);
+    setForm((prev) => ({ ...prev, city: '', postalCode: '' }));
+  }, [shippingType]);
 
-  // Load states when country changes
+  // Live destination search (debounced) for domestic and international
   useEffect(() => {
-    if (form.country && shippingType === 'international') {
-      loadStates(form.country);
-      setCities([]);
-      setForm(prev => ({ ...prev, state: '', city: '' }));
-    } else if (shippingType === 'domestic') {
-      setStates([]);
-      setCities([]);
-      setForm(prev => ({ ...prev, state: '', city: '' }));
-    }
-  }, [form.country, shippingType]);
-
-  // Load cities when state changes
-  useEffect(() => {
-    if (form.country && form.state && shippingType === 'international') {
-      loadCities(form.country, form.state);
-      setForm(prev => ({ ...prev, city: '' }));
-    }
-  }, [form.state, shippingType]);
-
-  // Live destination search (debounced) for the domestic city field
-  useEffect(() => {
-    if (shippingType !== 'domestic' || destinationQuery.trim().length < 3) {
+    if (!destinationQuery.trim() || destinationQuery.trim().length < 3) {
       setDestinationResults([]);
       return;
     }
+
+    const endpoint =
+      shippingType === 'domestic'
+        ? `/api/shipping/search-destination?search=${encodeURIComponent(destinationQuery.trim())}`
+        : `/api/shipping/search-international?search=${encodeURIComponent(destinationQuery.trim())}`;
+
     const timeout = setTimeout(async () => {
       setSearchingDestination(true);
       try {
-        const response = await fetch(`/api/shipping/search-destination?search=${encodeURIComponent(destinationQuery.trim())}`);
+        const response = await fetch(endpoint);
         const data = await response.json();
         setDestinationResults(data.results ?? []);
       } catch (error) {
@@ -650,33 +579,51 @@ export default function CheckoutPage() {
                 )}
               </div>
             ) : (
-              <>
-                <DropdownField
-                  label="Country"
-                  value={form.country}
-                  onChange={(v) => setForm({ ...form, country: v })}
-                  options={countries}
-                  loading={loadingCountries}
-                  error={validationErrors.country}
-                />
-                {needsStateDropdown(form.country) && (
-                  <DropdownField
-                    label="State/Region"
-                    value={form.state}
-                    onChange={(v) => setForm({ ...form, state: v })}
-                    options={states}
-                    loading={loadingStates}
+              <div className="col-span-2 relative">
+                <label className="block">
+                  <span className="text-xs tracking-wide-label uppercase text-graphite">City / Country</span>
+                  <input
+                    required
+                    type="text"
+                    value={destinationQuery}
+                    onChange={(e) => {
+                      setDestinationQuery(e.target.value);
+                      setDestinationDropdownOpen(true);
+                      setDestinationId('');
+                      setForm((prev) => ({ ...prev, city: '' }));
+                    }}
+                    onFocus={() => setDestinationDropdownOpen(true)}
+                    onBlur={() => setTimeout(() => setDestinationDropdownOpen(false), 150)}
+                    placeholder="Search international destination (e.g. Bangkok, Singapore)"
+                    className={`mt-1.5 w-full border px-3 py-2.5 text-sm bg-paper focus:outline-none ${
+                      validationErrors.city ? 'border-red-500 focus:border-red-500' : 'border-mist focus:border-ink'
+                    }`}
                   />
+                  {validationErrors.city && <p className="text-xs text-red-500 mt-1">{validationErrors.city}</p>}
+                </label>
+
+                {destinationDropdownOpen && destinationQuery.trim().length >= 3 && (
+                  <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-mist shadow-lg max-h-64 overflow-y-auto">
+                    {searchingDestination && (
+                      <p className="px-3 py-2.5 text-sm text-graphite">Searching…</p>
+                    )}
+                    {!searchingDestination && destinationResults.length === 0 && (
+                      <p className="px-3 py-2.5 text-sm text-graphite">No matches found.</p>
+                    )}
+                    {!searchingDestination &&
+                      destinationResults.map((item, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => handleSelectDestination(item)}
+                          className="block w-full text-left px-3 py-2.5 text-sm text-ink hover:bg-paper border-b border-mist last:border-b-0"
+                        >
+                          {formatDestinationLabel(item)}
+                        </button>
+                      ))}
+                  </div>
                 )}
-                <DropdownField
-                  label="City"
-                  value={form.city}
-                  onChange={(v) => setForm({ ...form, city: v })}
-                  options={cities}
-                  loading={loadingCities}
-                  error={validationErrors.city}
-                />
-              </>
+              </div>
             )}
 
             <Field
@@ -846,12 +793,6 @@ export default function CheckoutPage() {
   );
 }
 
-function needsStateDropdown(countryCode: string): boolean {
-  // Countries that have state/region subdivisions
-  const stateCountries = ['US', 'IN', 'AU', 'BR', 'CA', 'MX', 'DE', 'GB', 'FR', 'RU'];
-  return stateCountries.includes(countryCode);
-}
-
 function Field({
   label,
   value,
@@ -879,45 +820,6 @@ function Field({
           error ? 'border-red-500 focus:border-red-500' : 'border-mist focus:border-ink'
         }`}
       />
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-    </label>
-  );
-}
-
-function DropdownField({
-  label,
-  value,
-  onChange,
-  options,
-  loading,
-  error,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: LocationOption[];
-  loading?: boolean;
-  error?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="text-xs tracking-wide-label uppercase text-graphite">{label}</span>
-      <select
-        required
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={loading || options.length === 0}
-        className={`mt-1.5 w-full border px-3 py-2.5 text-sm bg-paper focus:outline-none disabled:opacity-60 ${
-          error ? 'border-red-500 focus:border-red-500' : 'border-mist focus:border-ink'
-        }`}
-      >
-        <option value="">{loading ? 'Loading...' : `Select ${label.toLowerCase()}`}</option>
-        {options.map((option) => (
-          <option key={option.code || option.name} value={option.code || option.name}>
-            {option.name}
-          </option>
-        ))}
-      </select>
       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </label>
   );
