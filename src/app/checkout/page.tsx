@@ -243,10 +243,12 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
-  const subtotal = lines.reduce(
-    (sum, l) => sum + (l.unitPriceIdr + l.surchargeIdr) * l.qty,
-    0
-  );
+  const subtotal = lines.reduce((sum, l) => {
+    const basePrice = l.discountPercent
+      ? Math.round(l.unitPriceIdr * (1 - l.discountPercent / 100))
+      : l.unitPriceIdr;
+    return sum + (basePrice + l.surchargeIdr) * l.qty;
+  }, 0);
 
   const selectedRate = shippingRates.find(r => r.id === selectedRateId);
   const shipping = selectedRate?.cost || 0;
@@ -771,12 +773,17 @@ export default function CheckoutPage() {
       <div className="border border-mist p-6 h-fit">
         <h2 className="text-xl font-medium tracking-tight text-ink mb-5">Order Summary</h2>
         <div className="space-y-3 text-sm">
-          {lines.map((l) => (
-            <div key={l.lineId} className="flex justify-between text-graphite">
-              <span>{l.name}</span>
-              <Price amountIdr={(l.unitPriceIdr + l.surchargeIdr) * l.qty} />
-            </div>
-          ))}
+          {lines.map((l) => {
+            const basePrice = l.discountPercent
+              ? Math.round(l.unitPriceIdr * (1 - l.discountPercent / 100))
+              : l.unitPriceIdr;
+            return (
+              <div key={l.lineId} className="flex justify-between text-graphite">
+                <span>{l.name}</span>
+                <Price amountIdr={(basePrice + l.surchargeIdr) * l.qty} />
+              </div>
+            );
+          })}
         </div>
         <div className="border-t border-mist mt-4 pt-4 space-y-2 text-sm">
           <div className="flex justify-between text-graphite">

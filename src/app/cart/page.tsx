@@ -7,10 +7,12 @@ import { Price } from "@/components/Price";
 
 export default function CartPage() {
   const { lines, removeLine } = useCart();
-  const total = lines.reduce(
-    (sum, l) => sum + (l.unitPriceIdr + l.surchargeIdr) * l.qty,
-    0
-  );
+  const total = lines.reduce((sum, l) => {
+    const basePrice = l.discountPercent
+      ? Math.round(l.unitPriceIdr * (1 - l.discountPercent / 100))
+      : l.unitPriceIdr;
+    return sum + (basePrice + l.surchargeIdr) * l.qty;
+  }, 0);
 
   if (lines.length === 0) {
     return (
@@ -54,7 +56,16 @@ export default function CartPage() {
                 Remove
               </button>
             </div>
-            <Price amountIdr={(line.unitPriceIdr + line.surchargeIdr) * line.qty} className="text-ink" />
+            <div className="text-right">
+              {line.discountPercent ? (
+                <>
+                  <Price amountIdr={(line.unitPriceIdr + line.surchargeIdr) * line.qty} className="text-xs text-graphite line-through opacity-60" />
+                  <Price amountIdr={(Math.round(line.unitPriceIdr * (1 - line.discountPercent / 100)) + line.surchargeIdr) * line.qty} className="text-base font-bold text-gold" />
+                </>
+              ) : (
+                <Price amountIdr={(line.unitPriceIdr + line.surchargeIdr) * line.qty} className="text-ink" />
+              )}
+            </div>
           </div>
         ))}
       </div>

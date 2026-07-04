@@ -25,7 +25,7 @@ export function ProductGallery({
           alt={alt}
           fill
           sizes="(min-width: 1024px) 45vw, 100vw"
-          className="object-cover"
+          className="object-contain"
           priority
         />
       </div>

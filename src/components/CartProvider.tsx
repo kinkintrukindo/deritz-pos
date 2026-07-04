@@ -12,6 +12,7 @@ export type CartLine = {
   name: string;
   image: string;
   unitPriceIdr: number;
+  discountPercent?: number;
   surchargeIdr: number;
   sizeMode: "preset" | "custom";
   sizePreset?: SizePresetKey;

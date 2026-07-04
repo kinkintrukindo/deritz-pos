@@ -3,12 +3,12 @@
 import { useState } from 'react';
 
 export function MessagesLink() {
-  const [showPopup, setShowPopup] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
       <button
-        onClick={() => setShowPopup(true)}
+        onClick={() => setIsOpen(true)}
         className="relative group hover:opacity-70 transition-opacity"
         title="Messages"
       >
@@ -17,39 +17,38 @@ export function MessagesLink() {
         </svg>
       </button>
 
-      {showPopup && (
-        <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 pt-20"
+          onClick={() => setIsOpen(false)}
+        >
           <div
-            className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setShowPopup(false)}
-          />
-          <div className="fixed left-1/2 top-1/2 z-50 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm">
-            <div
-              className="bg-white rounded border border-mist p-8 text-center relative"
-              onClick={(e) => e.stopPropagation()}
-            >
+            className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <h2 className="text-xl font-medium text-ink">Live Chat Coming Soon</h2>
               <button
-                onClick={() => setShowPopup(false)}
-                className="absolute top-4 right-4 text-graphite hover:text-ink transition-colors"
-                title="Close"
+                onClick={() => setIsOpen(false)}
+                className="text-graphite hover:text-ink transition-colors flex-shrink-0 ml-4"
+                aria-label="Close"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <h2 className="text-lg font-medium text-ink mb-3">Live Chat Coming Soon</h2>
-              <p className="text-graphite text-sm mb-6">
-                We're working on a live chat feature. In the meantime, reach out to us on WhatsApp!
-              </p>
-              <button
-                onClick={() => setShowPopup(false)}
-                className="px-6 py-2.5 bg-ink text-white text-xs tracking-wide-label uppercase rounded hover:bg-gold transition-colors"
-              >
-                Close
-              </button>
             </div>
+            <p className="text-graphite text-sm mb-6">
+              We're working on a live chat feature. In the meantime, reach out to us on WhatsApp!
+            </p>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="w-full px-4 py-2.5 bg-ink text-white text-xs tracking-wide-label uppercase rounded hover:bg-gold transition-colors"
+            >
+              Close
+            </button>
           </div>
-        </>
+        </div>
       )}
     </>
   );

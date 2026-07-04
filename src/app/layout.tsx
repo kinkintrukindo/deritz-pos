@@ -4,6 +4,7 @@ import { CartProvider } from "@/components/CartProvider";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { WishlistProvider } from "@/components/WishlistProvider";
+import { ToastProvider } from "@/components/Toast";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.css";
@@ -28,17 +29,19 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-paper text-ink">
-        <AuthProvider>
-          <CurrencyProvider>
-            <CartProvider>
-              <WishlistProvider>
-                <SiteHeader />
-                <main className="flex-1">{children}</main>
-                <SiteFooter />
-              </WishlistProvider>
-            </CartProvider>
-          </CurrencyProvider>
-        </AuthProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <CurrencyProvider>
+              <CartProvider>
+                <WishlistProvider>
+                  <SiteHeader />
+                  <main className="flex-1">{children}</main>
+                  <SiteFooter />
+                </WishlistProvider>
+              </CartProvider>
+            </CurrencyProvider>
+          </AuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );

@@ -61,6 +61,7 @@ export function AddToCartPanel({ product }: { product: Product }) {
       name: product.name,
       image: product.image,
       unitPriceIdr: product.basePriceIdr,
+      discountPercent: product.discountPercent,
       surchargeIdr: surcharge,
       sizeMode: selection.sizeMode,
       sizePreset: selection.sizePreset,
