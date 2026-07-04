@@ -19,7 +19,7 @@ export function MessagesLink() {
 
       {showPopup && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowPopup(false)}>
-          <div className="bg-white rounded border border-mist p-8 max-w-sm text-center relative" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded border border-mist p-8 max-w-sm text-center relative w-full" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '90vh', overflowY: 'auto' }}>
             <button
               onClick={() => setShowPopup(false)}
               className="absolute top-4 right-4 text-graphite hover:text-ink transition-colors"

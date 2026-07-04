@@ -81,7 +81,21 @@ export function SiteHeader() {
                   {user.email?.split('@')[0]}
                 </button>
                 {showMenu && (
-                  <div className="absolute right-0 mt-2 bg-white border border-mist shadow-lg z-50">
+                  <div className="absolute right-0 mt-2 bg-white border border-mist shadow-lg z-50 w-40">
+                    <Link
+                      href="/account/profile"
+                      onClick={() => setShowMenu(false)}
+                      className="block w-full text-left px-4 py-2 text-xs tracking-wide-label uppercase text-graphite hover:bg-surface hover:text-ink transition-colors border-b border-mist"
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      href="/account/orders"
+                      onClick={() => setShowMenu(false)}
+                      className="block w-full text-left px-4 py-2 text-xs tracking-wide-label uppercase text-graphite hover:bg-surface hover:text-ink transition-colors border-b border-mist"
+                    >
+                      Orders
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-xs tracking-wide-label uppercase text-graphite hover:bg-surface hover:text-ink transition-colors"
