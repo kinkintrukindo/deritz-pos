@@ -289,7 +289,9 @@ export default function CheckoutPage() {
             productId: l.productId,
             name: l.name,
             image: l.image,
-            unitPriceIdr: l.unitPriceIdr,
+            unitPriceIdr: l.discountPercent
+              ? Math.round(l.unitPriceIdr * (1 - l.discountPercent / 100))
+              : l.unitPriceIdr,
             surchargeIdr: l.surchargeIdr,
             sizeMode: l.sizeMode,
             sizePreset: l.sizePreset,
@@ -329,7 +331,9 @@ export default function CheckoutPage() {
             productId: l.productId,
             name: l.name,
             image: l.image,
-            unitPriceIdr: l.unitPriceIdr,
+            unitPriceIdr: l.discountPercent
+              ? Math.round(l.unitPriceIdr * (1 - l.discountPercent / 100))
+              : l.unitPriceIdr,
             surchargeIdr: l.surchargeIdr,
             sizeMode: l.sizeMode,
             sizePreset: l.sizePreset,
