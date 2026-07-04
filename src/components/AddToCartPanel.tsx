@@ -18,7 +18,10 @@ export function AddToCartPanel({ product }: { product: Product }) {
   const [added, setAdded] = useState(false);
 
   const surcharge = selection.sizeMode === "custom" ? product.madeToMeasureSurchargeIdr : 0;
-  const total = product.basePriceIdr + surcharge;
+  const basePrice = product.discountPercent
+    ? Math.round(product.basePriceIdr * (1 - product.discountPercent / 100))
+    : product.basePriceIdr;
+  const total = basePrice + surcharge;
 
   if (product.soldOut) {
     return (
@@ -28,7 +31,14 @@ export function AddToCartPanel({ product }: { product: Product }) {
         </p>
         <div className="flex justify-between text-base text-ink font-medium mb-6">
           <span>Price</span>
-          <Price amountIdr={product.basePriceIdr} />
+          {product.discountPercent ? (
+            <div className="flex flex-col items-end gap-1">
+              <Price amountIdr={product.basePriceIdr} className="text-xs text-graphite line-through opacity-60" />
+              <Price amountIdr={Math.round(product.basePriceIdr * (1 - product.discountPercent / 100))} className="text-base font-bold text-gold" />
+            </div>
+          ) : (
+            <Price amountIdr={product.basePriceIdr} />
+          )}
         </div>
         <p className="text-sm text-graphite mb-6">
           This piece is currently sold out and cannot be added to your bag.
@@ -71,9 +81,16 @@ export function AddToCartPanel({ product }: { product: Product }) {
       />
 
       <div className="mt-8 border-t border-mist pt-6 space-y-2">
-        <div className="flex justify-between text-base text-ink font-medium">
-          <span>Price</span>
-          <Price amountIdr={total} />
+        <div className="flex justify-between items-end">
+          <span className="text-base text-ink font-medium">Price</span>
+          {product.discountPercent ? (
+            <div className="flex flex-col items-end gap-1">
+              <Price amountIdr={product.basePriceIdr + surcharge} className="text-xs text-graphite line-through opacity-60" />
+              <Price amountIdr={total} className="text-base font-bold text-gold" />
+            </div>
+          ) : (
+            <Price amountIdr={total} className="text-base text-ink font-medium" />
+          )}
         </div>
         <p className="text-xs text-graphite pt-1">
           Estimated lead time: {product.leadTimeDays}
