@@ -3,8 +3,10 @@
 import { useRef, useState } from 'react';
 import { useToast } from '@/components/Toast';
 
-const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
-const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks for faster upload
+// Matches the Supabase Storage bucket's hard file_size_limit (50,000,000 bytes).
+// Uploads above this are rejected by Supabase itself, so we check client-side
+// to fail fast instead of waiting through a full upload just to get a 500.
+const MAX_FILE_SIZE = 50 * 1000 * 1000;
 
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
