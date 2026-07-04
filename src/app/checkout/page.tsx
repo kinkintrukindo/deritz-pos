@@ -16,6 +16,34 @@ interface LocationOption {
   name: string;
 }
 
+interface DestinationResult {
+  id?: string | number;
+  label?: string;
+  subdistrict_name?: string;
+  district_name?: string;
+  city_name?: string;
+  province_name?: string;
+  zip_code?: string;
+  [key: string]: unknown;
+}
+
+function formatDestinationLabel(item: DestinationResult): string {
+  if (item.label) return item.label;
+  const parts = [item.subdistrict_name, item.district_name, item.city_name, item.province_name].filter(Boolean);
+  if (parts.length > 0) return parts.join(', ');
+  return JSON.stringify(item);
+}
+
+function getDestinationId(item: DestinationResult): string {
+  const id = item.id ?? (item as Record<string, unknown>).subdistrict_id ?? (item as Record<string, unknown>).district_id;
+  return id !== undefined && id !== null ? String(id) : '';
+}
+
+function getDestinationZip(item: DestinationResult): string {
+  const zip = item.zip_code ?? (item as Record<string, unknown>).postal_code ?? (item as Record<string, unknown>).zipcode;
+  return zip ? String(zip) : '';
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { lines, clear } = useCart();
@@ -34,6 +62,13 @@ export default function CheckoutPage() {
   const [loadingCountries, setLoadingCountries] = useState(false);
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
+
+  // Live destination search (RajaOngkir domestic-destination)
+  const [destinationQuery, setDestinationQuery] = useState('');
+  const [destinationResults, setDestinationResults] = useState<DestinationResult[]>([]);
+  const [destinationDropdownOpen, setDestinationDropdownOpen] = useState(false);
+  const [searchingDestination, setSearchingDestination] = useState(false);
+  const [destinationId, setDestinationId] = useState<string>('');
 
   const [form, setForm] = useState({
     name: user?.user_metadata?.full_name || '',
@@ -159,12 +194,37 @@ export default function CheckoutPage() {
     }
   }, [form.state, shippingType]);
 
-  // Load domestic cities when country changes to Indonesia
+  // Live destination search (debounced) for the domestic city field
   useEffect(() => {
-    if (shippingType === 'domestic') {
-      loadCities('ID', '');
+    if (shippingType !== 'domestic' || destinationQuery.trim().length < 3) {
+      setDestinationResults([]);
+      return;
     }
-  }, [shippingType]);
+    const timeout = setTimeout(async () => {
+      setSearchingDestination(true);
+      try {
+        const response = await fetch(`/api/shipping/search-destination?search=${encodeURIComponent(destinationQuery.trim())}`);
+        const data = await response.json();
+        setDestinationResults(data.results ?? []);
+      } catch (error) {
+        console.error('Destination search failed:', error);
+        setDestinationResults([]);
+      } finally {
+        setSearchingDestination(false);
+      }
+    }, 350);
+    return () => clearTimeout(timeout);
+  }, [destinationQuery, shippingType]);
+
+  const handleSelectDestination = (item: DestinationResult) => {
+    const label = formatDestinationLabel(item);
+    const zip = getDestinationZip(item);
+    setDestinationQuery(label);
+    setForm((prev) => ({ ...prev, city: label, ...(zip ? { postalCode: zip } : {}) }));
+    setDestinationId(getDestinationId(item));
+    setDestinationDropdownOpen(false);
+    setDestinationResults([]);
+  };
 
   // Auto-calculate shipping when postal code changes
   useEffect(() => {
@@ -544,16 +604,51 @@ export default function CheckoutPage() {
             />
 
             {shippingType === 'domestic' ? (
-              <>
-                <DropdownField
-                  label="City"
-                  value={form.city}
-                  onChange={(v) => setForm({ ...form, city: v })}
-                  options={cities}
-                  loading={loadingCities}
-                  error={validationErrors.city}
-                />
-              </>
+              <div className="col-span-2 relative">
+                <label className="block">
+                  <span className="text-xs tracking-wide-label uppercase text-graphite">City / District</span>
+                  <input
+                    required
+                    type="text"
+                    value={destinationQuery}
+                    onChange={(e) => {
+                      setDestinationQuery(e.target.value);
+                      setDestinationDropdownOpen(true);
+                      setDestinationId('');
+                      setForm((prev) => ({ ...prev, city: '' }));
+                    }}
+                    onFocus={() => setDestinationDropdownOpen(true)}
+                    onBlur={() => setTimeout(() => setDestinationDropdownOpen(false), 150)}
+                    placeholder="Search by district or subdistrict (e.g. Gubeng, Wonokromo)"
+                    className={`mt-1.5 w-full border px-3 py-2.5 text-sm bg-paper focus:outline-none ${
+                      validationErrors.city ? 'border-red-500 focus:border-red-500' : 'border-mist focus:border-ink'
+                    }`}
+                  />
+                  {validationErrors.city && <p className="text-xs text-red-500 mt-1">{validationErrors.city}</p>}
+                </label>
+
+                {destinationDropdownOpen && destinationQuery.trim().length >= 3 && (
+                  <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-mist shadow-lg max-h-64 overflow-y-auto">
+                    {searchingDestination && (
+                      <p className="px-3 py-2.5 text-sm text-graphite">Searching…</p>
+                    )}
+                    {!searchingDestination && destinationResults.length === 0 && (
+                      <p className="px-3 py-2.5 text-sm text-graphite">No matches found.</p>
+                    )}
+                    {!searchingDestination &&
+                      destinationResults.map((item, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => handleSelectDestination(item)}
+                          className="block w-full text-left px-3 py-2.5 text-sm text-ink hover:bg-paper border-b border-mist last:border-b-0"
+                        >
+                          {formatDestinationLabel(item)}
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 <DropdownField
