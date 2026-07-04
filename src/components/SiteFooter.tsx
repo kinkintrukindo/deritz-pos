@@ -2,6 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 export function SiteFooter() {
+  const address = process.env.NEXT_PUBLIC_STORE_ADDRESS || "Jalan Villa Bukit Mas F2, Villa Jepang, Dukuh Pakis, Kec. Dukuhpakis, Surabaya, Jawa Timur 60225";
+  const phone = process.env.NEXT_PUBLIC_STORE_PHONE || "+6281335838367";
+  const mapsQuery = encodeURIComponent(address);
   return (
     <footer className="border-t border-mist mt-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-10 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -46,23 +49,20 @@ export function SiteFooter() {
           <ul className="space-y-2 text-sm text-graphite">
             <li>
               <a
-                href="https://maps.google.com/?q=Jalan+Villa+Bukit+Mas+F2,+Villa+Jepang,+Dukuh+Pakis,+Surabaya"
+                href={`https://maps.google.com/?q=${mapsQuery}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-ink transition-colors"
               >
-                Jalan Villa Bukit Mas F2<br />
-                Villa Jepang, Dukuh Pakis<br />
-                Kec. Dukuhpakis, Surabaya<br />
-                Jawa Timur 60225
+                {address}
               </a>
             </li>
             <li>
               <a
-                href="tel:+6281335838367"
+                href={`tel:${phone.replace(/\D/g, '+')}`}
                 className="hover:text-ink transition-colors"
               >
-                +62 813-3583-8367
+                {phone}
               </a>
             </li>
             <li>

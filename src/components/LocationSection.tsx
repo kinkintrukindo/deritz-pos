@@ -1,5 +1,6 @@
 export function LocationSection() {
-  const address = "Jalan Villa Bukit Mas F2, Villa Jepang, Dukuh Pakis, Kec. Dukuhpakis, Surabaya, Jawa Timur 60225";
+  const address = process.env.NEXT_PUBLIC_STORE_ADDRESS || "Jalan Villa Bukit Mas F2, Villa Jepang, Dukuh Pakis, Kec. Dukuhpakis, Surabaya, Jawa Timur 60225";
+  const phone = process.env.NEXT_PUBLIC_STORE_PHONE || "+6281335838367";
   const mapsLink = `https://maps.google.com/?q=${encodeURIComponent(address)}`;
 
   return (
@@ -30,10 +31,10 @@ export function LocationSection() {
               <div>
                 <p className="text-xs tracking-wide-label uppercase text-graphite mb-2">Contact</p>
                 <a
-                  href="tel:+6281335838367"
+                  href={`tel:${phone.replace(/\D/g, '+')}`}
                   className="text-sm text-ink hover:text-gold transition-colors font-medium"
                 >
-                  +62 813-3583-8367
+                  {phone}
                 </a>
               </div>
               <div className="pt-4">

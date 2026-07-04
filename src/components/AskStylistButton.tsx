@@ -8,7 +8,7 @@ interface AskStylistButtonProps {
 }
 
 export function AskStylistButton({ product, className = '' }: AskStylistButtonProps) {
-  const whatsappPhone = '6281335838367';
+  const whatsappPhone = process.env.NEXT_PUBLIC_WHATSAPP_PHONE || '6281335838367';
   const whatsappLink = `https://wa.me/${whatsappPhone}?text=Hi,%20I%20have%20a%20question%20about%20${encodeURIComponent(product.name)}`;
 
   return (

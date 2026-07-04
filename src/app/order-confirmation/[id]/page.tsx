@@ -5,6 +5,8 @@ import type { OrderStatus } from "@/lib/types";
 
 export const revalidate = 30;
 
+const WHATSAPP_PHONE = process.env.NEXT_PUBLIC_WHATSAPP_PHONE || "6281335838367";
+
 const STEPS: { key: OrderStatus; label: string }[] = [
   { key: "received", label: "Received" },
   { key: "processed", label: "Processed" },
@@ -87,7 +89,7 @@ export default async function OrderConfirmationPage({
       <div className="mt-12 pt-12 border-t border-mist">
         <p className="text-sm text-graphite mb-4">Have questions about your order?</p>
         <a
-          href="https://wa.me/6281335838367"
+          href={`https://wa.me/${WHATSAPP_PHONE}`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block px-6 py-2 bg-ink text-white text-xs tracking-wide-label uppercase rounded hover:bg-graphite transition-colors"
