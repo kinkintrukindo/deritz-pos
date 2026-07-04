@@ -135,6 +135,7 @@ export async function addProduct(input: NewProductInput): Promise<Product> {
     soldOut: false,
     weightKg: input.weightKg ?? 5,
     dimensionsCm: input.dimensionsCm ?? { width: 20, height: 20, depth: 5 },
+    createdAt: new Date().toISOString(),
   };
 
   products.push(product);

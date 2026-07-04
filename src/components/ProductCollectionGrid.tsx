@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import type { Product } from "@/lib/types";
 import { ProductCard } from "@/components/ProductCard";
 
-type SortOption = "featured" | "name" | "price-low" | "price-high";
+type SortOption = "featured" | "name" | "price-low" | "newest";
 
 interface ProductCollectionGridProps {
   products: Product[];
@@ -42,8 +42,8 @@ export function ProductCollectionGrid({ products }: ProductCollectionGridProps) 
       case "price-low":
         result.sort((a, b) => a.basePriceIdr - b.basePriceIdr);
         break;
-      case "price-high":
-        result.sort((a, b) => b.basePriceIdr - a.basePriceIdr);
+      case "newest":
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
 
@@ -68,7 +68,7 @@ export function ProductCollectionGrid({ products }: ProductCollectionGridProps) 
           <label className="text-xs tracking-wide-label uppercase text-graphite flex items-center">
             Sort by:
           </label>
-          {(["featured", "name", "price-low", "price-high"] as const).map((option) => (
+          {(["featured", "name", "price-low", "newest"] as const).map((option) => (
             <button
               key={option}
               onClick={() => setSortBy(option)}
@@ -84,7 +84,7 @@ export function ProductCollectionGrid({ products }: ProductCollectionGridProps) 
                   ? "Name (A-Z)"
                   : option === "price-low"
                     ? "Cheapest"
-                    : "Most Expensive"}
+                    : "Newest"}
             </button>
           ))}
         </div>

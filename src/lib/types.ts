@@ -46,6 +46,7 @@ export type Product = {
     height: number;
     depth: number;
   };
+  createdAt: string;
 };
 
 export type OrderStatus = "received" | "processed" | "shipped" | "delivered" | "refunded";
