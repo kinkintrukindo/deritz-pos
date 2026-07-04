@@ -4,6 +4,7 @@ const TABS = [
   { key: "catalogue", label: "Catalogue", href: "/admin/dashboard" },
   { key: "collections", label: "Collections", href: "/admin/collections" },
   { key: "featured", label: "Featured Looks", href: "/admin/featured" },
+  { key: "messages", label: "Messages", href: "/admin/messages" },
   { key: "orders", label: "Orders", href: "/admin/orders" },
   { key: "homepage", label: "Homepage", href: "/admin/homepage" },
 ] as const;
@@ -11,7 +12,7 @@ const TABS = [
 export function AdminNav({
   active,
 }: {
-  active: "catalogue" | "collections" | "featured" | "orders" | "homepage";
+  active: "catalogue" | "collections" | "featured" | "messages" | "orders" | "homepage";
 }) {
   return (
     <div className="overflow-x-auto border-b border-mist mb-10">

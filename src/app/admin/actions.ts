@@ -114,6 +114,9 @@ export async function updateProductAction(id: string, formData: FormData) {
     height: Number(formData.get("dimensionsCm.height") ?? 20),
     depth: Number(formData.get("dimensionsCm.depth") ?? 5),
   };
+  const labelIds = String(formData.get("labelIds") ?? "")
+    .split(",")
+    .filter(Boolean);
 
   await updateProduct(id, {
     name: String(formData.get("name") ?? ""),
@@ -123,9 +126,7 @@ export async function updateProductAction(id: string, formData: FormData) {
     leadTimeDays: Number(formData.get("leadTimeDays") ?? 21),
     images,
     published: formData.get("published") === "on",
-    isNew: formData.get("isNew") === "on",
-    isPromo: formData.get("isPromo") === "on",
-    soldOut: formData.get("soldOut") === "on",
+    labelIds,
     weightKg,
     dimensionsCm,
   });

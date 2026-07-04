@@ -6,6 +6,7 @@ import type { Product } from "@/lib/types";
 import { Price } from "@/components/Price";
 import { ProductBadges } from "@/components/ProductBadges";
 import { useWishlist } from "@/components/WishlistProvider";
+import { AskStylistButton } from "@/components/AskStylistButton";
 
 export function ProductCard({ product }: { product: Product }) {
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
@@ -76,6 +77,9 @@ export function ProductCard({ product }: { product: Product }) {
             {product.name}
           </h3>
           <Price amountIdr={product.basePriceIdr} className="text-sm text-graphite" />
+          <div className="pt-2" onClick={(e) => e.preventDefault()}>
+            <AskStylistButton product={product} className="w-full text-center" />
+          </div>
         </div>
       </div>
     </Link>

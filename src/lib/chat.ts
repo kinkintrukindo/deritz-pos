@@ -19,10 +19,15 @@ export async function getUserConversations(userId: string): Promise<ChatConversa
     id: row.id,
     userId: row.user_id,
     orderId: row.order_id,
+    productId: row.product_id,
+    productName: row.product_name,
+    productImage: row.product_image,
     subject: row.subject,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     archived: row.archived,
+    pinned: row.pinned,
+    read: row.read,
   }));
 }
 
@@ -44,10 +49,15 @@ export async function getAdminConversations(): Promise<ChatConversation[]> {
     id: row.id,
     userId: row.user_id,
     orderId: row.order_id,
+    productId: row.product_id,
+    productName: row.product_name,
+    productImage: row.product_image,
     subject: row.subject,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     archived: row.archived,
+    pinned: row.pinned,
+    read: row.read,
   }));
 }
 
@@ -69,10 +79,15 @@ export async function getConversation(id: string): Promise<ChatConversation | nu
     id: data.id,
     userId: data.user_id,
     orderId: data.order_id,
+    productId: data.product_id,
+    productName: data.product_name,
+    productImage: data.product_image,
     subject: data.subject,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     archived: data.archived,
+    pinned: data.pinned,
+    read: data.read,
   };
 }
 
@@ -103,10 +118,15 @@ export async function createConversation(
     id: data.id,
     userId: data.user_id,
     orderId: data.order_id,
+    productId: data.product_id,
+    productName: data.product_name,
+    productImage: data.product_image,
     subject: data.subject,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     archived: data.archived,
+    pinned: data.pinned,
+    read: data.read,
   };
 }
 

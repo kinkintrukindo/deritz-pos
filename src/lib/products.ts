@@ -151,9 +151,7 @@ export type UpdateProductInput = {
   leadTimeDays?: number;
   images: ProductImage[];
   published: boolean;
-  isNew: boolean;
-  isPromo: boolean;
-  soldOut: boolean;
+  labelIds?: string[];
   weightKg?: number;
   dimensionsCm?: {
     width: number;
@@ -176,9 +174,10 @@ export async function updateProduct(id: string, input: UpdateProductInput): Prom
           image: images[0].url,
           images,
           published: input.published,
-          isNew: input.isNew,
-          isPromo: input.isPromo,
-          soldOut: input.soldOut,
+          labelIds: input.labelIds,
+          isNew: false,
+          isPromo: false,
+          soldOut: false,
           weightKg: input.weightKg ?? p.weightKg ?? 5,
           dimensionsCm: input.dimensionsCm ?? p.dimensionsCm ?? { width: 20, height: 20, depth: 5 },
         }

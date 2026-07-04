@@ -112,10 +112,15 @@ export type ChatConversation = {
   id: string;
   userId: string;
   orderId?: string;
+  productId?: string;
+  productName?: string;
+  productImage?: string;
   subject: string;
   createdAt: string;
   updatedAt: string;
   archived: boolean;
+  pinned?: boolean;
+  read: boolean;
 };
 
 export type ChatMessage = {

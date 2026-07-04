@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { getUserConversations, createConversation } from '@/lib/chat';
+import { getUserConversations } from '@/lib/chat';
+import { getSupabase } from '@/lib/supabase';
 
 export async function GET(request: Request) {
   const cookieStore = await cookies();
@@ -64,13 +65,47 @@ export async function POST(request: Request) {
     return Response.json({ error: 'User ID is required' }, { status: 400 });
   }
 
-  const { subject, orderId } = await request.json();
+  const { subject, orderId, productId, productName, productImage } = await request.json();
 
   if (!subject) {
     return Response.json({ error: 'Subject is required' }, { status: 400 });
   }
 
-  const conversation = await createConversation(userId, subject, orderId || undefined);
+  const sbAdmin = getSupabase();
+  const { data, error } = await sbAdmin
+    .from('chat_conversations')
+    .insert({
+      user_id: userId,
+      subject,
+      order_id: orderId || null,
+      product_id: productId || null,
+      product_name: productName || null,
+      product_image: productImage || null,
+      archived: false,
+      pinned: false,
+      read: false,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+
+  const conversation = {
+    id: data.id,
+    userId: data.user_id,
+    orderId: data.order_id,
+    productId: data.product_id,
+    productName: data.product_name,
+    productImage: data.product_image,
+    subject: data.subject,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+    archived: data.archived,
+    pinned: data.pinned,
+    read: data.read,
+  };
 
   if (!conversation) {
     return Response.json({ error: 'Failed to create conversation' }, { status: 500 });

@@ -1,15 +1,45 @@
-import type { Product } from "@/lib/types";
+'use client';
+
+import { useState, useEffect } from 'react';
+import type { Product, ProductLabel } from '@/lib/types';
 
 export function ProductBadges({ product }: { product: Product }) {
-  if (!product.isNew && !product.isPromo && !product.soldOut) return null;
+  const [labels, setLabels] = useState<ProductLabel[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadLabels() {
+      if (!product.labelIds || product.labelIds.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/admin/labels/available');
+        if (!res.ok) throw new Error('Failed to load labels');
+        const allLabels: ProductLabel[] = await res.json();
+        const selected = allLabels.filter(l => product.labelIds?.includes(l.id));
+        setLabels(selected);
+      } catch (error) {
+        console.error('Error loading labels:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadLabels();
+  }, [product.labelIds]);
+
+  if (loading || labels.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-1 items-start">
-      {product.soldOut && (
+      {labels.map(label => (
         <span
+          key={label.id}
           className="text-white text-[10px] tracking-wide-label uppercase px-2.5 py-1 font-mono"
           style={{
-            backgroundColor: '#c41e3a',
+            backgroundColor: label.color,
             textShadow: `
               2px 2px 0px rgba(0,0,0,0.3),
               -1px -1px 0px rgba(255,255,255,0.2)
@@ -19,43 +49,9 @@ export function ProductBadges({ product }: { product: Product }) {
             letterSpacing: '0.1em',
           }}
         >
-          SOLD OUT
+          {label.name.toUpperCase()}
         </span>
-      )}
-      {product.isNew && (
-        <span
-          className="text-white text-[10px] tracking-wide-label uppercase px-2.5 py-1 font-mono"
-          style={{
-            backgroundColor: '#9c8438',
-            textShadow: `
-              2px 2px 0px rgba(0,0,0,0.3),
-              -1px -1px 0px rgba(255,255,255,0.2)
-            `,
-            fontFamily: 'Courier New, monospace',
-            fontWeight: 'bold',
-            letterSpacing: '0.1em',
-          }}
-        >
-          NEW
-        </span>
-      )}
-      {product.isPromo && (
-        <span
-          className="text-white text-[10px] tracking-wide-label uppercase px-2.5 py-1 font-mono"
-          style={{
-            backgroundColor: '#17181a',
-            textShadow: `
-              2px 2px 0px rgba(0,0,0,0.3),
-              -1px -1px 0px rgba(255,255,255,0.2)
-            `,
-            fontFamily: 'Courier New, monospace',
-            fontWeight: 'bold',
-            letterSpacing: '0.1em',
-          }}
-        >
-          DISCOUNT
-        </span>
-      )}
+      ))}
     </div>
   );
 }

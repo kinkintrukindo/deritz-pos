@@ -6,6 +6,7 @@ import { requireAdminSession, updateProductAction } from "@/app/admin/actions";
 import { ImageGalleryEditor } from "@/components/ImageGalleryEditor";
 import { AdminField } from "@/components/AdminField";
 import { CollectionSelect } from "@/components/CollectionSelect";
+import { ProductLabelSelector } from "@/components/ProductLabelSelector";
 
 export default async function EditProductPage({
   params,
@@ -98,24 +99,7 @@ export default async function EditProductPage({
 
         <ImageGalleryEditor initial={product.images} />
 
-        <div className="space-y-2 pt-1">
-          <label className="flex items-center gap-2 text-sm text-graphite">
-            <input type="checkbox" name="isNew" defaultChecked={product.isNew} />
-            Highlight as New Collection
-          </label>
-          <label className="flex items-center gap-2 text-sm text-graphite">
-            <input type="checkbox" name="isPromo" defaultChecked={product.isPromo} />
-            Discount Promo
-          </label>
-          <p className="text-xs text-graphite pl-6">
-            Either tag moves the piece to the top of listings and shows a banner on its card.
-          </p>
-        </div>
-
-        <label className="flex items-center gap-2 text-sm text-graphite">
-          <input type="checkbox" name="soldOut" defaultChecked={product.soldOut} />
-          Sold Out (disables Add to Bag on the storefront)
-        </label>
+        <ProductLabelSelector defaultLabelIds={product.labelIds} />
 
         <label className="flex items-center gap-2 text-sm text-graphite">
           <input type="checkbox" name="published" defaultChecked={product.published} />
