@@ -3,6 +3,7 @@ import { getProductBySlug } from "@/lib/products";
 import { AddToCartPanel } from "@/components/AddToCartPanel";
 import { ProductBadges } from "@/components/ProductBadges";
 import { ProductGallery } from "@/components/ProductGallery";
+import { AskStylistButton } from "@/components/AskStylistButton";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,10 @@ export default async function ProductPage({
             ))}
           </ul>
         )}
+
+        <div className="mb-8">
+          <AskStylistButton product={product} />
+        </div>
 
         <AddToCartPanel product={product} />
       </div>

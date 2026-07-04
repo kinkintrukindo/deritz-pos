@@ -6,10 +6,11 @@ import type { Product } from '@/lib/types';
 
 interface AskStylistButtonProps {
   product: Product;
+  variant?: 'icon' | 'full';
   className?: string;
 }
 
-export function AskStylistButton({ product, className = '' }: AskStylistButtonProps) {
+export function AskStylistButton({ product, variant = 'full', className = '' }: AskStylistButtonProps) {
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState('');
@@ -69,6 +70,20 @@ export function AskStylistButton({ product, className = '' }: AskStylistButtonPr
   }
 
   if (!showModal) {
+    if (variant === 'icon') {
+      return (
+        <button
+          onClick={() => setShowModal(true)}
+          className={`w-8 h-8 rounded-full bg-ink text-white flex items-center justify-center hover:bg-gold transition-colors ${className}`}
+          title="Ask Stylist"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+      );
+    }
+
     return (
       <button
         onClick={() => setShowModal(true)}

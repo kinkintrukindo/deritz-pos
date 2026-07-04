@@ -1,21 +1,27 @@
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getSupabase } from '@/lib/supabase';
 import { AdminMessagesClient } from '@/components/AdminMessagesClient';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminMessagesPage() {
-  const supabase = getSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
+const SESSION_COOKIE = 'deritz_admin_session';
+const SESSION_VALUE = 'granted';
 
-  if (!user) {
-    redirect('/login');
+export default async function AdminMessagesPage() {
+  const cookieStore = await cookies();
+  const session = cookieStore.get(SESSION_COOKIE);
+
+  if (session?.value !== SESSION_VALUE) {
+    redirect('/admin');
   }
 
   // Fetch all conversations
+  const supabase = getSupabase();
   const { data: conversations } = await supabase
     .from('chat_conversations')
     .select('*')
+    .eq('archived', false)
     .order('pinned', { ascending: false })
     .order('updated_at', { ascending: false });
 
