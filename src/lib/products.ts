@@ -1,6 +1,6 @@
 import type { Product, ProductImage } from "@/lib/types";
 import { readJson, writeJson } from "@/lib/store";
-import { uploadMedia } from "@/lib/media";
+import { uploadMedia, deleteMedia } from "@/lib/media";
 
 const STORE_KEY = "products";
 
@@ -199,5 +199,22 @@ export async function setProductSoldOut(id: string, soldOut: boolean): Promise<v
 
 export async function deleteProduct(id: string): Promise<void> {
   const products = await readAll();
-  await writeAll(products.filter((p) => p.id !== id));
+  const product = products.find((p) => p.id === id);
+
+  // Delete all images from Supabase storage
+  if (product?.images && product.images.length > 0) {
+    for (const image of product.images) {
+      // Skip placeholder images stored locally
+      if (!image.url.startsWith("/")) {
+        try {
+          await deleteMedia(image.url);
+        } catch (error) {
+          console.error(`Failed to delete image ${image.url}:`, error);
+          // Continue deleting other images even if one fails
+        }
+      }
+    }
+  }
+
+  await writeJson(STORE_KEY, products.filter((p) => p.id !== id));
 }

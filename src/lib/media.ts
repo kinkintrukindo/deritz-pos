@@ -40,3 +40,26 @@ export async function uploadMedia(file: File, folder: string): Promise<string> {
   const { data } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(objectPath);
   return data.publicUrl;
 }
+
+/**
+ * Deletes a file from Supabase Storage by URL.
+ * Extracts the object path from the public URL and removes it.
+ */
+export async function deleteMedia(publicUrl: string): Promise<void> {
+  const supabase = getSupabase();
+
+  // Extract the object path from the public URL
+  // URL format: https://...supabase.co/storage/v1/object/public/media/{objectPath}
+  const urlParts = publicUrl.split("/object/public/media/");
+  if (urlParts.length !== 2) {
+    throw new Error(`Invalid media URL format: ${publicUrl}`);
+  }
+
+  const objectPath = urlParts[1];
+
+  const { error } = await supabase.storage
+    .from(MEDIA_BUCKET)
+    .remove([objectPath]);
+
+  if (error) throw new Error(`deleteMedia failed: ${error.message}`);
+}
