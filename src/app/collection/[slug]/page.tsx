@@ -4,6 +4,7 @@ import { AddToCartPanel } from "@/components/AddToCartPanel";
 import { ProductBadges } from "@/components/ProductBadges";
 import { ProductGallery } from "@/components/ProductGallery";
 import { AskStylistButton } from "@/components/AskStylistButton";
+import { ShareButton } from "@/components/ShareButton";
 
 export const dynamic = "force-dynamic";
 
@@ -39,8 +40,9 @@ export default async function ProductPage({
           </ul>
         )}
 
-        <div className="mb-8">
+        <div className="mb-8 flex gap-3">
           <AskStylistButton product={product} />
+          <ShareButton product={product} />
         </div>
 
         <AddToCartPanel product={product} />

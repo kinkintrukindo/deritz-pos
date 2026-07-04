@@ -190,10 +190,18 @@ export function AskStylistButton({ product, className = '' }: AskStylistButtonPr
                   >
                     <p>{msg.content}</p>
                     <p className={`text-xs mt-1 ${msg.isAdmin ? 'text-graphite' : 'text-white/60'}`}>
-                      {new Date(msg.createdAt).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {(() => {
+                        try {
+                          const date = new Date(msg.createdAt);
+                          if (isNaN(date.getTime())) return '...';
+                          return date.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          });
+                        } catch {
+                          return '...';
+                        }
+                      })()}
                     </p>
                   </div>
                 </div>
