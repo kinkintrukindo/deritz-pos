@@ -15,6 +15,15 @@ const nextConfig: NextConfig = {
         ]
       : [],
   },
+  experimental: {
+    serverActions: {
+      // Server Actions default to a 1MB body limit. The homepage hero
+      // upload goes straight through updateHomepageAction, so this must
+      // clear Supabase Storage's 50,000,000-byte bucket cap plus
+      // multipart/form-data boundary overhead, not just the raw file size.
+      bodySizeLimit: "60mb",
+    },
+  },
 };
 
 export default nextConfig;
