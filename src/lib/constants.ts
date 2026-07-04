@@ -31,8 +31,8 @@ export const SHIPPING = {
     MALAYSIA: 1000000,
     JAPAN: 2000000,
   },
-  // Origin city code (Surabaya)
-  ORIGIN_CITY_CODE: "494",
+  // Origin subdistrict ID: DUKUH PAKIS, SURABAYA, 60225
+  ORIGIN_CITY_CODE: "69229",
   // Max file size for uploads (50MB)
   MAX_FILE_SIZE: 50 * 1000 * 1000,
 } as const;

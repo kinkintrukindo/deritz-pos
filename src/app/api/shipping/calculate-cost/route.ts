@@ -44,47 +44,52 @@ export async function POST(request: NextRequest) {
     const endpoint =
       type === "domestic" ? `${RAJAONGKIR_V2_BASE}/calculate/domestic-cost` : `${RAJAONGKIR_V2_BASE}/calculate/international-cost`;
 
-    const params = new URLSearchParams();
-    params.append("origin", String(origin));
-    params.append("destination", String(destination));
-    params.append("weight", String(weight));
-    params.append("courier", String(courier));
-    if (price !== undefined) {
-      params.append("price", price ? "lowest" : "highest");
-    }
+    // Split couriers and fetch all in parallel
+    const courierList = String(courier).split(",").map(c => c.trim());
+    const courierRequests = courierList.map(async (singleCourier) => {
+      const params = new URLSearchParams();
+      params.append("origin", String(origin));
+      params.append("destination", String(destination));
+      params.append("weight", String(weight));
+      params.append("courier", singleCourier);
+      if (price !== undefined) {
+        params.append("price", price ? "lowest" : "highest");
+      }
 
-    console.log(`📦 RajaOngkir ${type} cost calculation:`, {
-      endpoint,
-      origin,
-      destination,
-      weight,
-      courier,
-      price,
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            key: apiKey,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: params.toString(),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.warn(`⚠️ RajaOngkir ${type} cost error for ${singleCourier}:`, response.status);
+          return [];
+        }
+
+        const data = await response.json();
+        if (data?.meta?.code === 200 && data?.data) {
+          return data.data;
+        }
+        return [];
+      } catch (error) {
+        console.warn(`⚠️ RajaOngkir ${type} fetch error for ${singleCourier}:`, error);
+        return [];
+      }
     });
 
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        key: apiKey,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: params.toString(),
-    });
+    console.log(`📦 RajaOngkir ${type} cost calculation for couriers:`, courierList);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ RajaOngkir ${type} cost error:`, response.status, errorText);
-      return Response.json(
-        { error: `RajaOngkir API error: ${response.status}`, details: errorText },
-        { status: response.status }
-      );
-    }
+    const allResults = await Promise.all(courierRequests);
+    const allCosts = allResults.flat();
 
-    const data = await response.json();
-    console.log(`✅ RajaOngkir ${type} cost returned:`, data?.data?.length || 0, "options");
-
-    if (data?.status?.code === 200 || data?.meta?.code === 200 || data?.data) {
-      const costs: ShippingCost[] = (data.data || []).map((item: any) => ({
+    if (allCosts.length > 0) {
+      const costs: ShippingCost[] = allCosts.map((item: any) => ({
         name: item.name,
         code: item.code,
         service: item.service,
@@ -95,10 +100,11 @@ export async function POST(request: NextRequest) {
         currency_value: item.currency_value,
         currency_updated_at: item.currency_updated_at,
       }));
-      return Response.json({ success: true, costs, raw: data });
+      console.log(`✅ RajaOngkir ${type} cost returned:`, costs.length, "options");
+      return Response.json({ success: true, costs });
     }
 
-    return Response.json({ error: "Unexpected API response format", raw: data }, { status: 400 });
+    return Response.json({ error: "No shipping options available", costs: [] }, { status: 200 });
   } catch (error) {
     console.error("❌ RajaOngkir cost calculation failed:", error);
     return Response.json({ error: String(error) }, { status: 500 });
