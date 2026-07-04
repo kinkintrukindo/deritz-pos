@@ -19,7 +19,7 @@ export default async function HomePage() {
   const featured = settings.featuredProductIds && settings.featuredProductIds.length > 0
     ? settings.featuredProductIds
         .map(id => products.find(p => p.id === id))
-        .filter(Boolean)
+        .filter((p): p is typeof products[0] => !!p)
         .slice(0, 4)
     : products.slice(0, 4);
 

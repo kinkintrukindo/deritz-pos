@@ -1,8 +1,9 @@
-import { supabase } from './supabase';
+import { getSupabase } from './supabase';
 import type { ChatConversation, ChatMessage } from './types';
 
 // Get all conversations for a user
 export async function getUserConversations(userId: string): Promise<ChatConversation[]> {
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from('chat_conversations')
     .select('*')
@@ -27,6 +28,7 @@ export async function getUserConversations(userId: string): Promise<ChatConversa
 
 // Get all conversations for admin (all users)
 export async function getAdminConversations(): Promise<ChatConversation[]> {
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from('chat_conversations')
     .select('*')
@@ -51,6 +53,7 @@ export async function getAdminConversations(): Promise<ChatConversation[]> {
 
 // Get a specific conversation
 export async function getConversation(id: string): Promise<ChatConversation | null> {
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from('chat_conversations')
     .select('*')
@@ -79,6 +82,7 @@ export async function createConversation(
   subject: string,
   orderId?: string
 ): Promise<ChatConversation | null> {
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from('chat_conversations')
     .insert({
@@ -108,6 +112,7 @@ export async function createConversation(
 
 // Get messages for a conversation
 export async function getConversationMessages(conversationId: string): Promise<ChatMessage[]> {
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from('chat_messages')
     .select('*')
@@ -137,6 +142,7 @@ export async function sendMessage(
   content: string,
   isAdmin: boolean = false
 ): Promise<ChatMessage | null> {
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from('chat_messages')
     .insert({
@@ -172,6 +178,7 @@ export async function sendMessage(
 
 // Archive a conversation
 export async function archiveConversation(id: string): Promise<boolean> {
+  const supabase = getSupabase();
   const { error } = await supabase
     .from('chat_conversations')
     .update({ archived: true })
@@ -187,6 +194,7 @@ export async function archiveConversation(id: string): Promise<boolean> {
 
 // Mark messages as read
 export async function markMessagesAsRead(conversationId: string): Promise<boolean> {
+  const supabase = getSupabase();
   const { error } = await supabase
     .from('chat_messages')
     .update({ read_at: new Date().toISOString() })

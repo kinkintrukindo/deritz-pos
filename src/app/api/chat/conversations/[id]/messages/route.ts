@@ -33,6 +33,10 @@ export async function POST(
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  if (!userId) {
+    return Response.json({ error: 'User ID is required' }, { status: 400 });
+  }
+
   const conversation = await getConversation(id);
 
   if (!conversation) {

@@ -1,7 +1,8 @@
-import { supabase } from './supabase';
+import { getSupabase } from './supabase';
 import type { ProductLabel } from './types';
 
 export async function getProductLabels(): Promise<ProductLabel[]> {
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from('product_labels')
     .select('*')
@@ -24,6 +25,7 @@ export async function getProductLabels(): Promise<ProductLabel[]> {
 }
 
 export async function createProductLabel(label: Omit<ProductLabel, 'id'>): Promise<ProductLabel | null> {
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from('product_labels')
     .insert({
@@ -55,6 +57,7 @@ export async function updateProductLabel(
   id: string,
   updates: Partial<Omit<ProductLabel, 'id'>>
 ): Promise<ProductLabel | null> {
+  const supabase = getSupabase();
   const updateData: any = {};
   if (updates.name) updateData.name = updates.name;
   if (updates.color) updateData.color = updates.color;
@@ -85,6 +88,7 @@ export async function updateProductLabel(
 }
 
 export async function deleteProductLabel(id: string): Promise<boolean> {
+  const supabase = getSupabase();
   const { error } = await supabase
     .from('product_labels')
     .update({ active: false })
@@ -100,6 +104,7 @@ export async function deleteProductLabel(id: string): Promise<boolean> {
 
 // Get labels for a specific product
 export async function getProductLabelsForProduct(productId: string): Promise<ProductLabel[]> {
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from('product_label_assignments')
     .select('product_labels (*)')
@@ -126,6 +131,7 @@ export async function getProductLabelsForProduct(productId: string): Promise<Pro
 
 // Assign label to product
 export async function assignLabelToProduct(productId: string, labelId: string): Promise<boolean> {
+  const supabase = getSupabase();
   const { error } = await supabase
     .from('product_label_assignments')
     .insert({ product_id: productId, label_id: labelId });
@@ -140,6 +146,7 @@ export async function assignLabelToProduct(productId: string, labelId: string): 
 
 // Remove label from product
 export async function removeLabelFromProduct(productId: string, labelId: string): Promise<boolean> {
+  const supabase = getSupabase();
   const { error } = await supabase
     .from('product_label_assignments')
     .delete()

@@ -60,13 +60,17 @@ export async function POST(request: Request) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  if (!userId) {
+    return Response.json({ error: 'User ID is required' }, { status: 400 });
+  }
+
   const { subject, orderId } = await request.json();
 
   if (!subject) {
     return Response.json({ error: 'Subject is required' }, { status: 400 });
   }
 
-  const conversation = await createConversation(userId, subject, orderId);
+  const conversation = await createConversation(userId, subject, orderId || undefined);
 
   if (!conversation) {
     return Response.json({ error: 'Failed to create conversation' }, { status: 500 });
