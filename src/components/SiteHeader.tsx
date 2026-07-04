@@ -49,13 +49,13 @@ export function SiteHeader() {
             <>
               <Link
                 href="/login"
-                className="text-[9px] sm:text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors whitespace-nowrap"
+                className="text-[9px] sm:text-xs tracking-wide-label uppercase px-2.5 sm:px-3 py-1.5 border border-ink text-ink hover:bg-ink hover:text-white transition-colors whitespace-nowrap"
               >
                 Sign In
               </Link>
               <Link
                 href="/signup"
-                className="text-[9px] sm:text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors whitespace-nowrap"
+                className="text-[9px] sm:text-xs tracking-wide-label uppercase px-2.5 sm:px-3 py-1.5 bg-ink text-white hover:bg-graphite hover:border-graphite border border-ink transition-colors whitespace-nowrap"
               >
                 Sign Up
               </Link>
