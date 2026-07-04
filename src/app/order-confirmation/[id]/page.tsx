@@ -86,12 +86,14 @@ export default async function OrderConfirmationPage({
 
       <div className="mt-12 pt-12 border-t border-mist">
         <p className="text-sm text-graphite mb-4">Have questions about your order?</p>
-        <Link
-          href={`/messages?order=${order.id}`}
+        <a
+          href="https://wa.me/6281335838367"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-block px-6 py-2 bg-ink text-white text-xs tracking-wide-label uppercase rounded hover:bg-graphite transition-colors"
         >
-          Message Us
-        </Link>
+          Contact via WhatsApp
+        </a>
       </div>
     </div>
   );

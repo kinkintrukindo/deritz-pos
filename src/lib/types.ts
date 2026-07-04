@@ -108,27 +108,3 @@ export type SiteSettings = {
   featuredProductIds?: string[];
 };
 
-export type ChatConversation = {
-  id: string;
-  userId: string;
-  orderId?: string;
-  productId?: string;
-  productName?: string;
-  productImage?: string;
-  subject: string;
-  createdAt: string;
-  updatedAt: string;
-  archived: boolean;
-  pinned?: boolean;
-  read: boolean;
-};
-
-export type ChatMessage = {
-  id: string;
-  conversationId: string;
-  userId: string;
-  isAdmin: boolean;
-  content: string;
-  createdAt: string;
-  readAt?: string;
-};
