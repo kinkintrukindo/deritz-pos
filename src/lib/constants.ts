@@ -33,6 +33,14 @@ export const SHIPPING = {
   },
   // Origin subdistrict ID: DUKUH PAKIS, SURABAYA, 60225
   ORIGIN_CITY_CODE: "69229",
+  // Default product dimensions (L x W x H in cm)
+  DEFAULT_DIMENSION_L: 20,
+  DEFAULT_DIMENSION_W: 20,
+  DEFAULT_DIMENSION_H: 10,
+  // Default product weight (kg)
+  DEFAULT_WEIGHT_KG: 5,
+  // Volumetric weight divisor (kg per cm³)
+  VOLUMETRIC_DIVISOR: 6000,
   // Max file size for uploads (50MB)
   MAX_FILE_SIZE: 50 * 1000 * 1000,
 } as const;

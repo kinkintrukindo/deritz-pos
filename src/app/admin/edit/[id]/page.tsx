@@ -105,8 +105,8 @@ export default async function EditProductPage({
               label="Depth"
               name="dimensionsCm.depth"
               type="number"
-              placeholder="5"
-              defaultValue={product.dimensionsCm?.depth ?? 5}
+              placeholder="10"
+              defaultValue={product.dimensionsCm?.depth ?? 10}
             />
           </div>
         </div>

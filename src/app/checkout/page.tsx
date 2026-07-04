@@ -7,7 +7,7 @@ import { useCurrency } from "@/components/CurrencyProvider";
 import { useAuth } from "@/components/AuthProvider";
 import { Price } from "@/components/Price";
 import { submitOrderAction, confirmPaymentAction, submitOrderBypassAction, type CheckoutResponse } from "@/app/checkout/actions";
-import { estimateShipping, type ShippingRate } from "@/lib/shipping-real";
+import { estimateShipping, type ShippingRate, getChargeableWeight } from "@/lib/shipping-real";
 import { COUNTRY_CODES } from "@/lib/countries";
 import { isValidEmail, isValidPhone, isValidName, isValidAddress, isValidCity, isValidCountry } from "@/lib/validation";
 
@@ -202,32 +202,48 @@ export default function CheckoutPage() {
 
     setLoadingRates(true);
     try {
-      // Calculate total weight from cart items
-      let totalWeightKg = 0;
+      // Calculate total weight and volumetric weight from cart items
+      let totalActualWeightKg = 0;
+      let totalChargeableWeightKg = 0;
+
       for (const line of lines) {
         try {
           const response = await fetch(`/api/products/${line.productId}`);
           if (response.ok) {
             const product = await response.json();
-            totalWeightKg += (product.weightKg || 5) * line.qty;
+            const weightKg = product.weightKg || 5;
+            const dims = product.dimensionsCm || { width: 20, height: 20, depth: 10 };
+
+            totalActualWeightKg += weightKg * line.qty;
+
+            // Calculate volumetric weight per item
+            const chargeablePerItem = getChargeableWeight(
+              weightKg,
+              dims.width,
+              dims.height,
+              dims.depth
+            );
+            totalChargeableWeightKg += chargeablePerItem * line.qty;
           }
         } catch (error) {
           console.warn(`Failed to fetch weight for product ${line.productId}`, error);
-          totalWeightKg += 5 * line.qty; // Fallback to 5kg default
+          totalActualWeightKg += 5 * line.qty;
+          totalChargeableWeightKg += 5 * line.qty; // Fallback: actual weight = chargeable
         }
       }
 
-      const weightInGrams = Math.round(totalWeightKg * 1000);
+      const chargeableWeightInGrams = Math.round(totalChargeableWeightKg * 1000);
       console.log('Shipping estimate:', {
         destinationId,
-        weight: `${totalWeightKg}kg (${weightInGrams}g)`,
+        actualWeight: `${totalActualWeightKg.toFixed(2)}kg`,
+        chargeableWeight: `${totalChargeableWeightKg.toFixed(2)}kg (${chargeableWeightInGrams}g)`,
         type: shippingType,
         items: lines.length,
       });
 
       const rates = await estimateShipping({
         destinationId,
-        weight: weightInGrams, // Already in grams
+        weight: chargeableWeightInGrams, // Chargeable weight (volumetric or actual, whichever is higher)
         type: shippingType,
       });
       console.log('Shipping rates received:', rates);

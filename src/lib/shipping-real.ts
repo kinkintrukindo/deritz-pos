@@ -1,5 +1,15 @@
 import { SHIPPING, API_ENDPOINTS } from './constants';
 
+export function calculateVolumetricWeight(lengthCm: number, widthCm: number, heightCm: number): number {
+  const volumetricWeightKg = (lengthCm * widthCm * heightCm) / SHIPPING.VOLUMETRIC_DIVISOR;
+  return volumetricWeightKg;
+}
+
+export function getChargeableWeight(actualWeightKg: number, lengthCm: number, widthCm: number, heightCm: number): number {
+  const volumetricWeightKg = calculateVolumetricWeight(lengthCm, widthCm, heightCm);
+  return Math.max(actualWeightKg, volumetricWeightKg);
+}
+
 export interface ShippingRate {
   id: string;
   courier: string;

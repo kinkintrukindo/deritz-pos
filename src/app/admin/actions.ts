@@ -84,7 +84,7 @@ export async function createProductAction(formData: FormData) {
   const dimensionsCm = {
     width: Number(formData.get("dimensionsCm.width") ?? 20),
     height: Number(formData.get("dimensionsCm.height") ?? 20),
-    depth: Number(formData.get("dimensionsCm.depth") ?? 5),
+    depth: Number(formData.get("dimensionsCm.depth") ?? 10),
   };
   const labelIds = String(formData.get("labelIds") ?? "")
     .split(",")
@@ -117,7 +117,7 @@ export async function updateProductAction(id: string, formData: FormData) {
   const dimensionsCm = {
     width: Number(formData.get("dimensionsCm.width") ?? 20),
     height: Number(formData.get("dimensionsCm.height") ?? 20),
-    depth: Number(formData.get("dimensionsCm.depth") ?? 5),
+    depth: Number(formData.get("dimensionsCm.depth") ?? 10),
   };
   const labelIds = String(formData.get("labelIds") ?? "")
     .split(",")
