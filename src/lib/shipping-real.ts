@@ -65,8 +65,13 @@ async function getDomesticRates(destinationId: string, weight: number): Promise<
         type: 'domestic',
       }));
 
-      console.log('✅ Real API rates returned:', allRates.length, 'options');
-      return allRates.length > 0 ? allRates : getFallbackDomesticRates();
+      // Sort by cost and limit to 5 cheapest options
+      const topRates = allRates
+        .sort((a, b) => a.cost - b.cost)
+        .slice(0, 5);
+
+      console.log('✅ Real API rates returned:', allRates.length, 'options, showing top 5 cheapest');
+      return topRates.length > 0 ? topRates : getFallbackDomesticRates();
     }
 
     console.warn('⚠️ No results in API response, using fallback');
@@ -147,8 +152,13 @@ async function getInternationalRates(destination: string, weight: number): Promi
         type: 'international' as const,
       }));
 
-      console.log('✅ Real API rates returned:', allRates.length, 'options');
-      return allRates.length > 0 ? allRates : getFallbackInternationalRates();
+      // Sort by cost and limit to 5 cheapest options
+      const topRates = allRates
+        .sort((a, b) => a.cost - b.cost)
+        .slice(0, 5);
+
+      console.log('✅ Real API rates returned:', allRates.length, 'options, showing top 5 cheapest');
+      return topRates.length > 0 ? topRates : getFallbackInternationalRates();
     }
 
     console.warn('⚠️ No results in API response, using fallback');

@@ -599,7 +599,7 @@ export default function CheckoutPage() {
             ) : (
               <div className="col-span-2 relative">
                 <label className="block">
-                  <span className="text-xs tracking-wide-label uppercase text-graphite">City / Country</span>
+                  <span className="text-xs tracking-wide-label uppercase text-graphite">Destination Country</span>
                   <input
                     required
                     type="text"
@@ -612,7 +612,7 @@ export default function CheckoutPage() {
                     }}
                     onFocus={() => setDestinationDropdownOpen(true)}
                     onBlur={() => setTimeout(() => setDestinationDropdownOpen(false), 150)}
-                    placeholder="Search international destination (e.g. Bangkok, Singapore)"
+                    placeholder="Search country (e.g. USA, Singapore, Japan)"
                     className={`mt-1.5 w-full border px-3 py-2.5 text-sm bg-paper focus:outline-none ${
                       validationErrors.city ? 'border-red-500 focus:border-red-500' : 'border-mist focus:border-ink'
                     }`}
