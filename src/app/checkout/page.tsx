@@ -49,14 +49,51 @@ export default function CheckoutPage() {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const countryCodes = {
-    '+1': 'US',
-    '+62': 'Indonesia',
-    '+44': 'UK',
-    '+33': 'France',
-    '+81': 'Japan',
-    '+886': 'Taiwan',
-    '+65': 'Singapore',
-    '+60': 'Malaysia'
+    '+1': '🇺🇸 US',
+    '+7': '🇷🇺 Russia',
+    '+20': '🇪🇬 Egypt',
+    '+27': '🇿🇦 South Africa',
+    '+30': '🇬🇷 Greece',
+    '+31': '🇳🇱 Netherlands',
+    '+32': '🇧🇪 Belgium',
+    '+33': '🇫🇷 France',
+    '+34': '🇪🇸 Spain',
+    '+36': '🇭🇺 Hungary',
+    '+39': '🇮🇹 Italy',
+    '+40': '🇷🇴 Romania',
+    '+41': '🇨🇭 Switzerland',
+    '+43': '🇦🇹 Austria',
+    '+44': '🇬🇧 UK',
+    '+45': '🇩🇰 Denmark',
+    '+46': '🇸🇪 Sweden',
+    '+47': '🇳🇴 Norway',
+    '+48': '🇵🇱 Poland',
+    '+49': '🇩🇪 Germany',
+    '+51': '🇵🇪 Peru',
+    '+52': '🇲🇽 Mexico',
+    '+54': '🇦🇷 Argentina',
+    '+55': '🇧🇷 Brazil',
+    '+56': '🇨🇱 Chile',
+    '+57': '🇨🇴 Colombia',
+    '+58': '🇻🇪 Venezuela',
+    '+60': '🇲🇾 Malaysia',
+    '+61': '🇦🇺 Australia',
+    '+62': '🇮🇩 Indonesia',
+    '+63': '🇵🇭 Philippines',
+    '+64': '🇳🇿 New Zealand',
+    '+65': '🇸🇬 Singapore',
+    '+66': '🇹🇭 Thailand',
+    '+81': '🇯🇵 Japan',
+    '+82': '🇰🇷 South Korea',
+    '+84': '🇻🇳 Vietnam',
+    '+86': '🇨🇳 China',
+    '+90': '🇹🇷 Turkey',
+    '+91': '🇮🇳 India',
+    '+92': '🇵🇰 Pakistan',
+    '+93': '🇦🇫 Afghanistan',
+    '+98': '🇮🇷 Iran',
+    '+212': '🇲🇦 Morocco',
+    '+886': '🇹🇼 Taiwan'
   };
 
   // Validation functions
@@ -520,28 +557,33 @@ export default function CheckoutPage() {
             />
 
             {/* Phone field with country code dropdown */}
-            <div className="col-span-2 grid grid-cols-[100px_1fr] gap-4">
-              <label className="block">
-                <span className="text-xs tracking-wide-label uppercase text-graphite">Country Code</span>
+            <div className="col-span-2">
+              <label className="block text-xs tracking-wide-label uppercase text-graphite mb-1">
+                Phone Number
+              </label>
+              <div className="flex gap-2">
                 <select
                   value={phoneCountryCode}
                   onChange={(e) => setPhoneCountryCode(e.target.value)}
-                  className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+                  className="border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink min-w-fit"
                 >
                   {Object.entries(countryCodes).map(([code, country]) => (
                     <option key={code} value={code}>
-                      {code} {country}
+                      {country} {code}
                     </option>
                   ))}
                 </select>
-              </label>
-              <Field
-                label="Phone Number"
-                value={form.phone}
-                onChange={(v) => setForm({ ...form, phone: v })}
-                type="tel"
-                error={validationErrors.phone}
-              />
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  placeholder="Enter phone number"
+                  className={`flex-1 border px-3 py-2.5 text-sm bg-paper focus:outline-none ${
+                    validationErrors.phone ? 'border-red-500 focus:border-red-500' : 'border-mist focus:border-ink'
+                  }`}
+                />
+              </div>
+              {validationErrors.phone && <p className="text-xs text-red-500 mt-1">{validationErrors.phone}</p>}
             </div>
 
             <Field

@@ -18,29 +18,38 @@ export function MessagesLink() {
       </button>
 
       {showPopup && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowPopup(false)}>
-          <div className="bg-white rounded border border-mist p-8 max-w-sm text-center relative w-full" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-            <button
-              onClick={() => setShowPopup(false)}
-              className="absolute top-4 right-4 text-graphite hover:text-ink transition-colors"
-              title="Close"
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setShowPopup(false)}
+          />
+          <div className="fixed left-1/2 top-1/2 z-50 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm">
+            <div
+              className="bg-white rounded border border-mist p-8 text-center relative"
+              onClick={(e) => e.stopPropagation()}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <h2 className="text-lg font-medium text-ink mb-3">Live Chat Coming Soon</h2>
-            <p className="text-graphite text-sm mb-6">
-              We're working on a live chat feature. In the meantime, reach out to us on WhatsApp!
-            </p>
-            <button
-              onClick={() => setShowPopup(false)}
-              className="px-6 py-2.5 bg-ink text-white text-xs tracking-wide-label uppercase rounded hover:bg-gold transition-colors"
-            >
-              Close
-            </button>
+              <button
+                onClick={() => setShowPopup(false)}
+                className="absolute top-4 right-4 text-graphite hover:text-ink transition-colors"
+                title="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <h2 className="text-lg font-medium text-ink mb-3">Live Chat Coming Soon</h2>
+              <p className="text-graphite text-sm mb-6">
+                We're working on a live chat feature. In the meantime, reach out to us on WhatsApp!
+              </p>
+              <button
+                onClick={() => setShowPopup(false)}
+                className="px-6 py-2.5 bg-ink text-white text-xs tracking-wide-label uppercase rounded hover:bg-gold transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );
