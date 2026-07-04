@@ -79,16 +79,16 @@ export function ProductCard({ product }: { product: Product }) {
           >
             {product.name}
           </h3>
-          <div className="space-y-1">
+          <div className="space-y-2">
             {product.discountPercent ? (
               <>
                 <Price
                   amountIdr={product.basePriceIdr}
-                  className="text-xs text-graphite line-through"
+                  className="text-[10px] text-graphite line-through opacity-60"
                 />
                 <Price
                   amountIdr={Math.round(product.basePriceIdr * (1 - product.discountPercent / 100))}
-                  className="text-sm font-medium text-gold"
+                  className="text-base font-bold text-gold"
                 />
               </>
             ) : (

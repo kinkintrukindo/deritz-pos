@@ -201,7 +201,7 @@ export async function deleteProduct(id: string): Promise<void> {
   const products = await readAll();
   const product = products.find((p) => p.id === id);
 
-  // Delete all images from Supabase storage
+  // Delete only this product's images from Supabase storage
   if (product?.images && product.images.length > 0) {
     for (const image of product.images) {
       // Skip placeholder images stored locally
