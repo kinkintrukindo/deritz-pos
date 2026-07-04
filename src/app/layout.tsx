@@ -4,6 +4,7 @@ import { CartProvider } from "@/components/CartProvider";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { SiteHeader } from "@/components/SiteHeader";
+import { LocationSection } from "@/components/LocationSection";
 import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.css";
 
@@ -32,6 +33,7 @@ export default function RootLayout({
             <CartProvider>
               <SiteHeader />
               <main className="flex-1">{children}</main>
+              <LocationSection />
               <SiteFooter />
             </CartProvider>
           </CurrencyProvider>

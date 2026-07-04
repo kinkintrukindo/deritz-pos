@@ -44,7 +44,19 @@ export function SiteFooter() {
             Visit
           </p>
           <ul className="space-y-2 text-sm text-graphite">
-            <li>Villa Bukitmas F2, Surabaya</li>
+            <li>
+              <a
+                href="https://maps.google.com/?q=Jalan+Villa+Bukit+Mas+F2,+Villa+Jepang,+Dukuh+Pakis,+Surabaya"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-ink transition-colors"
+              >
+                Jalan Villa Bukit Mas F2<br />
+                Villa Jepang, Dukuh Pakis<br />
+                Kec. Dukuhpakis, Surabaya<br />
+                Jawa Timur 60225
+              </a>
+            </li>
             <li>
               <a
                 href="https://wa.me/6281335838367"
