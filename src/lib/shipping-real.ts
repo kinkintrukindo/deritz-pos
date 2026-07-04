@@ -16,7 +16,7 @@ export interface ShippingEstimateParams {
 
 async function getDomesticRates(destinationPostalCode: string, weight: number): Promise<ShippingRate[]> {
   if (!process.env.SHIPPING_COST_API_KEY) {
-    console.warn('SHIPPING_COST_API_KEY not set, using fallback rates');
+    console.warn('❌ SHIPPING_COST_API_KEY not set, using fallback rates');
     return getFallbackDomesticRates();
   }
 
@@ -29,7 +29,7 @@ async function getDomesticRates(destinationPostalCode: string, weight: number): 
       weight: weight, // Use actual product weight in grams
       couriers: ['jne', 'tiki', 'pos'],
     };
-    console.log('Domestic shipping request:', payload);
+    console.log('📦 Domestic shipping request:', payload);
 
     const response = await fetch('https://api.shippingcost.co.id/rates', {
       method: 'POST',
@@ -40,12 +40,16 @@ async function getDomesticRates(destinationPostalCode: string, weight: number): 
       body: JSON.stringify(payload),
     });
 
+    console.log('🔍 API Response status:', response.status);
+
     if (!response.ok) {
-      console.error('Shipping API error:', response.status);
+      const errorText = await response.text();
+      console.error('❌ Shipping API error:', response.status, errorText);
       return getFallbackDomesticRates();
     }
 
     const data = await response.json();
+    console.log('📋 API Response data:', data);
 
     if (data.results && Array.isArray(data.results)) {
       const rates: ShippingRate[] = data.results.map((result: any, idx: number) => ({
@@ -58,12 +62,14 @@ async function getDomesticRates(destinationPostalCode: string, weight: number): 
         type: 'domestic',
       }));
 
+      console.log('✅ Real API rates returned:', rates.length, 'options');
       return rates.length > 0 ? rates : getFallbackDomesticRates();
     }
 
+    console.warn('⚠️ No results in API response, using fallback');
     return getFallbackDomesticRates();
   } catch (error) {
-    console.error('Shipping API error:', error);
+    console.error('❌ Shipping API error:', error);
     return getFallbackDomesticRates();
   }
 }
@@ -102,6 +108,7 @@ function getFallbackDomesticRates(): ShippingRate[] {
 
 async function getInternationalRates(destination: string, weight: number): Promise<ShippingRate[]> {
   if (!process.env.SHIPPING_COST_API_KEY) {
+    console.warn('❌ SHIPPING_COST_API_KEY not set, using fallback rates');
     return getFallbackInternationalRates();
   }
 
@@ -112,7 +119,7 @@ async function getInternationalRates(destination: string, weight: number): Promi
       weight: weight, // Use actual product weight in grams
       couriers: ['dhl', 'fedex', 'ups'],
     };
-    console.log('International shipping request:', payload);
+    console.log('🌍 International shipping request:', payload);
 
     const response = await fetch('https://api.shippingcost.co.id/international-rates', {
       method: 'POST',
@@ -123,27 +130,35 @@ async function getInternationalRates(destination: string, weight: number): Promi
       body: JSON.stringify(payload),
     });
 
+    console.log('🔍 API Response status:', response.status);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ International API error:', response.status, errorText);
       return getFallbackInternationalRates();
     }
 
     const data = await response.json();
+    console.log('📋 API Response data:', data);
 
     if (data.results && Array.isArray(data.results)) {
-      return data.results.map((result: any, idx: number) => ({
+      const rates = data.results.map((result: any, idx: number) => ({
         id: `${result.courier}-${result.service}-${idx}`,
         courier: result.courier?.toUpperCase() || 'Express',
         service: result.service || 'Express',
         description: `${result.service} (${result.etd} days)`,
         cost: result.cost || 1200000,
         etaText: `${result.etd} business days`,
-        type: 'international',
+        type: 'international' as const,
       }));
+      console.log('✅ Real API rates returned:', rates.length, 'options');
+      return rates;
     }
 
+    console.warn('⚠️ No results in API response, using fallback');
     return getFallbackInternationalRates();
   } catch (error) {
-    console.error('International shipping API error:', error);
+    console.error('❌ International shipping API error:', error);
     return getFallbackInternationalRates();
   }
 }
