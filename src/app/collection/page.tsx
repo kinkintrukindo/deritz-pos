@@ -1,6 +1,6 @@
 import { getPublishedProducts } from "@/lib/products";
 import { getAllCollections, getUsedCollections } from "@/lib/collections";
-import { ProductCard } from "@/components/ProductCard";
+import { ProductCollectionGrid } from "@/components/ProductCollectionGrid";
 
 export const dynamic = "force-dynamic";
 
@@ -50,15 +50,7 @@ export default async function CollectionPage({
         ))}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-14">
-        {filtered.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-
-      {filtered.length === 0 && (
-        <p className="text-graphite">No pieces found in this collection yet.</p>
-      )}
+      <ProductCollectionGrid products={filtered} />
     </div>
   );
 }
