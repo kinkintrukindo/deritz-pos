@@ -10,7 +10,7 @@ import {
   setProductSoldOut,
   updateProduct,
 } from "@/lib/products";
-import { markOrderDelivered, markOrderProcessed, markOrderShipped, deleteOrder, markOrderRefunded } from "@/lib/orders";
+import { markOrderDelivered, markOrderProcessed, markOrderShipped, deleteOrder, markOrderRefunded, getAllOrders } from "@/lib/orders";
 import { saveSiteMedia, updateSiteSettings } from "@/lib/settings";
 import { uploadMedia } from "@/lib/media";
 import {
@@ -302,4 +302,9 @@ export async function updateFeaturedProductsAction(formData: FormData) {
 
   await updateSiteSettings({ featuredProductIds: limitedIds });
   return { success: true };
+}
+
+export async function getOrdersByEmailAction(email: string) {
+  const allOrders = await getAllOrders();
+  return allOrders.filter((order) => order.customer.email.toLowerCase() === email.toLowerCase());
 }
