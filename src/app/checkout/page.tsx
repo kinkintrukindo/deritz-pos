@@ -155,15 +155,15 @@ export default function CheckoutPage() {
     setDestinationResults([]);
   };
 
-  // Auto-calculate shipping when postal code changes
+  // Auto-calculate shipping when destination ID changes
   useEffect(() => {
-    if (form.postalCode.trim().length >= 4) {
-      handleEstimateShipping(form.postalCode);
+    if (destinationId) {
+      handleEstimateShipping();
     } else {
       setShippingRates([]);
       setSelectedRateId('');
     }
-  }, [form.postalCode, shippingType]);
+  }, [destinationId, shippingType]);
 
   const [submitting, setSubmitting] = useState(false);
   const [paymentResponse, setPaymentResponse] = useState<CheckoutResponse | null>(null);
@@ -191,10 +191,12 @@ export default function CheckoutPage() {
   const shipping = selectedRate?.cost || 0;
   const total = subtotal + shipping;
 
-  const handleEstimateShipping = async (postalCode?: string) => {
-    const destPostal = postalCode || form.postalCode;
-
-    if (!destPostal.trim()) {
+  const handleEstimateShipping = async () => {
+    // Only estimate if destination ID is available
+    if (!destinationId) {
+      console.warn('No destination ID available for shipping estimate');
+      setShippingRates([]);
+      setSelectedRateId('');
       return;
     }
 
@@ -217,15 +219,15 @@ export default function CheckoutPage() {
 
       const weightInGrams = Math.round(totalWeightKg * 1000);
       console.log('Shipping estimate:', {
-        postal: destPostal,
+        destinationId,
         weight: `${totalWeightKg}kg (${weightInGrams}g)`,
         type: shippingType,
         items: lines.length,
       });
 
       const rates = await estimateShipping({
-        destinationPostalCode: destPostal,
-        weight: weightInGrams, // Convert kg to grams
+        destinationId,
+        weight: weightInGrams, // Already in grams
         type: shippingType,
       });
       console.log('Shipping rates received:', rates);

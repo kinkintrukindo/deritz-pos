@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     }
 
     const rates = await estimateShipping({
-      destinationPostalCode: postalCode,
+      destinationId: postalCode, // For debug, treat postal code as destination ID
       weight: parseInt(weight),
       type,
     });
