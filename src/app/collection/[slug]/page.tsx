@@ -6,7 +6,7 @@ import { ProductGallery } from "@/components/ProductGallery";
 import { AskStylistButton } from "@/components/AskStylistButton";
 import { ShareButton } from "@/components/ShareButton";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function ProductPage({
   params,

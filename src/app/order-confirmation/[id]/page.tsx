@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getOrderById } from "@/lib/orders";
 import type { OrderStatus } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 const STEPS: { key: OrderStatus; label: string }[] = [
   { key: "received", label: "Received" },

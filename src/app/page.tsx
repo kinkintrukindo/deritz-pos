@@ -6,7 +6,7 @@ import { getAllCollections } from "@/lib/collections";
 import { ProductCard } from "@/components/ProductCard";
 import { LocationSection } from "@/components/LocationSection";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function HomePage() {
   const [products, settings, allCollections] = await Promise.all([

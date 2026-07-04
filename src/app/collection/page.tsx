@@ -2,7 +2,7 @@ import { getPublishedProducts } from "@/lib/products";
 import { getAllCollections, getUsedCollections } from "@/lib/collections";
 import { ProductCollectionGrid } from "@/components/ProductCollectionGrid";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function CollectionPage({
   searchParams,
