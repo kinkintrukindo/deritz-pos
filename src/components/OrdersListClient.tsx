@@ -4,15 +4,13 @@ import { useState } from "react";
 import Image from "next/image";
 import type { Order, OrderStatus } from "@/lib/types";
 import { OrderDeleteButton } from "@/components/OrderDeleteButton";
+import { OrderStatusDropdown } from "@/components/OrderStatusDropdown";
 
 interface OrdersListClientProps {
   orders: Order[];
   statusLabel: Record<string, string>;
   statusColor: Record<string, string>;
-  markProcessedAction: (id: string, formData: FormData) => Promise<void>;
-  markShippedAction: (id: string, formData: FormData) => Promise<void>;
-  markDeliveredAction: (id: string, formData: FormData) => Promise<void>;
-  markRefundedAction: (id: string, formData: FormData) => Promise<void>;
+  updateOrderStatusAction: (id: string, formData: FormData) => Promise<void>;
   deleteOrderAction: (id: string, formData: FormData) => Promise<void>;
 }
 
@@ -22,10 +20,7 @@ export function OrdersListClient({
   orders,
   statusLabel,
   statusColor,
-  markProcessedAction,
-  markShippedAction,
-  markDeliveredAction,
-  markRefundedAction,
+  updateOrderStatusAction,
   deleteOrderAction,
 }: OrdersListClientProps) {
   const [selectedStatuses, setSelectedStatuses] = useState<Set<OrderStatus>>(new Set(ALL_STATUSES));
@@ -84,11 +79,14 @@ export function OrdersListClient({
                   <p className="text-xs text-graphite mt-0.5">Tracking: {order.deliveryId}</p>
                 )}
               </div>
-              <span
-                className={`text-[10px] tracking-wide-label uppercase px-2.5 py-1 shrink-0 border rounded ${statusColor[order.status]}`}
-              >
-                {statusLabel[order.status]}
-              </span>
+              <OrderStatusDropdown
+                orderId={order.id}
+                currentStatus={order.status}
+                deliveryId={order.deliveryId}
+                statusLabel={statusLabel}
+                statusColor={statusColor}
+                action={updateOrderStatusAction}
+              />
             </div>
 
             <ul className="text-xs text-graphite mt-3 space-y-2">
@@ -116,51 +114,6 @@ export function OrdersListClient({
             </ul>
 
             <div className="mt-3 flex items-center gap-3 flex-wrap">
-              {order.status === "received" && (
-                <form action={markProcessedAction.bind(null, order.id)}>
-                  <button className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink underline">
-                    Mark Processed
-                  </button>
-                </form>
-              )}
-              {order.status === "processed" && (
-                <form
-                  action={markShippedAction.bind(null, order.id)}
-                  className="flex items-center gap-2"
-                >
-                  <input
-                    name="deliveryId"
-                    placeholder="Courier tracking / delivery ID"
-                    required
-                    className="border border-mist px-2 py-1.5 text-xs bg-paper focus:outline-none focus:border-ink"
-                  />
-                  <button className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink underline">
-                    Mark Shipped
-                  </button>
-                </form>
-              )}
-              {order.status === "shipped" && (
-                <form action={markDeliveredAction.bind(null, order.id)}>
-                  <button className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink underline">
-                    Mark Delivered
-                  </button>
-                </form>
-              )}
-              {order.status === "delivered" && (
-                <span className="text-xs text-graphite">Completed</span>
-              )}
-              {order.status === "refunded" && (
-                <span className="text-xs text-graphite">Refunded</span>
-              )}
-
-              {order.status !== "refunded" && (
-                <form action={markRefundedAction.bind(null, order.id)}>
-                  <button className="text-xs tracking-wide-label uppercase text-graphite hover:text-red-600 underline">
-                    Mark Refunded
-                  </button>
-                </form>
-              )}
-
               <OrderDeleteButton
                 orderId={order.id}
                 action={deleteOrderAction.bind(null, order.id)}

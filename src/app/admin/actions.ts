@@ -267,6 +267,32 @@ export async function markRefundedAction(id: string, _formData: FormData) {
   redirect("/admin/orders");
 }
 
+export async function updateOrderStatusAction(id: string, formData: FormData) {
+  await requireAdminSession();
+  const status = String(formData.get("status") ?? "").trim() as any;
+  const deliveryId = String(formData.get("deliveryId") ?? "").trim();
+
+  if (!status || !["received", "processed", "shipped", "delivered", "refunded"].includes(status)) {
+    redirect("/admin/orders?error=invalid-status");
+  }
+
+  if ((status === "delivered" || status === "shipped") && !deliveryId) {
+    redirect("/admin/orders?error=missing-delivery-id");
+  }
+
+  if (status === "processed") {
+    await markOrderProcessed(id);
+  } else if (status === "shipped") {
+    await markOrderShipped(id, deliveryId);
+  } else if (status === "delivered") {
+    await markOrderDelivered(id);
+  } else if (status === "refunded") {
+    await markOrderRefunded(id);
+  }
+
+  redirect("/admin/orders");
+}
+
 export async function updateFeaturedProductsAction(formData: FormData) {
   await requireAdminSession();
   const featuredIds = formData.getAll("featuredProductIds") as string[];

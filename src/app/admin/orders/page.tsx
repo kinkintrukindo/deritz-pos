@@ -2,11 +2,8 @@ import Image from "next/image";
 import { getAllOrders } from "@/lib/orders";
 import {
   requireAdminSession,
-  markProcessedAction,
-  markShippedAction,
-  markDeliveredAction,
   deleteOrderAction,
-  markRefundedAction,
+  updateOrderStatusAction,
   logout,
 } from "@/app/admin/actions";
 import { AdminNav } from "@/components/AdminNav";
@@ -66,10 +63,7 @@ export default async function AdminOrdersPage({
         orders={orders}
         statusLabel={STATUS_LABEL}
         statusColor={STATUS_COLOR}
-        markProcessedAction={markProcessedAction}
-        markShippedAction={markShippedAction}
-        markDeliveredAction={markDeliveredAction}
-        markRefundedAction={markRefundedAction}
+        updateOrderStatusAction={updateOrderStatusAction}
         deleteOrderAction={deleteOrderAction}
       />
     </div>
