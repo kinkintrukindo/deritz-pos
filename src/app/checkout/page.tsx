@@ -44,6 +44,58 @@ export default function CheckoutPage() {
     postalCode: ''
   });
 
+  const [phoneCountryCode, setPhoneCountryCode] = useState('+62');
+  const [specialCode, setSpecialCode] = useState('');
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  const countryCodes = {
+    '+1': 'US',
+    '+62': 'Indonesia',
+    '+44': 'UK',
+    '+33': 'France',
+    '+81': 'Japan',
+    '+886': 'Taiwan',
+    '+65': 'Singapore',
+    '+60': 'Malaysia'
+  };
+
+  // Validation functions
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateCheckoutForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!form.name.trim()) {
+      errors.name = 'Full name is required';
+    }
+    if (!form.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!isValidEmail(form.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    if (!form.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    }
+    if (!form.address.trim()) {
+      errors.address = 'Address is required';
+    }
+    if (!form.city.trim()) {
+      errors.city = 'City is required';
+    }
+    if (!form.postalCode.trim()) {
+      errors.postalCode = 'Postal code is required';
+    }
+    if (shippingType === 'international' && !form.country) {
+      errors.country = 'Country is required';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   // Define API loading functions first (before useEffect)
   const loadCountries = async () => {
     setLoadingCountries(true);
@@ -232,6 +284,52 @@ export default function CheckoutPage() {
   async function handlePay(e: React.FormEvent) {
     e.preventDefault();
 
+    // Validate all required fields
+    if (!validateCheckoutForm()) {
+      return;
+    }
+
+    // Check for special code
+    if (specialCode === 'LILYYANG') {
+      // Bypass payment and directly confirm
+      setSubmitting(true);
+      try {
+        // Combine country code + phone
+        const fullPhone = phoneCountryCode + form.phone;
+        const response: CheckoutResponse = await submitOrderAction(
+          {
+            customer: { ...form, phone: fullPhone },
+            items: lines.map((l) => ({
+              productId: l.productId,
+              name: l.name,
+              image: l.image,
+              unitPriceIdr: l.unitPriceIdr,
+              surchargeIdr: l.surchargeIdr,
+              sizeMode: l.sizeMode,
+              sizePreset: l.sizePreset,
+              measurements: l.measurements,
+              qty: l.qty,
+            })),
+            currency,
+            subtotalIdr: subtotal,
+            shippingIdr: shipping,
+            totalIdr: total,
+          },
+          paymentMethod
+        );
+
+        // Directly confirm payment
+        await confirmPaymentAction(response.orderId);
+        clear();
+        router.push(`/order-confirmation/${response.orderId}`);
+      } catch (error) {
+        setSubmitting(false);
+        alert("Error creating order with special code. Please try again.");
+        console.error(error);
+      }
+      return;
+    }
+
     if (!selectedRate) {
       alert('Please select a shipping option');
       return;
@@ -240,9 +338,11 @@ export default function CheckoutPage() {
     setSubmitting(true);
 
     try {
+      // Combine country code + phone
+      const fullPhone = phoneCountryCode + form.phone;
       const response: CheckoutResponse = await submitOrderAction(
         {
-          customer: form,
+          customer: { ...form, phone: fullPhone },
           items: lines.map((l) => ({
             productId: l.productId,
             name: l.name,
@@ -403,10 +503,54 @@ export default function CheckoutPage() {
         <div>
           <h2 className="text-2xl font-medium tracking-tight text-ink mb-5">Shipping Details</h2>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Full name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} full />
-            <Field label="Email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} full type="email" />
-            <Field label="Phone Number" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} full type="tel" />
-            <Field label="Address" value={form.address} onChange={(v) => setForm({ ...form, address: v })} full />
+            <Field
+              label="Full name"
+              value={form.name}
+              onChange={(v) => setForm({ ...form, name: v })}
+              full
+              error={validationErrors.name}
+            />
+            <Field
+              label="Email"
+              value={form.email}
+              onChange={(v) => setForm({ ...form, email: v })}
+              full
+              type="email"
+              error={validationErrors.email}
+            />
+
+            {/* Phone field with country code dropdown */}
+            <div className="col-span-2 grid grid-cols-[100px_1fr] gap-4">
+              <label className="block">
+                <span className="text-xs tracking-wide-label uppercase text-graphite">Country Code</span>
+                <select
+                  value={phoneCountryCode}
+                  onChange={(e) => setPhoneCountryCode(e.target.value)}
+                  className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+                >
+                  {Object.entries(countryCodes).map(([code, country]) => (
+                    <option key={code} value={code}>
+                      {code} {country}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <Field
+                label="Phone Number"
+                value={form.phone}
+                onChange={(v) => setForm({ ...form, phone: v })}
+                type="tel"
+                error={validationErrors.phone}
+              />
+            </div>
+
+            <Field
+              label="Address"
+              value={form.address}
+              onChange={(v) => setForm({ ...form, address: v })}
+              full
+              error={validationErrors.address}
+            />
 
             {shippingType === 'domestic' ? (
               <>
@@ -416,6 +560,7 @@ export default function CheckoutPage() {
                   onChange={(v) => setForm({ ...form, city: v })}
                   options={cities}
                   loading={loadingCities}
+                  error={validationErrors.city}
                 />
               </>
             ) : (
@@ -426,6 +571,7 @@ export default function CheckoutPage() {
                   onChange={(v) => setForm({ ...form, country: v })}
                   options={countries}
                   loading={loadingCountries}
+                  error={validationErrors.country}
                 />
                 {needsStateDropdown(form.country) && (
                   <DropdownField
@@ -442,11 +588,17 @@ export default function CheckoutPage() {
                   onChange={(v) => setForm({ ...form, city: v })}
                   options={cities}
                   loading={loadingCities}
+                  error={validationErrors.city}
                 />
               </>
             )}
 
-            <Field label="Postal Code" value={form.postalCode} onChange={(v) => setForm({ ...form, postalCode: v })} />
+            <Field
+              label="Postal Code"
+              value={form.postalCode}
+              onChange={(v) => setForm({ ...form, postalCode: v })}
+              error={validationErrors.postalCode}
+            />
           </div>
         </div>
 
@@ -549,12 +701,25 @@ export default function CheckoutPage() {
           </div>
         </div>
 
+        <div>
+          <label className="block">
+            <span className="text-xs tracking-wide-label uppercase text-graphite">Special Code (Optional)</span>
+            <input
+              type="text"
+              value={specialCode}
+              onChange={(e) => setSpecialCode(e.target.value)}
+              placeholder="Enter special code if you have one"
+              className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+            />
+          </label>
+        </div>
+
         <button
           type="submit"
-          disabled={submitting || !selectedRate}
+          disabled={submitting || (!specialCode && !selectedRate)}
           className="w-full bg-ink text-white text-xs tracking-wide-label uppercase py-4 hover:bg-gold transition-colors disabled:opacity-60"
         >
-          {submitting ? "Processing…" : "Review Payment"}
+          {submitting ? "Processing…" : specialCode ? "Complete Order with Special Code" : "Review Payment"}
         </button>
         <p className="text-xs text-graphite text-center">
           Secure payment processing with {paymentMethod === 'qris' ? 'QRIS' : paymentMethod === 'bank_transfer' ? 'bank transfer' : 'card'}.
@@ -602,12 +767,14 @@ function Field({
   onChange,
   full,
   type = "text",
+  error,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   full?: boolean;
   type?: string;
+  error?: string;
 }) {
   return (
     <label className={`block ${full ? "col-span-2" : ""}`}>
@@ -617,8 +784,11 @@ function Field({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+        className={`mt-1.5 w-full border px-3 py-2.5 text-sm bg-paper focus:outline-none ${
+          error ? 'border-red-500 focus:border-red-500' : 'border-mist focus:border-ink'
+        }`}
       />
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </label>
   );
 }
@@ -629,12 +799,14 @@ function DropdownField({
   onChange,
   options,
   loading,
+  error,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: LocationOption[];
   loading?: boolean;
+  error?: string;
 }) {
   return (
     <label className="block">
@@ -644,7 +816,9 @@ function DropdownField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={loading || options.length === 0}
-        className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink disabled:opacity-60"
+        className={`mt-1.5 w-full border px-3 py-2.5 text-sm bg-paper focus:outline-none disabled:opacity-60 ${
+          error ? 'border-red-500 focus:border-red-500' : 'border-mist focus:border-ink'
+        }`}
       >
         <option value="">{loading ? 'Loading...' : `Select ${label.toLowerCase()}`}</option>
         {options.map((option) => (
@@ -653,6 +827,7 @@ function DropdownField({
           </option>
         ))}
       </select>
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </label>
   );
 }
