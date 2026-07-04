@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
 import { CartLink } from "@/components/CartLink";
+import { WishlistLink } from "@/components/WishlistLink";
 import { useAuth } from "@/components/AuthProvider";
 import { useState } from "react";
 
@@ -23,14 +24,14 @@ export function SiteHeader() {
           <Image
             src="/brand/logo.png"
             alt="De Ritz"
-            width={36}
-            height={36}
-            className="h-7 w-7 object-contain"
+            width={48}
+            height={48}
+            className="h-10 w-10 object-contain"
             priority
           />
           <span style={{ fontFamily: 'var(--font-trajan)' }}>
-            <div className="text-[11px] sm:text-xs tracking-wider text-ink leading-none">De Ritz</div>
-            <div className="text-[8px] sm:text-[10px] tracking-widest text-graphite italic leading-none">L&apos;Atelier</div>
+            <div className="text-xs sm:text-sm tracking-wider text-ink leading-none">De Ritz</div>
+            <div className="text-[9px] sm:text-[11px] tracking-widest text-graphite italic leading-none">L&apos;Atelier</div>
           </span>
         </Link>
 
@@ -62,25 +63,34 @@ export function SiteHeader() {
             </>
           )}
           {!loading && user && (
-            <div className="relative">
-              <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors"
+            <>
+              <Link
+                href="/messages"
+                className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors whitespace-nowrap"
               >
-                {user.email?.split('@')[0]}
-              </button>
-              {showMenu && (
-                <div className="absolute right-0 mt-2 bg-white border border-mist shadow-lg z-50">
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-xs tracking-wide-label uppercase text-graphite hover:bg-surface hover:text-ink transition-colors"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              )}
-            </div>
+                Messages
+              </Link>
+              <div className="relative">
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="text-xs tracking-wide-label uppercase text-graphite hover:text-ink transition-colors"
+                >
+                  {user.email?.split('@')[0]}
+                </button>
+                {showMenu && (
+                  <div className="absolute right-0 mt-2 bg-white border border-mist shadow-lg z-50">
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-xs tracking-wide-label uppercase text-graphite hover:bg-surface hover:text-ink transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
           )}
+          <WishlistLink />
           <CartLink />
         </div>
       </div>

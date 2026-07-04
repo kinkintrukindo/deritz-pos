@@ -3,8 +3,8 @@ import { Inter } from "next/font/google";
 import { CartProvider } from "@/components/CartProvider";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import { AuthProvider } from "@/components/AuthProvider";
+import { WishlistProvider } from "@/components/WishlistProvider";
 import { SiteHeader } from "@/components/SiteHeader";
-import { LocationSection } from "@/components/LocationSection";
 import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.css";
 
@@ -31,10 +31,11 @@ export default function RootLayout({
         <AuthProvider>
           <CurrencyProvider>
             <CartProvider>
-              <SiteHeader />
-              <main className="flex-1">{children}</main>
-              <LocationSection />
-              <SiteFooter />
+              <WishlistProvider>
+                <SiteHeader />
+                <main className="flex-1">{children}</main>
+                <SiteFooter />
+              </WishlistProvider>
             </CartProvider>
           </CurrencyProvider>
         </AuthProvider>

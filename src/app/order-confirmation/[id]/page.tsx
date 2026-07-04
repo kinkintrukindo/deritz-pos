@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOrderById } from "@/lib/orders";
 import type { OrderStatus } from "@/lib/types";
@@ -82,6 +83,16 @@ export default async function OrderConfirmationPage({
         Order tracking will be linked to your account once accounts are live.
         For now, save this order number for reference.
       </p>
+
+      <div className="mt-12 pt-12 border-t border-mist">
+        <p className="text-sm text-graphite mb-4">Have questions about your order?</p>
+        <Link
+          href={`/messages?order=${order.id}`}
+          className="inline-block px-6 py-2 bg-ink text-white text-xs tracking-wide-label uppercase rounded hover:bg-graphite transition-colors"
+        >
+          Message Us
+        </Link>
+      </div>
     </div>
   );
 }

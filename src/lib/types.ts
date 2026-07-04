@@ -1,5 +1,14 @@
 export type SizePresetKey = "XS" | "S" | "M" | "L";
 
+export type ProductLabel = {
+  id: string;
+  name: string;
+  color: string; // hex color like #FF0000
+  style?: 'typewriter' | 'emboss' | 'bold'; // emboss is old typewriter style
+  sortOrder: number;
+  active: boolean;
+};
+
 export type Measurements = {
   bust: number;
   waist: number;
@@ -47,6 +56,7 @@ export type Product = {
     depth: number;
   };
   createdAt: string;
+  labelIds?: string[]; // IDs of applied product labels
 };
 
 export type OrderStatus = "received" | "processed" | "shipped" | "delivered" | "refunded";
@@ -95,4 +105,25 @@ export type SiteSettings = {
   heroEyebrow: string;
   heroHeadline: string;
   heroButtonLabel: string;
+  featuredProductIds?: string[];
+};
+
+export type ChatConversation = {
+  id: string;
+  userId: string;
+  orderId?: string;
+  subject: string;
+  createdAt: string;
+  updatedAt: string;
+  archived: boolean;
+};
+
+export type ChatMessage = {
+  id: string;
+  conversationId: string;
+  userId: string;
+  isAdmin: boolean;
+  content: string;
+  createdAt: string;
+  readAt?: string;
 };

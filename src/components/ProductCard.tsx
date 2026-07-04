@@ -1,27 +1,39 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/lib/types";
 import { Price } from "@/components/Price";
 import { ProductBadges } from "@/components/ProductBadges";
+import { useWishlist } from "@/components/WishlistProvider";
 
 export function ProductCard({ product }: { product: Product }) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const wishlisted = isInWishlist(product.id);
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
+    if (wishlisted) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist({
+        productId: product.id,
+        name: product.name,
+        image: product.image,
+        basePriceIdr: product.basePriceIdr,
+        slug: product.slug,
+        addedAt: Date.now(),
+      });
+    }
   };
 
   return (
     <Link href={`/collection/${product.slug}`} className="group block">
-      {/* Panel container with border and padding */}
-      <div className="border border-mist p-4 bg-paper hover:border-ink transition-colors">
+      {/* Panel container with rounded corners and shadow */}
+      <div className="border border-mist p-4 bg-paper hover:border-ink transition-all rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1">
         {/* Image container */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-surface mb-4">
+        <div className="relative aspect-[3/4] overflow-hidden bg-surface mb-4 rounded-lg">
           {(product.isNew || product.isPromo || product.soldOut) && (
             <div className="absolute top-3 left-3 z-10">
               <ProductBadges product={product} />
@@ -31,11 +43,11 @@ export function ProductCard({ product }: { product: Product }) {
           <button
             onClick={handleWishlist}
             className="absolute top-3 right-3 z-10 bg-white/90 p-2 rounded hover:bg-white transition-colors"
-            title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
             <svg
               className={`w-5 h-5 transition-colors ${
-                isWishlisted ? "fill-gold text-gold" : "text-graphite fill-none"
+                wishlisted ? "fill-gold text-gold" : "text-graphite fill-none"
               }`}
               stroke="currentColor"
               strokeWidth={1.5}

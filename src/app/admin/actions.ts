@@ -257,3 +257,14 @@ export async function markRefundedAction(id: string, _formData: FormData) {
   await markOrderRefunded(id);
   redirect("/admin/orders");
 }
+
+export async function updateFeaturedProductsAction(formData: FormData) {
+  await requireAdminSession();
+  const featuredIds = formData.getAll("featuredProductIds") as string[];
+
+  // Limit to 4 featured products
+  const limitedIds = featuredIds.slice(0, 4);
+
+  await updateSiteSettings({ featuredProductIds: limitedIds });
+  redirect("/admin/featured?saved=1");
+}

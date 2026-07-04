@@ -4,6 +4,7 @@ import { getPublishedProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/settings";
 import { getAllCollections } from "@/lib/collections";
 import { ProductCard } from "@/components/ProductCard";
+import { LocationSection } from "@/components/LocationSection";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,15 @@ export default async function HomePage() {
     getSiteSettings(),
     getAllCollections(),
   ]);
-  const featured = products.slice(0, 4);
+
+  // Get featured products from settings, fall back to first 4 if none selected
+  const featured = settings.featuredProductIds && settings.featuredProductIds.length > 0
+    ? settings.featuredProductIds
+        .map(id => products.find(p => p.id === id))
+        .filter(Boolean)
+        .slice(0, 4)
+    : products.slice(0, 4);
+
   const collections = allCollections;
 
   return (
@@ -115,6 +124,8 @@ export default async function HomePage() {
           </p>
         </div>
       </section>
+
+      <LocationSection />
     </div>
   );
 }

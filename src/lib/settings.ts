@@ -10,6 +10,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   heroEyebrow: "Made to Measure",
   heroHeadline: "Heritage tailoring for the modern bride",
   heroButtonLabel: "Explore the Collection",
+  featuredProductIds: [],
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {

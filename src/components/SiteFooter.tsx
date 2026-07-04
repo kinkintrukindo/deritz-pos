@@ -59,16 +59,10 @@ export function SiteFooter() {
             </li>
             <li>
               <a
-                href="https://wa.me/6281335838367"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 hover:text-ink transition-colors"
-                title="Chat on WhatsApp"
+                href="tel:+6281335838367"
+                className="hover:text-ink transition-colors"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.52 3.48C18.36 1.32 15.41 0 12.21 0 5.97 0 1.03 4.94 1.03 11.18c0 1.96.51 3.88 1.48 5.56L1 24l5.71-1.49c1.62.88 3.45 1.34 5.34 1.34 6.24 0 11.18-4.94 11.18-11.18 0-2.99-1.2-5.79-3.38-7.88zM12.21 21.45c-1.67 0-3.28-.43-4.71-1.24l-.34-.2-3.5.91.92-3.38-.22-.35C2.5 14.75 2.1 13.01 2.1 11.18c0-5.17 4.21-9.38 9.38-9.38 2.5 0 4.85.97 6.62 2.75 1.77 1.77 2.75 4.12 2.75 6.62 0 5.17-4.21 9.38-9.38 9.38zm5.1-7.02c-.28-.14-1.66-.82-1.92-.91-.26-.09-.45-.14-.63.14-.18.28-.73.91-.89 1.1-.16.19-.33.21-.61.07-.28-.14-1.19-.44-2.27-1.4-.84-.75-1.41-1.67-1.57-1.95-.16-.28-.02-.43.12-.57.12-.12.28-.33.42-.49.14-.16.19-.28.28-.47.09-.19.04-.35-.02-.49-.06-.14-.63-1.51-.86-2.07-.23-.54-.46-.47-.63-.48-.16-.01-.35-.01-.54-.01-.19 0-.49.07-.74.35-.25.28-.95.93-.95 2.27 0 1.34.97 2.63 1.11 2.82.14.19 1.98 3.02 4.8 4.23.67.29 1.2.46 1.6.59.67.21 1.28.18 1.76.11.54-.08 1.66-.68 1.89-1.34.24-.66.24-1.22.17-1.34-.07-.12-.26-.19-.55-.33z"/>
-                </svg>
-                <span>+62 813-3583-8367</span>
+                +62 813-3583-8367
               </a>
             </li>
             <li>
@@ -100,8 +94,8 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-mist py-6 text-center text-xs text-graphite/80">
-        © {new Date().getFullYear()} De Ritz Make Up &amp; Bridal. All rights reserved.
+      <div className="border-t border-mist py-6 px-6 lg:px-10 text-xs text-graphite/80" style={{ fontFamily: 'var(--font-trajan)' }}>
+        © {new Date().getFullYear()} De Ritz
       </div>
     </footer>
   );

@@ -34,6 +34,32 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Use TRAJAN for all headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-trajan);
+  letter-spacing: 0.02em;
+  font-weight: normal;
+  line-height: 1.15;
+}
+
+h1 { font-size: 3rem; }
+h2 { font-size: 1.875rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+/* Product titles and labels */
+.trajan {
+  font-family: var(--font-trajan);
+}
+
+/* Premium text styling */
+.text-premium {
+  font-family: var(--font-trajan);
+  letter-spacing: 0.02em;
+}
+
 .tracking-wide-label {
   letter-spacing: 0.14em;
 }
