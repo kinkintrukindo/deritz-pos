@@ -20,17 +20,20 @@ function extensionFor(file: File, fallback: string): string {
  * Uploads a file to the public Supabase Storage bucket under `folder/` and
  * returns its public URL. Replaces the old local `public/` filesystem writes,
  * which are read-only on Vercel.
+ *
+ * For large files, uses the file's Blob directly instead of converting to Buffer
+ * to minimize memory usage on Vercel functions.
  */
 export async function uploadMedia(file: File, folder: string): Promise<string> {
   const supabase = getSupabase();
   const isVideo = file.type.startsWith("video/");
   const ext = extensionFor(file, isVideo ? "mp4" : "jpg");
   const objectPath = `${folder}/${Date.now()}-${Math.round(Math.random() * 1e6)}.${ext}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
 
+  // Use file Blob directly for large files to avoid loading entire file into memory
   const { error } = await supabase.storage
     .from(MEDIA_BUCKET)
-    .upload(objectPath, buffer, {
+    .upload(objectPath, file, {
       contentType: file.type || "application/octet-stream",
       upsert: false,
     });

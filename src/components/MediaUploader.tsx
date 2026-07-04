@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { useToast } from '@/components/Toast';
 
 const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks for faster upload
 
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
@@ -17,11 +17,9 @@ function formatFileSize(bytes: number): string {
 export function MediaUploader({
   name,
   label,
-  onUploadComplete,
 }: {
   name: string;
   label: string;
-  onUploadComplete?: (file: File) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -29,52 +27,27 @@ export function MediaUploader({
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { addToast } = useToast();
 
-  const handleFileSelect = async (file: File) => {
+  const handleFileSelect = (file: File) => {
     if (file.size > MAX_FILE_SIZE) {
       addToast(`File too large. Max: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
       return;
     }
 
+    setSelectedFile(file);
     setFileName(file.name);
     setFileSize(file.size);
     setPreview(URL.createObjectURL(file));
-    setIsUploading(true);
     setUploadProgress(0);
+    setIsUploading(false);
 
-    try {
-      // Store file in hidden input for form submission
-      if (inputRef.current) {
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        inputRef.current.files = dataTransfer.files;
-      }
-
-      // Simulate upload progress for large files
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += Math.random() * 15;
-        if (progress > 95) progress = 95;
-        setUploadProgress(progress);
-      }, 300);
-
-      // Simulate upload completion after file size calculation
-      const estimatedTime = Math.max(2000, (file.size / (1024 * 1024)) * 1000);
-      await new Promise(resolve => setTimeout(resolve, estimatedTime));
-
-      clearInterval(interval);
-      setUploadProgress(100);
-      addToast(`File ready: ${file.name}`, 'success');
-
-      setTimeout(() => {
-        setIsUploading(false);
-        onUploadComplete?.(file);
-      }, 500);
-    } catch (error) {
-      addToast('Upload failed', 'error');
-      setIsUploading(false);
-      setUploadProgress(0);
+    // Store file in hidden input for form submission
+    if (inputRef.current) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      inputRef.current.files = dataTransfer.files;
     }
   };
 
@@ -130,6 +103,7 @@ export function MediaUploader({
           const file = e.target.files?.[0];
           if (file) handleFileSelect(file);
         }}
+        onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
           const file = e.dataTransfer?.files?.[0];

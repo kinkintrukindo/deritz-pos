@@ -183,17 +183,27 @@ export async function markDeliveredAction(id: string, _formData: FormData) {
 }
 
 export async function updateHomepageAction(formData: FormData) {
-  // Allow up to 5 minutes for large file uploads (173MB video)
   await requireAdminSession();
 
   const mediaFile = formData.get("heroMedia");
+  const uploadedMediaUrl = formData.get("uploadedMediaUrl");
   const patch: Parameters<typeof updateSiteSettings>[0] = {
     heroEyebrow: String(formData.get("heroEyebrow") ?? ""),
     heroHeadline: String(formData.get("heroHeadline") ?? ""),
     heroButtonLabel: String(formData.get("heroButtonLabel") ?? ""),
   };
 
-  if (mediaFile instanceof File && mediaFile.size > 0) {
+  // If URL was pre-uploaded via API, use that
+  if (typeof uploadedMediaUrl === "string" && uploadedMediaUrl.length > 0) {
+    patch.heroMediaUrl = uploadedMediaUrl;
+    // Infer media type from URL or form data
+    patch.heroMediaType = uploadedMediaUrl.includes(".mp4") ||
+      uploadedMediaUrl.includes(".webm") ||
+      uploadedMediaUrl.includes(".mov")
+      ? "video"
+      : "image";
+  } else if (mediaFile instanceof File && mediaFile.size > 0) {
+    // Fallback: upload file directly (for small files or if upload API isn't used)
     const saved = await saveSiteMedia(mediaFile);
     patch.heroMediaUrl = saved.url;
     patch.heroMediaType = saved.mediaType;
