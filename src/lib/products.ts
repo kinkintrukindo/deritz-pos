@@ -1,8 +1,7 @@
 import type { Product, ProductImage } from "@/lib/types";
+import { SUPABASE_KEYS } from "@/lib/constants";
 import { readJson, writeJson } from "@/lib/store";
 import { uploadMedia, deleteMedia } from "@/lib/media";
-
-const STORE_KEY = "products";
 
 function normalizeCollectionName(collection: string): string {
   return collection
@@ -13,7 +12,7 @@ function normalizeCollectionName(collection: string): string {
 }
 
 async function readAll(): Promise<Product[]> {
-  const products = await readJson<Product[]>(STORE_KEY, []);
+  const products = await readJson<Product[]>(SUPABASE_KEYS.PRODUCTS, []);
   return products.map((p) => ({
     ...p,
     collection: normalizeCollectionName(p.collection),
@@ -21,7 +20,7 @@ async function readAll(): Promise<Product[]> {
 }
 
 async function writeAll(products: Product[]): Promise<void> {
-  await writeJson(STORE_KEY, products);
+  await writeJson(SUPABASE_KEYS.PRODUCTS, products);
 }
 
 function sortFeaturedFirst(products: Product[]): Product[] {
@@ -216,5 +215,5 @@ export async function deleteProduct(id: string): Promise<void> {
     }
   }
 
-  await writeJson(STORE_KEY, products.filter((p) => p.id !== id));
+  await writeJson(SUPABASE_KEYS.PRODUCTS, products.filter((p) => p.id !== id));
 }

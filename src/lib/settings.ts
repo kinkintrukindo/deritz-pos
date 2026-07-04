@@ -1,8 +1,7 @@
 import type { SiteSettings } from "@/lib/types";
+import { SUPABASE_KEYS } from "@/lib/constants";
 import { readJson, writeJson } from "@/lib/store";
 import { uploadMedia } from "@/lib/media";
-
-const STORE_KEY = "site_settings";
 
 const DEFAULT_SETTINGS: SiteSettings = {
   heroMediaUrl: "/hero/premium-blush-train-v2.jpg",
@@ -14,13 +13,13 @@ const DEFAULT_SETTINGS: SiteSettings = {
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const stored = await readJson<Partial<SiteSettings> | null>(STORE_KEY, null);
+  const stored = await readJson<Partial<SiteSettings> | null>(SUPABASE_KEYS.SETTINGS, null);
   return { ...DEFAULT_SETTINGS, ...(stored ?? {}) };
 }
 
 export async function updateSiteSettings(patch: Partial<SiteSettings>): Promise<void> {
   const current = await getSiteSettings();
-  await writeJson(STORE_KEY, { ...current, ...patch });
+  await writeJson(SUPABASE_KEYS.SETTINGS, { ...current, ...patch });
 }
 
 export async function saveSiteMedia(

@@ -1,4 +1,5 @@
 import type { Product } from "@/lib/types";
+import { SUPABASE_KEYS } from "@/lib/constants";
 import { readJson, writeJson } from "@/lib/store";
 
 export type Collection = {
@@ -9,15 +10,13 @@ export type Collection = {
   order: number;
 };
 
-const STORE_KEY = "collections";
-
 export async function getAllCollections(): Promise<Collection[]> {
-  const collections = await readJson<Collection[]>(STORE_KEY, []);
+  const collections = await readJson<Collection[]>(SUPABASE_KEYS.COLLECTIONS, []);
   return [...collections].sort((a, b) => a.order - b.order);
 }
 
 export async function addCollection(name: string, caption?: string, image?: string): Promise<Collection> {
-  const collections = await readJson<Collection[]>(STORE_KEY, []);
+  const collections = await readJson<Collection[]>(SUPABASE_KEYS.COLLECTIONS, []);
   const maxOrder = collections.length > 0 ? Math.max(...collections.map((c) => c.order)) : 0;
   const newCollection: Collection = {
     id: name
@@ -31,31 +30,31 @@ export async function addCollection(name: string, caption?: string, image?: stri
     order: maxOrder + 1,
   };
   collections.push(newCollection);
-  await writeJson(STORE_KEY, collections);
+  await writeJson(SUPABASE_KEYS.COLLECTIONS, collections);
   return newCollection;
 }
 
 export async function updateCollection(id: string, name: string, caption?: string, image?: string): Promise<void> {
-  const collections = await readJson<Collection[]>(STORE_KEY, []);
+  const collections = await readJson<Collection[]>(SUPABASE_KEYS.COLLECTIONS, []);
   const updated = collections.map((c) => (c.id === id ? { ...c, name, caption: caption || c.caption, image: image || c.image } : c));
-  await writeJson(STORE_KEY, updated);
+  await writeJson(SUPABASE_KEYS.COLLECTIONS, updated);
 }
 
 export async function deleteCollection(id: string): Promise<void> {
-  const collections = await readJson<Collection[]>(STORE_KEY, []);
+  const collections = await readJson<Collection[]>(SUPABASE_KEYS.COLLECTIONS, []);
   await writeJson(
-    STORE_KEY,
+    SUPABASE_KEYS.COLLECTIONS,
     collections.filter((c) => c.id !== id)
   );
 }
 
 export async function reorderCollections(ids: string[]): Promise<void> {
-  const collections = await readJson<Collection[]>(STORE_KEY, []);
+  const collections = await readJson<Collection[]>(SUPABASE_KEYS.COLLECTIONS, []);
   const updated = collections.map((c) => ({
     ...c,
     order: ids.indexOf(c.id),
   }));
-  await writeJson(STORE_KEY, updated);
+  await writeJson(SUPABASE_KEYS.COLLECTIONS, updated);
 }
 
 /**

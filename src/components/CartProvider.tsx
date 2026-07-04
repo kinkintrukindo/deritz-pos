@@ -1,9 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { STORAGE_KEYS } from "@/lib/constants";
 import type { Measurements, SizePresetKey } from "@/lib/types";
-
-const STORAGE_KEY = "deritz-cart";
 
 export type CartLine = {
   lineId: string;
@@ -37,7 +36,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const stored = window.localStorage.getItem(STORAGE_KEYS.CART);
     if (stored) {
       try {
         // Reading localStorage after mount (not during render) avoids an SSR/client hydration mismatch.
@@ -52,7 +51,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (hydrated) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
+      window.localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(lines));
     }
   }, [lines, hydrated]);
 

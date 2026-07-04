@@ -1,3 +1,5 @@
+import { SHIPPING, API_ENDPOINTS } from './constants';
+
 export interface ShippingRate {
   id: string;
   courier: string;
@@ -23,14 +25,14 @@ async function getDomesticRates(destinationPostalCode: string, weight: number): 
   try {
     // RajaOngkir API - domestic shipping
     const params = new URLSearchParams();
-    params.append('origin', '494'); // Surabaya city code
+    params.append('origin', SHIPPING.ORIGIN_CITY_CODE);
     params.append('destination', destinationPostalCode);
     params.append('weight', Math.round(weight / 1000).toString()); // Convert grams to kg
     params.append('courier', 'jne:tiki:pos');
 
-    console.log('📦 RajaOngkir request:', { origin: '494', destination: destinationPostalCode, weight: Math.round(weight / 1000), courier: 'jne:tiki:pos' });
+    console.log('📦 RajaOngkir request:', { origin: SHIPPING.ORIGIN_CITY_CODE, destination: destinationPostalCode, weight: Math.round(weight / 1000), courier: 'jne:tiki:pos' });
 
-    const response = await fetch('https://api.rajaongkir.com/basic/cost', {
+    const response = await fetch(API_ENDPOINTS.RAJAONGKIR_BASIC, {
       method: 'POST',
       headers: {
         'key': process.env.SHIPPING_COST_API_KEY,
@@ -88,7 +90,7 @@ function getFallbackDomesticRates(): ShippingRate[] {
       courier: 'JNE',
       service: 'OKE',
       description: 'Standard shipping (3-5 days)',
-      cost: 150000,
+      cost: SHIPPING.DOMESTIC.JNE_OKE,
       etaText: '3-5 business days',
       type: 'domestic',
     },
@@ -97,7 +99,7 @@ function getFallbackDomesticRates(): ShippingRate[] {
       courier: 'TIKI',
       service: 'Regular',
       description: 'Regular shipping (4-6 days)',
-      cost: 140000,
+      cost: SHIPPING.DOMESTIC.TIKI_REGULAR,
       etaText: '4-6 business days',
       type: 'domestic',
     },
@@ -106,7 +108,7 @@ function getFallbackDomesticRates(): ShippingRate[] {
       courier: 'POS Indonesia',
       service: 'Paket Reguler',
       description: 'Economy shipping (5-7 days)',
-      cost: 120000,
+      cost: SHIPPING.DOMESTIC.POS_REGULAR,
       etaText: '5-7 business days',
       type: 'domestic',
     },
@@ -122,14 +124,14 @@ async function getInternationalRates(destination: string, weight: number): Promi
   try {
     // RajaOngkir International API
     const params = new URLSearchParams();
-    params.append('origin', '494'); // Surabaya city code
+    params.append('origin', SHIPPING.ORIGIN_CITY_CODE);
     params.append('destination', destination);
     params.append('weight', Math.round(weight / 1000).toString()); // Convert grams to kg
     params.append('courier', 'pos:tiki:jne');
 
-    console.log('🌍 RajaOngkir international request:', { origin: '494', destination, weight: Math.round(weight / 1000), courier: 'pos:tiki:jne' });
+    console.log('🌍 RajaOngkir international request:', { origin: SHIPPING.ORIGIN_CITY_CODE, destination, weight: Math.round(weight / 1000), courier: 'pos:tiki:jne' });
 
-    const response = await fetch('https://api.rajaongkir.com/basic/internationalCost', {
+    const response = await fetch(API_ENDPOINTS.RAJAONGKIR_BASIC_INTL, {
       method: 'POST',
       headers: {
         'key': process.env.SHIPPING_COST_API_KEY,
@@ -187,7 +189,7 @@ function getFallbackInternationalRates(): ShippingRate[] {
       courier: 'DHL',
       service: 'Express',
       description: 'Express worldwide (3-5 days)',
-      cost: 1200000,
+      cost: SHIPPING.INTERNATIONAL.USA,
       etaText: '3-5 business days',
       type: 'international',
     },
@@ -196,7 +198,7 @@ function getFallbackInternationalRates(): ShippingRate[] {
       courier: 'FedEx',
       service: 'International Economy',
       description: 'Economy worldwide (5-7 days)',
-      cost: 850000,
+      cost: SHIPPING.INTERNATIONAL.UK,
       etaText: '5-7 business days',
       type: 'international',
     },
@@ -205,7 +207,7 @@ function getFallbackInternationalRates(): ShippingRate[] {
       courier: 'UPS',
       service: 'Worldwide Express',
       description: 'Fast worldwide (4-6 days)',
-      cost: 1100000,
+      cost: SHIPPING.INTERNATIONAL.AUSTRALIA,
       etaText: '4-6 business days',
       type: 'international',
     },

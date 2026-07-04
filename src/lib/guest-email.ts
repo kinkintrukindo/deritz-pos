@@ -1,11 +1,11 @@
-const STORAGE_KEY = 'deritz_guest_email';
+import { STORAGE_KEYS.GUEST_EMAILS } from './constants';
 
 export function getStoredGuestEmail(): string | null {
   if (typeof window === 'undefined') return null;
-  return window.localStorage.getItem(STORAGE_KEY);
+  return window.localStorage.getItem(STORAGE_KEYS.GUEST_EMAIL);
 }
 
 export function setStoredGuestEmail(email: string): void {
   if (typeof window === 'undefined') return;
-  window.localStorage.setItem(STORAGE_KEY, email);
+  window.localStorage.setItem(STORAGE_KEYS.GUEST_EMAIL, email);
 }

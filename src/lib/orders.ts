@@ -1,14 +1,13 @@
 import type { Order, OrderCustomer, OrderItem } from "@/lib/types";
+import { SUPABASE_KEYS } from "@/lib/constants";
 import { readJson, writeJson } from "@/lib/store";
 
-const STORE_KEY = "orders";
-
 async function readAll(): Promise<Order[]> {
-  return readJson<Order[]>(STORE_KEY, []);
+  return readJson<Order[]>(SUPABASE_KEYS.ORDERS, []);
 }
 
 async function writeAll(orders: Order[]): Promise<void> {
-  await writeJson(STORE_KEY, orders);
+  await writeJson(SUPABASE_KEYS.ORDERS, orders);
 }
 
 export async function getAllOrders(): Promise<Order[]> {
