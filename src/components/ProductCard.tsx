@@ -70,7 +70,7 @@ export function ProductCard({ product }: { product: Product }) {
         {/* Text content */}
         <div className="space-y-3 flex-1 flex flex-col justify-between">
           <h3
-            className="text-sm font-medium text-ink leading-tight line-clamp-2 h-10"
+            className="text-sm font-medium text-ink leading-snug"
             style={{ fontFamily: "var(--font-trajan)" }}
           >
             {product.name}
