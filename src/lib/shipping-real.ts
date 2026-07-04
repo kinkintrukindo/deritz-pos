@@ -21,55 +21,61 @@ async function getDomesticRates(destinationPostalCode: string, weight: number): 
   }
 
   try {
-    // Call shipping cost API with postal codes for more accuracy
-    // Origin is hardcoded to 60134 (Surabaya) on backend
-    const payload = {
-      originPostalCode: '60134',
-      destinationPostalCode: destinationPostalCode,
-      weight: weight, // Use actual product weight in grams
-      couriers: ['jne', 'tiki', 'pos'],
-    };
-    console.log('📦 Domestic shipping request:', payload);
+    // RajaOngkir API
+    const params = new URLSearchParams();
+    params.append('origin', '494'); // Surabaya city code
+    params.append('destination', destinationPostalCode);
+    params.append('weight', Math.round(weight / 1000).toString()); // Convert grams to kg
+    params.append('courier', 'jne:tiki:pos');
 
-    const response = await fetch('https://api.shippingcost.co.id/rates', {
+    const url = `https://api.rajaongkir.com/basic/cost?${params.toString()}`;
+    console.log('📦 RajaOngkir request:', { origin: '494', destination: destinationPostalCode, weight: Math.round(weight / 1000), courier: 'jne:tiki:pos' });
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.SHIPPING_COST_API_KEY}`,
-        'Content-Type': 'application/json',
+        'key': process.env.SHIPPING_COST_API_KEY,
       },
-      body: JSON.stringify(payload),
     });
 
     console.log('🔍 API Response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Shipping API error:', response.status, errorText);
+      console.error('❌ RajaOngkir API error:', response.status, errorText);
       return getFallbackDomesticRates();
     }
 
     const data = await response.json();
-    console.log('📋 API Response data:', data);
+    console.log('📋 API Response data:', JSON.stringify(data).substring(0, 500));
 
-    if (data.results && Array.isArray(data.results)) {
-      const rates: ShippingRate[] = data.results.map((result: any, idx: number) => ({
-        id: `${result.courier}-${result.service}-${idx}`,
-        courier: result.courier?.toUpperCase() || 'Unknown',
-        service: result.service || 'Standard',
-        description: `${result.service} (${result.etd} days)`,
-        cost: result.cost || 150000,
-        etaText: `${result.etd} business days`,
-        type: 'domestic',
-      }));
+    if (data.status?.code === 200 && data.results && Array.isArray(data.results)) {
+      const allRates: ShippingRate[] = [];
 
-      console.log('✅ Real API rates returned:', rates.length, 'options');
-      return rates.length > 0 ? rates : getFallbackDomesticRates();
+      for (const result of data.results) {
+        if (result.costs && Array.isArray(result.costs)) {
+          for (const cost of result.costs) {
+            allRates.push({
+              id: `${result.code}-${cost.service}`,
+              courier: result.code?.toUpperCase() || 'Unknown',
+              service: cost.service || 'Standard',
+              description: `${cost.service} (${cost.cost[0]?.etd || '?'} days)`,
+              cost: cost.cost[0]?.value || 150000,
+              etaText: `${cost.cost[0]?.etd || '?'} business days`,
+              type: 'domestic',
+            });
+          }
+        }
+      }
+
+      console.log('✅ Real API rates returned:', allRates.length, 'options');
+      return allRates.length > 0 ? allRates : getFallbackDomesticRates();
     }
 
     console.warn('⚠️ No results in API response, using fallback');
     return getFallbackDomesticRates();
   } catch (error) {
-    console.error('❌ Shipping API error:', error);
+    console.error('❌ RajaOngkir API error:', error);
     return getFallbackDomesticRates();
   }
 }
@@ -113,52 +119,61 @@ async function getInternationalRates(destination: string, weight: number): Promi
   }
 
   try {
-    const payload = {
-      originPostalCode: '60134',
-      destination: destination,
-      weight: weight, // Use actual product weight in grams
-      couriers: ['dhl', 'fedex', 'ups'],
-    };
-    console.log('🌍 International shipping request:', payload);
+    // RajaOngkir International API - destination is postal code or city name
+    const params = new URLSearchParams();
+    params.append('origin', '494'); // Surabaya city code
+    params.append('destination', destination);
+    params.append('weight', Math.round(weight / 1000).toString()); // Convert grams to kg
+    params.append('courier', 'pos:tiki:jne');
 
-    const response = await fetch('https://api.shippingcost.co.id/international-rates', {
+    const url = `https://api.rajaongkir.com/basic/internationalCost?${params.toString()}`;
+    console.log('🌍 RajaOngkir international request:', { origin: '494', destination, weight: Math.round(weight / 1000), courier: 'pos:tiki:jne' });
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.SHIPPING_COST_API_KEY}`,
-        'Content-Type': 'application/json',
+        'key': process.env.SHIPPING_COST_API_KEY,
       },
-      body: JSON.stringify(payload),
     });
 
     console.log('🔍 API Response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ International API error:', response.status, errorText);
+      console.error('❌ RajaOngkir International API error:', response.status, errorText);
       return getFallbackInternationalRates();
     }
 
     const data = await response.json();
-    console.log('📋 API Response data:', data);
+    console.log('📋 API Response data:', JSON.stringify(data).substring(0, 500));
 
-    if (data.results && Array.isArray(data.results)) {
-      const rates = data.results.map((result: any, idx: number) => ({
-        id: `${result.courier}-${result.service}-${idx}`,
-        courier: result.courier?.toUpperCase() || 'Express',
-        service: result.service || 'Express',
-        description: `${result.service} (${result.etd} days)`,
-        cost: result.cost || 1200000,
-        etaText: `${result.etd} business days`,
-        type: 'international' as const,
-      }));
-      console.log('✅ Real API rates returned:', rates.length, 'options');
-      return rates;
+    if (data.status?.code === 200 && data.results && Array.isArray(data.results)) {
+      const allRates: ShippingRate[] = [];
+
+      for (const result of data.results) {
+        if (result.costs && Array.isArray(result.costs)) {
+          for (const cost of result.costs) {
+            allRates.push({
+              id: `${result.code}-${cost.service}`,
+              courier: result.code?.toUpperCase() || 'Express',
+              service: cost.service || 'Express',
+              description: `${cost.service} (${cost.cost[0]?.etd || '?'} days)`,
+              cost: cost.cost[0]?.value || 1200000,
+              etaText: `${cost.cost[0]?.etd || '?'} business days`,
+              type: 'international' as const,
+            });
+          }
+        }
+      }
+
+      console.log('✅ Real API rates returned:', allRates.length, 'options');
+      return allRates.length > 0 ? allRates : getFallbackInternationalRates();
     }
 
     console.warn('⚠️ No results in API response, using fallback');
     return getFallbackInternationalRates();
   } catch (error) {
-    console.error('❌ International shipping API error:', error);
+    console.error('❌ RajaOngkir International API error:', error);
     return getFallbackInternationalRates();
   }
 }
