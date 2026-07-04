@@ -8,7 +8,7 @@ export function LocationSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Text Info */}
           <div>
-            <h2 className="text-2xl font-medium tracking-tight text-ink mb-6">Visit Our Atelier</h2>
+            <h2 className="text-2xl font-medium tracking-tight text-ink mb-6">Visit Our Studio</h2>
             <div className="space-y-4">
               <div>
                 <p className="text-xs tracking-wide-label uppercase text-graphite mb-2">Address</p>
