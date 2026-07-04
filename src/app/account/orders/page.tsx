@@ -30,6 +30,7 @@ export default function OrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -40,10 +41,15 @@ export default function OrdersPage() {
   useEffect(() => {
     if (user?.email) {
       setIsLoading(true);
+      setError('');
       getOrdersByEmailAction(user.email)
-        .then(setOrders)
+        .then((result) => {
+          console.log('Orders fetched:', result);
+          setOrders(result || []);
+        })
         .catch((err) => {
           console.error('Failed to fetch orders:', err);
+          setError(err.message);
           setOrders([]);
         })
         .finally(() => setIsLoading(false));
@@ -53,7 +59,7 @@ export default function OrdersPage() {
   if (loading || isLoading) {
     return (
       <div className="mx-auto max-w-4xl px-6 lg:px-10 py-24 text-center">
-        <p className="text-graphite">Loading...</p>
+        <p className="text-graphite">Loading your orders...</p>
       </div>
     );
   }
@@ -82,6 +88,12 @@ export default function OrdersPage() {
 
       <div className="border border-mist p-8">
         <h1 className="text-3xl font-medium tracking-tight text-ink mb-8">Your Orders</h1>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 mb-6 rounded">
+            <p className="text-sm">Error loading orders: {error}</p>
+          </div>
+        )}
 
         {orders.length === 0 ? (
           <p className="text-graphite text-center py-8">You haven't placed any orders yet.</p>
