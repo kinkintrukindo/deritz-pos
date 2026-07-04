@@ -2,8 +2,8 @@
 
 import { useRef, useState } from "react";
 
-const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB hard limit
-const WARN_FILE_SIZE = 50 * 1024 * 1024; // 50MB warning threshold
+const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB hard limit
+const WARN_FILE_SIZE = 100 * 1024 * 1024; // 100MB warning threshold
 
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return "0 Bytes";
@@ -32,6 +32,8 @@ export function MediaDropzone({
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   function handleFiles(files: FileList | null) {
     const file = files?.[0];
@@ -39,6 +41,7 @@ export function MediaDropzone({
 
     setError(null);
     setWarning(null);
+    setUploadProgress(0);
 
     // Check file size
     if (file.size > MAX_FILE_SIZE) {
@@ -47,13 +50,25 @@ export function MediaDropzone({
     }
 
     if (file.size > WARN_FILE_SIZE) {
-      setWarning(`Large file (${formatFileSize(file.size)}). This may take a while to upload.`);
+      setWarning(`Large file (${formatFileSize(file.size)}). Upload may take several minutes.`);
     }
 
     setFileName(file.name);
     setFileSize(file.size);
     setPreview(URL.createObjectURL(file));
     setIsVideo(file.type.startsWith("video/"));
+    setIsUploading(true);
+
+    // Simulate upload progress
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + Math.random() * 30;
+      });
+    }, 500);
   }
 
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
@@ -99,6 +114,19 @@ export function MediaDropzone({
           <div className="text-xs space-y-1">
             <span className="text-ink block">{fileName}</span>
             {fileSize && <span className="text-graphite block">{formatFileSize(fileSize)}</span>}
+            {isUploading && uploadProgress > 0 && (
+              <div className="w-full bg-mist rounded-full h-1.5 overflow-hidden mt-2">
+                <div
+                  className="bg-gold h-full transition-all duration-300"
+                  style={{ width: `${Math.min(uploadProgress, 100)}%` }}
+                />
+              </div>
+            )}
+            {isUploading && (
+              <span className="text-gold block font-medium">
+                {uploadProgress < 100 ? `Uploading... ${Math.round(uploadProgress)}%` : 'Processing...'}
+              </span>
+            )}
           </div>
         )}
       </div>
