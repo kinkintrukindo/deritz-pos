@@ -275,5 +275,5 @@ export async function updateFeaturedProductsAction(formData: FormData) {
   const limitedIds = featuredIds.slice(0, 10);
 
   await updateSiteSettings({ featuredProductIds: limitedIds });
-  redirect("/admin/featured?saved=1");
+  return { success: true };
 }

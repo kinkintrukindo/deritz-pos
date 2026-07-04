@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { updateFeaturedProductsAction } from "@/app/admin/actions";
+import { useToast } from "@/components/Toast";
 import type { Product } from "@/lib/types";
 
 interface FeaturedLooksProps {
@@ -11,11 +13,14 @@ interface FeaturedLooksProps {
 }
 
 export default function FeaturedLooksClient({ products, initialFeaturedIds }: FeaturedLooksProps) {
+  const router = useRouter();
+  const { addToast } = useToast();
   const [selectedIds, setSelectedIds] = useState<string[]>(initialFeaturedIds);
   const [orderedProducts, setOrderedProducts] = useState<Product[]>(
     initialFeaturedIds.map(id => products.find(p => p.id === id)).filter(Boolean) as Product[]
   );
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const unselectedProducts = products.filter(p => !selectedIds.includes(p.id));
 
@@ -61,14 +66,29 @@ export default function FeaturedLooksClient({ products, initialFeaturedIds }: Fe
     setDraggedId(null);
   };
 
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      const newFormData = new FormData();
+      orderedProducts.forEach((p) => {
+        newFormData.append(`featuredProductIds`, p.id);
+      });
+      await updateFeaturedProductsAction(newFormData);
+      addToast("Featured Looks saved successfully!", "success");
+      setTimeout(() => {
+        router.back();
+      }, 1500);
+    } catch (error) {
+      addToast("Failed to save Featured Looks", "error");
+      setIsSaving(false);
+    }
+  };
+
   return (
     <form
-      action={async (formData) => {
-        const newFormData = new FormData();
-        orderedProducts.forEach((p, idx) => {
-          newFormData.append(`featuredProductIds`, p.id);
-        });
-        await updateFeaturedProductsAction(newFormData);
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSave();
       }}
       className="space-y-6 border border-mist p-6"
     >
@@ -152,9 +172,10 @@ export default function FeaturedLooksClient({ products, initialFeaturedIds }: Fe
 
       <button
         type="submit"
-        className="w-full bg-ink text-white text-xs tracking-wide-label uppercase py-3.5 hover:bg-gold transition-colors"
+        disabled={isSaving}
+        className="w-full bg-ink text-white text-xs tracking-wide-label uppercase py-3.5 hover:bg-gold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Save Featured Looks
+        {isSaving ? "Saving..." : "Save Featured Looks"}
       </button>
     </form>
   );
