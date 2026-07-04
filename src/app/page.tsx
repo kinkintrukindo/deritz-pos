@@ -15,13 +15,12 @@ export default async function HomePage() {
     getAllCollections(),
   ]);
 
-  // Get featured products from settings, fall back to first 4 if none selected
+  // Get featured products from settings, fall back to first 10 if none selected
   const featured = settings.featuredProductIds && settings.featuredProductIds.length > 0
     ? settings.featuredProductIds
         .map(id => products.find(p => p.id === id))
         .filter((p): p is typeof products[0] => !!p)
-        .slice(0, 4)
-    : products.slice(0, 4);
+    : products.slice(0, 10);
 
   const collections = allCollections;
 
