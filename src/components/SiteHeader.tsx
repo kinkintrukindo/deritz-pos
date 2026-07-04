@@ -5,6 +5,7 @@ import Image from "next/image";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
 import { CartLink } from "@/components/CartLink";
 import { WishlistLink } from "@/components/WishlistLink";
+import { MessagesLink } from "@/components/MessagesLink";
 import { useAuth } from "@/components/AuthProvider";
 import { useState } from "react";
 
@@ -90,6 +91,7 @@ export function SiteHeader() {
               </div>
             </>
           )}
+          <MessagesLink />
           <WishlistLink />
           <CartLink />
         </div>

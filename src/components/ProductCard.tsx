@@ -31,9 +31,9 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <Link href={`/collection/${product.slug}`} className="group block">
       {/* Panel container with rounded corners and shadow */}
-      <div className="border border-mist p-4 bg-paper hover:border-ink transition-all rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1">
+      <div className="border border-mist p-4 bg-paper hover:border-ink transition-all rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 h-full flex flex-col">
         {/* Image container */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-surface mb-4 rounded-lg">
+        <div className="relative aspect-[3/4] overflow-hidden bg-surface mb-4 rounded-lg flex-shrink-0">
           {(product.isNew || product.isPromo || product.soldOut) && (
             <div className="absolute top-3 left-3 z-10">
               <ProductBadges product={product} />
@@ -68,9 +68,9 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Text content */}
-        <div className="space-y-3">
+        <div className="space-y-3 flex-1 flex flex-col justify-between">
           <h3
-            className="text-sm font-medium text-ink leading-normal"
+            className="text-sm font-medium text-ink leading-tight line-clamp-2 h-10"
             style={{ fontFamily: "var(--font-trajan)" }}
           >
             {product.name}

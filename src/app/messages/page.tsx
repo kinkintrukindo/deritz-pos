@@ -176,28 +176,45 @@ export default function MessagesPage({
             </button>
           </div>
         ) : (
-          <div className="border border-mist rounded-lg overflow-hidden">
-            <div className="divide-y divide-mist">
-              {conversations.map((conv) => (
-                <Link
-                  key={conv.id}
-                  href={`/messages/${conv.id}`}
-                  className="block p-4 hover:bg-surface transition-colors"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-ink">{conv.subject}</h3>
-                      <p className="text-xs text-graphite mt-1">
-                        Last updated: {new Date(conv.updatedAt).toLocaleDateString()}
-                      </p>
+          <div className="space-y-3">
+            {conversations.map((conv) => (
+              <Link
+                key={conv.id}
+                href={`/messages/${conv.id}`}
+                className="block border border-mist p-4 hover:border-ink hover:bg-surface transition-all rounded"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  {conv.productImage && (
+                    <img
+                      src={conv.productImage}
+                      alt={conv.productName}
+                      className="w-12 h-12 object-cover rounded flex-shrink-0"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-1">
+                      <h3 className={`text-sm font-medium ${!conv.read ? 'font-bold text-ink' : 'text-ink'}`}>
+                        {conv.subject}
+                      </h3>
+                      {!conv.read && (
+                        <span className="inline-block w-2 h-2 bg-gold rounded-full flex-shrink-0 mt-1" />
+                      )}
                     </div>
-                    <span className="text-xs tracking-wide-label uppercase text-graphite">
-                      →
-                    </span>
+                    {conv.productName && (
+                      <p className="text-xs text-graphite mb-1">📦 {conv.productName}</p>
+                    )}
+                    <p className="text-xs text-graphite/60">
+                      {new Date(conv.updatedAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
                   </div>
-                </Link>
-              ))}
-            </div>
+                </div>
+              </Link>
+            ))}
           </div>
         )}
       </div>
