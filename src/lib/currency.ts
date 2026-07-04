@@ -1,8 +1,11 @@
-export type CurrencyCode = "IDR" | "USD" | "SGD" | "AUD" | "MYR" | "THB" | "VND" | "EUR" | "PHP";
+export type CurrencyCode = "IDR" | "USD" | "SGD" | "AUD" | "MYR" | "THB" | "VND" | "EUR" | "PHP" | "CNY" | "JPY" | "KRW";
 
 export const CURRENCIES: { code: CurrencyCode; label: string; symbol: string; flag: string; rateFromIdr: number }[] = [
   { code: "IDR", label: "Rupiah", symbol: "Rp", flag: "🇮🇩", rateFromIdr: 1 },
   { code: "USD", label: "US Dollar", symbol: "$", flag: "🇺🇸", rateFromIdr: 1 / 15800 },
+  { code: "CNY", label: "Chinese Yuan", symbol: "¥", flag: "🇨🇳", rateFromIdr: 1 / 2200 },
+  { code: "JPY", label: "Japanese Yen", symbol: "¥", flag: "🇯🇵", rateFromIdr: 1 / 106 },
+  { code: "KRW", label: "Korean Won", symbol: "₩", flag: "🇰🇷", rateFromIdr: 1 / 12 },
   { code: "SGD", label: "Singapore Dollar", symbol: "S$", flag: "🇸🇬", rateFromIdr: 1 / 11700 },
   { code: "AUD", label: "Australian Dollar", symbol: "A$", flag: "🇦🇺", rateFromIdr: 1 / 10300 },
   { code: "MYR", label: "Malaysian Ringgit", symbol: "RM", flag: "🇲🇾", rateFromIdr: 1 / 3550 },
