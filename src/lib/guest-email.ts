@@ -1,4 +1,4 @@
-import { STORAGE_KEYS.GUEST_EMAILS } from './constants';
+import { STORAGE_KEYS } from './constants';
 
 export function getStoredGuestEmail(): string | null {
   if (typeof window === 'undefined') return null;
