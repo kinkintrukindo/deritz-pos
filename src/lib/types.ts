@@ -37,6 +37,7 @@ export type Product = {
   image: string;
   images: ProductImage[];
   basePriceIdr: number;
+  discountPercent?: number; // 0-100 for discount percentage
   madeToMeasureSurchargeIdr: number;
   leadTimeDays: number;
   sizePresets: Record<SizePresetKey, Omit<Measurements, "unit">>;

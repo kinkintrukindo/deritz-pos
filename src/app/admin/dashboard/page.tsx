@@ -121,6 +121,18 @@ export default async function AdminDashboardPage() {
             <CollectionSelect collections={collections} />
             <AdminField label="Description" name="description" textarea />
             <AdminField label="Base Price (IDR)" name="basePriceIdr" type="number" required />
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm text-graphite">
+                <input type="checkbox" name="enableDiscount" />
+                Enable Price Discount
+              </label>
+              <AdminField
+                label="Discount (%)"
+                name="discountPercent"
+                type="number"
+                placeholder="0"
+              />
+            </div>
             <AdminField label="Lead Time (days)" name="leadTimeDays" type="number" defaultValue="21" />
 
             <ImageGalleryEditor />

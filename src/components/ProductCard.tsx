@@ -64,9 +64,10 @@ export function ProductCard({ product }: { product: Product }) {
             alt={product.name}
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-            className={`object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02] ${
+            className={`object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.02] ${
               product.soldOut ? "opacity-60" : ""
             }`}
+            priority={false}
           />
         </div>
 
@@ -78,7 +79,22 @@ export function ProductCard({ product }: { product: Product }) {
           >
             {product.name}
           </h3>
-          <Price amountIdr={product.basePriceIdr} className="text-sm text-graphite" />
+          <div className="space-y-1">
+            {product.discountPercent ? (
+              <>
+                <Price
+                  amountIdr={product.basePriceIdr}
+                  className="text-xs text-graphite line-through"
+                />
+                <Price
+                  amountIdr={Math.round(product.basePriceIdr * (1 - product.discountPercent / 100))}
+                  className="text-sm font-medium text-gold"
+                />
+              </>
+            ) : (
+              <Price amountIdr={product.basePriceIdr} className="text-sm text-graphite" />
+            )}
+          </div>
         </div>
       </div>
     </Link>

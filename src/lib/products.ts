@@ -74,6 +74,7 @@ export type NewProductInput = {
   collection: string;
   description: string;
   basePriceIdr: number;
+  discountPercent?: number;
   leadTimeDays?: number;
   images: ProductImage[];
   published: boolean;
@@ -124,6 +125,7 @@ export async function addProduct(input: NewProductInput): Promise<Product> {
     image: images[0].url,
     images,
     basePriceIdr: input.basePriceIdr,
+    discountPercent: input.discountPercent && input.discountPercent > 0 ? input.discountPercent : undefined,
     madeToMeasureSurchargeIdr: DEFAULT_MADE_TO_MEASURE_SURCHARGE_IDR,
     leadTimeDays: DEFAULT_LEAD_TIME_DAYS,
     sizePresets: DEFAULT_SIZE_PRESETS,
@@ -146,6 +148,7 @@ export type UpdateProductInput = {
   collection: string;
   description: string;
   basePriceIdr: number;
+  discountPercent?: number;
   leadTimeDays?: number;
   images: ProductImage[];
   published: boolean;
@@ -169,6 +172,7 @@ export async function updateProduct(id: string, input: UpdateProductInput): Prom
           collection: input.collection,
           description: input.description,
           basePriceIdr: input.basePriceIdr,
+          discountPercent: input.discountPercent && input.discountPercent > 0 ? input.discountPercent : undefined,
           image: images[0].url,
           images,
           published: input.published,

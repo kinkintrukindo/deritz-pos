@@ -31,7 +31,7 @@ export default async function FeaturedLooksPage() {
       <form action={updateFeaturedProductsAction} className="space-y-6 border border-mist p-6">
         <div>
           <p className="text-sm text-graphite mb-4">
-            Select up to 4 products to display in the "Featured Looks" section on the homepage. Drag to reorder.
+            Select up to 10 products to display in the "Featured Looks" section on the homepage. Drag to reorder.
           </p>
 
           <div className="space-y-2 mb-6 max-h-96 overflow-y-auto border border-mist p-4 bg-surface">
@@ -57,7 +57,7 @@ export default async function FeaturedLooksPage() {
           </div>
 
           <div className="bg-gold/10 border border-gold/20 p-3 rounded text-sm text-graphite">
-            <strong>Current selection:</strong> {featuredIds.length} of 4 spots
+            <strong>Current selection:</strong> {featuredIds.length} of 10 spots
           </div>
         </div>
 

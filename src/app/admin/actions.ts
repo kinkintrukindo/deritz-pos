@@ -89,12 +89,15 @@ export async function createProductAction(formData: FormData) {
   const labelIds = String(formData.get("labelIds") ?? "")
     .split(",")
     .filter(Boolean);
+  const enableDiscount = formData.get("enableDiscount") === "on";
+  const discountPercent = enableDiscount ? Number(formData.get("discountPercent") ?? 0) : undefined;
 
   await addProduct({
     name: String(formData.get("name") ?? ""),
     collection: String(formData.get("collection") ?? ""),
     description: String(formData.get("description") ?? ""),
     basePriceIdr: Number(formData.get("basePriceIdr") ?? 0),
+    discountPercent: discountPercent && discountPercent > 0 ? discountPercent : undefined,
     leadTimeDays: Number(formData.get("leadTimeDays") ?? 21),
     images,
     published: formData.get("published") === "on",
@@ -119,12 +122,15 @@ export async function updateProductAction(id: string, formData: FormData) {
   const labelIds = String(formData.get("labelIds") ?? "")
     .split(",")
     .filter(Boolean);
+  const enableDiscount = formData.get("enableDiscount") === "on";
+  const discountPercent = enableDiscount ? Number(formData.get("discountPercent") ?? 0) : undefined;
 
   await updateProduct(id, {
     name: String(formData.get("name") ?? ""),
     collection: String(formData.get("collection") ?? ""),
     description: String(formData.get("description") ?? ""),
     basePriceIdr: Number(formData.get("basePriceIdr") ?? 0),
+    discountPercent: discountPercent && discountPercent > 0 ? discountPercent : undefined,
     leadTimeDays: Number(formData.get("leadTimeDays") ?? 21),
     images,
     published: formData.get("published") === "on",
@@ -265,8 +271,8 @@ export async function updateFeaturedProductsAction(formData: FormData) {
   await requireAdminSession();
   const featuredIds = formData.getAll("featuredProductIds") as string[];
 
-  // Limit to 4 featured products
-  const limitedIds = featuredIds.slice(0, 4);
+  // Limit to 10 featured products
+  const limitedIds = featuredIds.slice(0, 10);
 
   await updateSiteSettings({ featuredProductIds: limitedIds });
   redirect("/admin/featured?saved=1");
