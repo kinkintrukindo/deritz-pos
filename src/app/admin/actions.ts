@@ -86,6 +86,9 @@ export async function createProductAction(formData: FormData) {
     height: Number(formData.get("dimensionsCm.height") ?? 20),
     depth: Number(formData.get("dimensionsCm.depth") ?? 5),
   };
+  const labelIds = String(formData.get("labelIds") ?? "")
+    .split(",")
+    .filter(Boolean);
 
   await addProduct({
     name: String(formData.get("name") ?? ""),
@@ -95,8 +98,7 @@ export async function createProductAction(formData: FormData) {
     leadTimeDays: Number(formData.get("leadTimeDays") ?? 21),
     images,
     published: formData.get("published") === "on",
-    isNew: formData.get("isNew") === "on",
-    isPromo: formData.get("isPromo") === "on",
+    labelIds,
     weightKg,
     dimensionsCm,
   });

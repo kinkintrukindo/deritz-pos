@@ -55,7 +55,7 @@ export async function POST(request: Request) {
   // Allow guest access with email in headers
   const guestEmail = request.headers.get('X-Guest-Email');
 
-  const userId = user?.id || guestEmail;
+  const userId = user?.id || (guestEmail?.toLowerCase().trim());
 
   if (!user && !guestEmail) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });

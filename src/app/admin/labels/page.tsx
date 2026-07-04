@@ -29,7 +29,7 @@ export default async function AdminLabelsPage() {
   if (labels && labels.length === 0) {
     const defaultLabels = [
       { name: 'New', color: '#9c8438', style: 'emboss', sort_order: 0, active: true },
-      { name: 'Discount', color: '#17181a', style: 'emboss', sort_order: 1, active: true },
+      { name: 'Discount Promo', color: '#c41e3a', style: 'emboss', sort_order: 1, active: true },
     ];
 
     for (const label of defaultLabels) {

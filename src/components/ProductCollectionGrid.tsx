@@ -31,8 +31,8 @@ export function ProductCollectionGrid({ products }: ProductCollectionGridProps) 
     switch (sortBy) {
       case "featured":
         result.sort((a, b) => {
-          const aFeatured = a.isNew || a.isPromo ? 1 : 0;
-          const bFeatured = b.isNew || b.isPromo ? 1 : 0;
+          const aFeatured = (a.labelIds?.length ?? 0) > 0 ? 1 : 0;
+          const bFeatured = (b.labelIds?.length ?? 0) > 0 ? 1 : 0;
           return bFeatured - aFeatured;
         });
         break;

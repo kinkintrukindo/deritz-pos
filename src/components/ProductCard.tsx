@@ -34,11 +34,14 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="border border-mist p-4 bg-paper hover:border-ink transition-all rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 h-full flex flex-col">
         {/* Image container */}
         <div className="relative aspect-[3/4] overflow-hidden bg-surface mb-4 rounded-lg flex-shrink-0">
-          {(product.isNew || product.isPromo || product.soldOut) && (
-            <div className="absolute top-3 left-3 z-10">
-              <ProductBadges product={product} />
-            </div>
-          )}
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-1 items-start">
+            <ProductBadges product={product} />
+            {product.soldOut && (
+              <span className="text-white text-[10px] tracking-wide-label uppercase px-2.5 py-1 font-mono bg-graphite">
+                Sold Out
+              </span>
+            )}
+          </div>
           {/* Wishlist button */}
           <button
             onClick={handleWishlist}

@@ -32,7 +32,7 @@ export function AdminMessagesClient({ initialConversations }: AdminMessagesClien
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/chat/conversations/${selectedConversation.id}/messages`, {
+      const res = await fetch(`/api/admin/conversations/${selectedConversation.id}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: reply.trim() }),

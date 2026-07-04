@@ -76,7 +76,8 @@ export function OrdersListClient({
                   item{order.items.length === 1 ? "" : "s"}
                 </p>
                 <p className="text-xs text-graphite mt-0.5">
-                  {order.customer.email} · {order.customer.address}, {order.customer.city},{" "}
+                  {order.customer.email}
+                  {order.customer.phone ? ` · ${order.customer.phone}` : ""} · {order.customer.address}, {order.customer.city},{" "}
                   {order.customer.country}
                 </p>
                 {order.deliveryId && (

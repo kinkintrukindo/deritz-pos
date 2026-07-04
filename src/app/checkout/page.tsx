@@ -36,6 +36,7 @@ export default function CheckoutPage() {
   const [form, setForm] = useState({
     name: user?.user_metadata?.full_name || '',
     email: user?.email || '',
+    phone: '',
     address: '',
     country: 'ID',
     state: '',
@@ -404,6 +405,7 @@ export default function CheckoutPage() {
           <div className="grid grid-cols-2 gap-4">
             <Field label="Full name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} full />
             <Field label="Email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} full type="email" />
+            <Field label="Phone Number" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} full type="tel" />
             <Field label="Address" value={form.address} onChange={(v) => setForm({ ...form, address: v })} full />
 
             {shippingType === 'domestic' ? (

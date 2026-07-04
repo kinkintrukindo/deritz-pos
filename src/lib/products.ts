@@ -26,8 +26,8 @@ async function writeAll(products: Product[]): Promise<void> {
 
 function sortFeaturedFirst(products: Product[]): Product[] {
   return [...products].sort((a, b) => {
-    const aFeatured = a.isNew || a.isPromo ? 1 : 0;
-    const bFeatured = b.isNew || b.isPromo ? 1 : 0;
+    const aFeatured = (a.labelIds?.length ?? 0) > 0 ? 1 : 0;
+    const bFeatured = (b.labelIds?.length ?? 0) > 0 ? 1 : 0;
     return bFeatured - aFeatured;
   });
 }
@@ -77,8 +77,7 @@ export type NewProductInput = {
   leadTimeDays?: number;
   images: ProductImage[];
   published: boolean;
-  isNew: boolean;
-  isPromo: boolean;
+  labelIds?: string[];
   weightKg?: number;
   dimensionsCm?: {
     width: number;
@@ -130,8 +129,7 @@ export async function addProduct(input: NewProductInput): Promise<Product> {
     sizePresets: DEFAULT_SIZE_PRESETS,
     measurementRanges: DEFAULT_MEASUREMENT_RANGES,
     published: input.published,
-    isNew: input.isNew,
-    isPromo: input.isPromo,
+    labelIds: input.labelIds ?? [],
     soldOut: false,
     weightKg: input.weightKg ?? 5,
     dimensionsCm: input.dimensionsCm ?? { width: 20, height: 20, depth: 5 },
@@ -175,9 +173,6 @@ export async function updateProduct(id: string, input: UpdateProductInput): Prom
           images,
           published: input.published,
           labelIds: input.labelIds,
-          isNew: false,
-          isPromo: false,
-          soldOut: false,
           weightKg: input.weightKg ?? p.weightKg ?? 5,
           dimensionsCm: input.dimensionsCm ?? p.dimensionsCm ?? { width: 20, height: 20, depth: 5 },
         }

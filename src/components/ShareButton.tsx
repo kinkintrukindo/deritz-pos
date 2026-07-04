@@ -13,7 +13,7 @@ export function ShareButton({ product }: ShareButtonProps) {
   async function handleShare() {
     const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/collection/${product.slug}`;
     const title = product.name;
-    const text = `Check out ${title} from De Ritz L'Atelier`;
+    const text = `Check out ${title} from De Ritz`;
 
     // Try native share first
     if (navigator.share) {

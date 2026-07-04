@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getAllProducts } from "@/lib/products";
 import { getAllCollections } from "@/lib/collections";
+import { getProductLabels } from "@/lib/labels";
 import {
   requireAdminSession,
   createProductAction,
@@ -14,11 +15,13 @@ import { ImageGalleryEditor } from "@/components/ImageGalleryEditor";
 import { AdminField } from "@/components/AdminField";
 import { AdminNav } from "@/components/AdminNav";
 import { CollectionSelect } from "@/components/CollectionSelect";
+import { ProductLabelSelector } from "@/components/ProductLabelSelector";
 
 export default async function AdminDashboardPage() {
   await requireAdminSession();
   const products = await getAllProducts();
   const collections = await getAllCollections();
+  const labels = await getProductLabels();
 
   return (
     <div className="mx-auto max-w-6xl px-6 lg:px-10 py-14">
@@ -57,16 +60,17 @@ export default async function AdminDashboardPage() {
                 <div className="flex-1">
                   <p className="text-xs sm:text-sm text-ink">
                     {product.name}
-                    {product.isNew && (
-                      <span className="ml-2 text-[8px] sm:text-[10px] tracking-wide-label uppercase text-gold">
-                        New
-                      </span>
-                    )}
-                    {product.isPromo && (
-                      <span className="ml-2 text-[8px] sm:text-[10px] tracking-wide-label uppercase text-ink/70">
-                        Promo
-                      </span>
-                    )}
+                    {labels
+                      .filter((l) => product.labelIds?.includes(l.id))
+                      .map((label) => (
+                        <span
+                          key={label.id}
+                          className="ml-2 text-[8px] sm:text-[10px] tracking-wide-label uppercase px-1.5 py-0.5 text-white"
+                          style={{ backgroundColor: label.color }}
+                        >
+                          {label.name}
+                        </span>
+                      ))}
                     {product.soldOut && (
                       <span className="ml-2 text-[8px] sm:text-[10px] tracking-wide-label uppercase text-red-700">
                         Sold Out
@@ -121,19 +125,7 @@ export default async function AdminDashboardPage() {
 
             <ImageGalleryEditor />
 
-            <div className="space-y-2 pt-1">
-              <label className="flex items-center gap-2 text-sm text-graphite">
-                <input type="checkbox" name="isNew" />
-                Highlight as New Collection
-              </label>
-              <label className="flex items-center gap-2 text-sm text-graphite">
-                <input type="checkbox" name="isPromo" />
-                Discount Promo
-              </label>
-              <p className="text-xs text-graphite pl-6">
-                Either tag moves the piece to the top of listings and shows a banner on its card.
-              </p>
-            </div>
+            <ProductLabelSelector />
 
             <label className="flex items-center gap-2 text-sm text-graphite">
               <input type="checkbox" name="published" defaultChecked />

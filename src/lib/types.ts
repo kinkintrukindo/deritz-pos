@@ -46,8 +46,6 @@ export type Product = {
     hip: MeasurementRange;
   };
   published: boolean;
-  isNew: boolean;
-  isPromo: boolean;
   soldOut: boolean;
   weightKg?: number;
   dimensionsCm?: {
@@ -76,6 +74,7 @@ export type OrderItem = {
 export type OrderCustomer = {
   name: string;
   email: string;
+  phone: string;
   address: string;
   city: string;
   country: string;

@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { getSupabase } from '@/lib/supabase';
+import { getAdminConversations } from '@/lib/chat';
 import { AdminMessagesClient } from '@/components/AdminMessagesClient';
+import { AdminNav } from '@/components/AdminNav';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,23 +17,23 @@ export default async function AdminMessagesPage() {
     redirect('/admin');
   }
 
-  // Fetch all conversations
-  const supabase = getSupabase();
-  const { data: conversations } = await supabase
-    .from('chat_conversations')
-    .select('*')
-    .eq('archived', false)
-    .order('pinned', { ascending: false })
-    .order('updated_at', { ascending: false });
+  const allConversations = await getAdminConversations();
+  const conversations = [...allConversations].sort((a, b) => {
+    if (a.pinned !== b.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  });
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-medium text-ink tracking-tight">Messages</h1>
-        <p className="text-sm text-graphite mt-1">Manage customer inquiries and conversations</p>
-      </div>
+    <div>
+      <AdminNav active="messages" />
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-medium text-ink tracking-tight">Messages</h1>
+          <p className="text-sm text-graphite mt-1">Manage customer inquiries and conversations</p>
+        </div>
 
-      <AdminMessagesClient initialConversations={conversations || []} />
+        <AdminMessagesClient initialConversations={conversations || []} />
+      </div>
     </div>
   );
 }

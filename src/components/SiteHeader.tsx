@@ -30,9 +30,11 @@ export function SiteHeader() {
             className="h-10 w-10 object-contain"
             priority
           />
-          <span style={{ fontFamily: 'var(--font-trajan)' }}>
-            <div className="text-xs sm:text-sm tracking-wider text-ink leading-none">De Ritz</div>
-            <div className="text-[9px] sm:text-[11px] tracking-widest text-graphite italic leading-none">L&apos;Atelier</div>
+          <span
+            className="text-sm sm:text-base tracking-wider text-ink"
+            style={{ fontFamily: 'var(--font-trajan)' }}
+          >
+            De Ritz
           </span>
         </Link>
 

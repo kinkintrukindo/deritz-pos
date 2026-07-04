@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
+import { getStoredGuestEmail, setStoredGuestEmail } from '@/lib/guest-email';
 import type { ChatConversation, ChatMessage } from '@/lib/types';
 import { ChatConversationComponent } from '@/components/ChatConversation';
 
@@ -13,7 +14,7 @@ export default function ConversationPage({ params: paramsPromise }: { params: Pr
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [guestEmail, setGuestEmail] = useState('');
+  const [guestEmail, setGuestEmail] = useState(() => getStoredGuestEmail() ?? '');
 
   useEffect(() => {
     paramsPromise.then(setParams);
@@ -99,6 +100,7 @@ export default function ConversationPage({ params: paramsPromise }: { params: Pr
               onSubmit={(e) => {
                 e.preventDefault();
                 if (guestEmail.trim()) {
+                  setStoredGuestEmail(guestEmail.trim());
                   loadConversation();
                 }
               }}

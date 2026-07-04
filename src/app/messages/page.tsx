@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/components/AuthProvider';
+import { getStoredGuestEmail, setStoredGuestEmail } from '@/lib/guest-email';
 import type { ChatConversation } from '@/lib/types';
 import { ChatList } from '@/components/ChatList';
 import Link from 'next/link';
@@ -46,7 +47,12 @@ export default function MessagesPage({
     }
 
     if (!user) {
-      setShowGuestForm(true);
+      const stored = getStoredGuestEmail();
+      if (stored) {
+        loadConversations(stored);
+      } else {
+        setShowGuestForm(true);
+      }
     }
   }, [user, loading, params]);
 
@@ -61,6 +67,10 @@ export default function MessagesPage({
         const data = await response.json();
         setConversations(data);
         setShowGuestForm(false);
+        if (email) {
+          setStoredGuestEmail(email);
+          setGuestEmail(email);
+        }
       }
     } catch (error) {
       console.error('Error loading conversations:', error);
@@ -159,9 +169,13 @@ export default function MessagesPage({
                 // Create new conversation
                 const subject = prompt('What would you like to discuss?');
                 if (subject) {
+                  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+                  if (!user && guestEmail) {
+                    headers['X-Guest-Email'] = guestEmail;
+                  }
                   fetch('/api/chat/conversations', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers,
                     body: JSON.stringify({ subject }),
                   })
                     .then((r) => r.json())
