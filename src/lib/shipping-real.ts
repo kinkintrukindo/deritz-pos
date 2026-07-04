@@ -23,18 +23,21 @@ async function getDomesticRates(destinationPostalCode: string, weight: number): 
   try {
     // Call shipping cost API with postal codes for more accuracy
     // Origin is hardcoded to 60134 (Surabaya) on backend
+    const payload = {
+      originPostalCode: '60134',
+      destinationPostalCode: destinationPostalCode,
+      weight: weight, // Use actual product weight in grams
+      couriers: ['jne', 'tiki', 'pos'],
+    };
+    console.log('Domestic shipping request:', payload);
+
     const response = await fetch('https://api.shippingcost.co.id/rates', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.SHIPPING_COST_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        originPostalCode: '60134',
-        destinationPostalCode: destinationPostalCode,
-        weight: weight, // Use actual product weight in grams
-        couriers: ['jne', 'tiki', 'pos'],
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -103,18 +106,21 @@ async function getInternationalRates(destination: string, weight: number): Promi
   }
 
   try {
+    const payload = {
+      originPostalCode: '60134',
+      destination: destination,
+      weight: weight, // Use actual product weight in grams
+      couriers: ['dhl', 'fedex', 'ups'],
+    };
+    console.log('International shipping request:', payload);
+
     const response = await fetch('https://api.shippingcost.co.id/international-rates', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.SHIPPING_COST_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        originPostalCode: '60134',
-        destination: destination,
-        weight: weight, // Use actual product weight in grams
-        couriers: ['dhl', 'fedex', 'ups'],
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {

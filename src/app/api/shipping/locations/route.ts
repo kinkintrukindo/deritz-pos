@@ -24,11 +24,24 @@ export async function GET(request: NextRequest) {
       return Response.json(states);
     }
 
-    if (type === 'cities' && countryCode && stateCode) {
-      const cities = City.getCitiesOfState(countryCode, stateCode).map(c => ({
-        name: c.name,
-      }));
-      return Response.json(cities);
+    if (type === 'cities' && countryCode) {
+      let cities = [];
+      // For countries with states, require stateCode
+      const stateCountries = ['US', 'IN', 'AU', 'BR', 'CA', 'MX', 'DE', 'GB', 'FR', 'RU'];
+      if (stateCountries.includes(countryCode)) {
+        if (!stateCode) {
+          return Response.json({ error: 'stateCode required for this country' }, { status: 400 });
+        }
+        cities = City.getCitiesOfState(countryCode, stateCode);
+      } else {
+        // For countries without states (like Indonesia), get all cities
+        const states = State.getStatesOfCountry(countryCode);
+        for (const state of states) {
+          const stateCities = City.getCitiesOfState(countryCode, state.isoCode);
+          cities.push(...stateCities);
+        }
+      }
+      return Response.json(cities.map(c => ({ name: c.name })));
     }
 
     return Response.json({ error: 'Invalid parameters' }, { status: 400 });

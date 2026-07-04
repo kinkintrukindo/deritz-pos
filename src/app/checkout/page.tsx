@@ -186,11 +186,20 @@ export default function CheckoutPage() {
         }
       }
 
+      const weightInGrams = Math.round(totalWeightKg * 1000);
+      console.log('Shipping estimate:', {
+        postal: destPostal,
+        weight: `${totalWeightKg}kg (${weightInGrams}g)`,
+        type: shippingType,
+        items: lines.length,
+      });
+
       const rates = await estimateShipping({
         destinationPostalCode: destPostal,
-        weight: Math.round(totalWeightKg * 1000), // Convert kg to grams
+        weight: weightInGrams, // Convert kg to grams
         type: shippingType,
       });
+      console.log('Shipping rates received:', rates);
       setShippingRates(rates);
       if (rates.length > 0) {
         setSelectedRateId(rates[0].id);
