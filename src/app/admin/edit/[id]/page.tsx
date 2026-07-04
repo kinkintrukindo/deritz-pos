@@ -59,6 +59,20 @@ export default async function EditProductPage({
           defaultValue={product.leadTimeDays}
         />
 
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm text-graphite">
+            <input type="checkbox" name="enableDiscount" defaultChecked={product.discountPercent ? true : false} />
+            Enable Price Discount
+          </label>
+          <AdminField
+            label="Discount (%)"
+            name="discountPercent"
+            type="number"
+            placeholder="0"
+            defaultValue={product.discountPercent ?? 0}
+          />
+        </div>
+
         <AdminField
           label="Weight (kg) - for shipping calculation only"
           name="weightKg"

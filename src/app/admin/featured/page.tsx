@@ -49,7 +49,7 @@ export default async function FeaturedLooksPage() {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm text-ink truncate">{product.name}</div>
-                    <div className="text-xs text-graphite">₩{product.basePriceIdr.toLocaleString()}</div>
+                    <div className="text-xs text-graphite">Rp {product.basePriceIdr.toLocaleString()}</div>
                   </div>
                 </label>
               ))
