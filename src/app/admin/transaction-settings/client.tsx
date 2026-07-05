@@ -5,6 +5,22 @@ import { updateTransactionSettingsAction } from "@/app/admin/actions";
 import type { TransactionSettings, FeeConfig } from "@/lib/types-settings";
 import { COUNTRY_CODES } from "@/lib/countries";
 
+// Map supported currencies to country codes
+const SUPPORTED_CURRENCIES_TO_COUNTRIES: Record<string, string[]> = {
+  USD: ["US", "CA", "MX"],
+  SGD: ["SG"],
+  AUD: ["AU"],
+  MYR: ["MY"],
+  THB: ["TH"],
+  VND: ["VN"],
+  EUR: ["DE", "FR", "IT", "ES", "NL", "BE", "AT", "CH", "SE", "NO", "DK", "FI", "PL", "CZ", "GR", "PT"],
+  PHP: ["PH"],
+  CNY: ["CN"],
+  JPY: ["JP"],
+  KRW: ["KR"],
+  IDR: ["ID"],
+};
+
 interface Props {
   initialSettings: TransactionSettings;
 }
@@ -135,8 +151,15 @@ function AddCountryExceptionButton({
   const [showDropdown, setShowDropdown] = useState(false);
 
   const usedCountries = new Set(exceptions.map(e => e.countryId));
+
+  // Get all supported country codes
+  const supportedCountryCodes = new Set<string>();
+  Object.values(SUPPORTED_CURRENCIES_TO_COUNTRIES).forEach(codes => {
+    codes.forEach(code => supportedCountryCodes.add(code));
+  });
+
   const availableCountries = Object.entries(COUNTRY_CODES)
-    .filter(([code]) => !usedCountries.has(code))
+    .filter(([code]) => supportedCountryCodes.has(code) && !usedCountries.has(code))
     .map(([code, name]) => ({ id: code, name }));
 
   return (
@@ -244,10 +267,19 @@ function ShippingSettings({
                 <AddCountryExceptionButton
                   exceptions={settings.international.exceptions}
                   onAdd={(country) => {
+                    // Determine currency for this country
+                    let currency = "USD";
+                    for (const [curr, countries] of Object.entries(SUPPORTED_CURRENCIES_TO_COUNTRIES)) {
+                      if (countries.includes(country.id)) {
+                        currency = curr;
+                        break;
+                      }
+                    }
+
                     const newException = {
                       countryId: country.id,
                       countryName: country.name,
-                      fee: { type: "fixed" as const, value: 0, currency: "USD" },
+                      fee: { type: "fixed" as const, value: 0, currency },
                     };
                     onUpdate({
                       ...settings,
