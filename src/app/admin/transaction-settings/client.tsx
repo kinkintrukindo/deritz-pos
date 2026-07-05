@@ -181,12 +181,12 @@ function ShippingSettings({
 }) {
   return (
     <div className="space-y-8">
-      {/* Midtrans Toggle */}
+      {/* RajaOngkir Auto Recalculation Toggle */}
       <div className="p-6 border border-mist space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-medium text-ink mb-1">Use Midtrans API</h3>
-            <p className="text-xs text-graphite">If enabled, shipping costs calculated via Midtrans. If disabled, use manual settings below.</p>
+            <h3 className="font-medium text-ink mb-1">Auto Recalculate RajaOngkir</h3>
+            <p className="text-xs text-graphite">If enabled, shipping costs calculated via RajaOngkir API. If disabled, use manual settings below.</p>
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -218,16 +218,21 @@ function ShippingSettings({
             <h3 className="font-medium text-ink">International Shipping</h3>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-ink">Default (all countries, in USD)</label>
+              <label className="block text-sm font-medium text-ink">Default (all countries)</label>
+              <p className="text-xs text-graphite">For fixed fees, specify currency (USD, SGD, etc). For percentage, applies to subtotal.</p>
               <FeeConfigEditor
                 config={settings.international.default}
-                onChange={(fee) =>
+                onChange={(fee) => {
+                  // Keep currency for fixed fees, remove for percentage
+                  const updated = fee.type === 'fixed'
+                    ? { ...fee, currency: fee.currency || 'USD' }
+                    : { ...fee, currency: undefined };
                   onUpdate({
                     ...settings,
-                    international: { ...settings.international, default: { ...fee, currency: 'USD' } },
-                  })
-                }
-                label="Default International Shipping Fee (USD)"
+                    international: { ...settings.international, default: updated },
+                  });
+                }}
+                label="Default International Shipping Fee"
                 isInternational
               />
             </div>
@@ -365,24 +370,27 @@ function FeeConfigEditor({
 
       <div className={`grid grid-cols-${compact ? 2 : 3} gap-3`}>
         {/* Type Selection */}
-        {!isInternational && (
-          <div>
-            <label className="text-xs text-graphite block mb-1">Type</label>
-            <select
-              value={config.type}
-              onChange={(e) => onChange({ ...config, type: e.target.value as "percentage" | "fixed" })}
-              className="w-full border border-mist px-3 py-2 text-sm"
-            >
-              <option value="percentage">Percentage (%)</option>
-              <option value="fixed">Fixed (IDR)</option>
-            </select>
-          </div>
-        )}
+        <div>
+          <label className="text-xs text-graphite block mb-1">Type</label>
+          <select
+            value={config.type}
+            onChange={(e) => onChange({ ...config, type: e.target.value as "percentage" | "fixed" })}
+            className="w-full border border-mist px-3 py-2 text-sm"
+          >
+            <option value="percentage">Percentage (%)</option>
+            <option value="fixed">Fixed {isInternational ? "(Currency)" : "(IDR)"}</option>
+          </select>
+        </div>
 
         {/* Value */}
         <div>
           <label className="text-xs text-graphite block mb-1">
-            {config.type === "percentage" ? "Percent" : isInternational ? `Amount (${config.currency || 'USD'})` : "Amount (IDR)"}
+            {config.type === "percentage"
+              ? "Percent (%)"
+              : isInternational
+                ? `Amount (${config.currency || 'USD'})`
+                : "Amount (IDR)"
+            }
           </label>
           <input
             type="number"
@@ -451,13 +459,11 @@ function FeeConfigEditor({
       {/* Preview */}
       <div className="p-3 bg-surface rounded text-xs text-graphite">
         {config.type === "percentage" ? (
-          <>
-            <p>
-              {config.value}% of base fare
-              {config.minCap && ` (min: Rp ${config.minCap.toLocaleString("id-ID")})`}
-              {config.maxCap && ` (max: Rp ${config.maxCap.toLocaleString("id-ID")})`}
-            </p>
-          </>
+          <p>
+            {config.value}% of base fare
+            {config.minCap && ` (min: ${isInternational ? config.currency || 'USD' : 'Rp'} ${config.minCap.toLocaleString(isInternational ? 'en-US' : 'id-ID')})`}
+            {config.maxCap && ` (max: ${isInternational ? config.currency || 'USD' : 'Rp'} ${config.maxCap.toLocaleString(isInternational ? 'en-US' : 'id-ID')})`}
+          </p>
         ) : isInternational ? (
           <p>Fixed: {config.currency || 'USD'} {config.value.toLocaleString('en-US')}</p>
         ) : (

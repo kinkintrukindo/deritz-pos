@@ -46,6 +46,8 @@ export const DEFAULT_SHIPPING_CONFIG: ShippingConfig = {
       type: 'fixed',
       value: 0,
       currency: 'USD',
+      minCap: 50000,
+      maxCap: 2000000,
     },
     exceptions: [],
   },

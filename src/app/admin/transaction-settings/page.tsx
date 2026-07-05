@@ -31,7 +31,7 @@ export default async function TransactionSettingsPage() {
       </div>
 
       <div className="mt-6 text-xs text-graphite space-y-1">
-        <p>💡 <strong>Shipping:</strong> Control how shipping costs are calculated. Choose between Midtrans API (automatic) or manual rates.</p>
+        <p>💡 <strong>Auto Recalculate RajaOngkir:</strong> If enabled, shipping costs calculated via RajaOngkir API. If disabled, use manual rates below.</p>
         <p>💡 <strong>Transaction Fee:</strong> Optional additional fee charged on top of order total (percentage or fixed amount).</p>
       </div>
     </div>

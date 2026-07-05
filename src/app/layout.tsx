@@ -16,9 +16,24 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "De Ritz — Make Up & Bridal",
+  title: "De Ritz Atelier — Custom Bridal & Couture",
   description:
-    "Designer Peranakan kebaya and bridal wear, made to measure. De Ritz — Make Up & Bridal.",
+    "Tailored to your story. Hand-finished for your perfect day. Every De Ritz gown and set is individually hand-cut and finished to your exact dimensions, ensuring couture quality delivered straight to your door.",
+  keywords: ["bridal wear", "kebaya", "couture", "custom tailored", "made to measure", "Indonesian design"],
+  authors: [{ name: "De Ritz Atelier" }],
+  openGraph: {
+    title: "De Ritz Atelier",
+    description: "Tailored to your story. Hand-finished for your perfect day.",
+    type: "website",
+    url: "https://deritz-pos.vercel.app",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/brand/logo.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/brand/logo.png",
+  },
 };
 
 export default function RootLayout({
