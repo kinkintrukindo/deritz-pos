@@ -247,7 +247,7 @@ function ShippingSettings({
                     const newException = {
                       countryId: country.id,
                       countryName: country.name,
-                      fee: { type: "fixed" as const, value: 0 },
+                      fee: { type: "fixed" as const, value: 0, currency: "USD" },
                     };
                     onUpdate({
                       ...settings,
@@ -265,7 +265,10 @@ function ShippingSettings({
                   {settings.international.exceptions.map((exc, idx) => (
                     <div key={idx} className="p-3 bg-surface border border-mist rounded space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-ink font-medium">{exc.countryName}</span>
+                        <div>
+                          <span className="text-sm text-ink font-medium">{exc.countryName}</span>
+                          {exc.fee.currency && <span className="text-xs text-graphite ml-2">({exc.fee.currency})</span>}
+                        </div>
                         <button
                           onClick={() => {
                             const updated = settings.international.exceptions.filter((_, i) => i !== idx);
@@ -290,6 +293,7 @@ function ShippingSettings({
                           });
                         }}
                         compact
+                        isInternational
                       />
                     </div>
                   ))}
@@ -428,13 +432,13 @@ function FeeConfigEditor({
         {/* Min Cap (only for percentage) */}
         {config.type === "percentage" && (
           <div>
-            <label className="text-xs text-graphite block mb-1">Min Cap (IDR)</label>
+            <label className="text-xs text-graphite block mb-1">Min Cap ({isInternational ? (config.currency || 'USD') : 'IDR'})</label>
             <input
               type="number"
               value={config.minCap ?? ""}
               onChange={(e) => onChange({ ...config, minCap: e.target.value ? parseFloat(e.target.value) : undefined })}
               className="w-full border border-mist px-3 py-2 text-sm"
-              step="1000"
+              step={isInternational ? 1 : 1000}
               placeholder="No minimum"
             />
           </div>
@@ -444,13 +448,13 @@ function FeeConfigEditor({
       {/* Max Cap (only for percentage) */}
       {config.type === "percentage" && (
         <div>
-          <label className="text-xs text-graphite block mb-1">Max Cap (IDR)</label>
+          <label className="text-xs text-graphite block mb-1">Max Cap ({isInternational ? (config.currency || 'USD') : 'IDR'})</label>
           <input
             type="number"
             value={config.maxCap ?? ""}
             onChange={(e) => onChange({ ...config, maxCap: e.target.value ? parseFloat(e.target.value) : undefined })}
             className="w-full border border-mist px-3 py-2 text-sm"
-            step="1000"
+            step={isInternational ? 1 : 1000}
             placeholder="No maximum"
           />
         </div>
