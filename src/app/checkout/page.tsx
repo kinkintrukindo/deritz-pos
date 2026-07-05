@@ -13,28 +13,39 @@ import { isValidEmail, isValidPhone, isValidName, isValidAddress, isValidCity, i
 import { calculateTransactionFee, calculateShippingFee } from "@/lib/fee-calculator";
 import type { TransactionSettings } from "@/lib/types-settings";
 import { DEFAULT_SETTINGS } from "@/lib/types-settings";
+import { searchCountries, getCountryByISO, type Country } from "@/lib/countries-data";
+import { getCurrentExchangeRates } from "@/lib/currency-rates";
 
-// Exchange rates: all currencies to USD (base rate)
-const CURRENCY_TO_USD: Record<string, number> = {
-  USD: 1,
-  IDR: 1 / 15250,
-  CNY: 1 / 7,
-  SGD: 1 / 1.35,
-  AUD: 1 / 1.5,
-  MYR: 1 / 4.5,
-  THB: 1 / 33,
-  VND: 1 / 24000,
-  EUR: 1.1,
-  PHP: 1 / 55,
-  JPY: 1 / 110,
-  KRW: 1 / 1200,
-};
+// Exchange rates will be loaded from API
+let cachedRates: Record<string, number> | null = null;
+
+// Load and cache exchange rates on app start
+async function loadExchangeRates() {
+  if (!cachedRates) {
+    cachedRates = await getCurrentExchangeRates();
+  }
+  return cachedRates;
+}
 
 // Convert from any currency to any other currency
 function convertCurrency(amount: number, fromCurrency: string, toCurrency: string): number {
   if (fromCurrency === toCurrency) return amount;
-  const usdAmount = amount * (CURRENCY_TO_USD[fromCurrency] || 1);
-  return usdAmount / (CURRENCY_TO_USD[toCurrency] || 1);
+  if (!cachedRates) {
+    console.warn('Exchange rates not loaded yet');
+    return amount;
+  }
+
+  const fromRate = cachedRates[fromCurrency];
+  const toRate = cachedRates[toCurrency];
+
+  if (!fromRate || !toRate) {
+    console.warn(`Missing rates for ${fromCurrency} or ${toCurrency}`);
+    return amount;
+  }
+
+  // Convert to USD first, then to target currency
+  const inUSD = amount / fromRate;
+  return inUSD * toRate;
 }
 
 interface DestinationResult {
@@ -48,24 +59,32 @@ interface DestinationResult {
   [key: string]: unknown;
 }
 
-function formatDestinationLabel(item: DestinationResult): string {
+function formatDestinationLabel(item: DestinationResult | Country): string {
   if (item.label) return item.label;
+  // Handle Country objects from hardcoded list (have name property)
+  if ('name' in item && 'iso' in item) {
+    return item.name;
+  }
   // International response has country_name
   if ((item as Record<string, unknown>).country_name) {
     return String((item as Record<string, unknown>).country_name);
   }
   // Domestic response has subdistrict, district, city, province
-  const parts = [item.subdistrict_name, item.district_name, item.city_name, item.province_name].filter(Boolean);
+  const parts = [(item as DestinationResult).subdistrict_name, (item as DestinationResult).district_name, (item as DestinationResult).city_name, (item as DestinationResult).province_name].filter(Boolean);
   if (parts.length > 0) return parts.join(', ');
   return '';
 }
 
-function getDestinationId(item: DestinationResult): string {
-  // International uses country_id
+function getDestinationId(item: DestinationResult | Country): string {
+  // Handle Country objects from hardcoded list (have rajaongkirId)
+  if ('rajaongkirId' in item) {
+    return item.rajaongkirId;
+  }
+  // RajaOngkir API results use country_id for international
   const countryId = (item as Record<string, unknown>).country_id;
   if (countryId !== undefined && countryId !== null) return String(countryId);
   // Domestic uses id / subdistrict_id / district_id
-  const id = item.id ?? (item as Record<string, unknown>).subdistrict_id ?? (item as Record<string, unknown>).district_id;
+  const id = (item as Record<string, unknown>).id ?? (item as Record<string, unknown>).subdistrict_id ?? (item as Record<string, unknown>).district_id;
   return id !== undefined && id !== null ? String(id) : '';
 }
 
@@ -154,17 +173,30 @@ export default function CheckoutPage() {
       return;
     }
 
-    const endpoint =
-      shippingType === 'domestic'
-        ? `/api/shipping/search-destination?search=${encodeURIComponent(destinationQuery.trim())}`
-        : `/api/shipping/search-international?search=${encodeURIComponent(destinationQuery.trim())}`;
-
     const timeout = setTimeout(async () => {
       setSearchingDestination(true);
       try {
-        const response = await fetch(endpoint);
-        const data = await response.json();
-        setDestinationResults(data.results ?? []);
+        // If manual shipping is disabled (not using RajaOngkir), use hardcoded data
+        if (!transactionSettings.shipping.enabled) {
+          if (shippingType === 'international') {
+            // Search hardcoded countries list
+            const results = searchCountries(destinationQuery.trim());
+            setDestinationResults(results as unknown as DestinationResult[]);
+          } else {
+            // Domestic: no search needed, just use flat rate
+            setDestinationResults([]);
+          }
+        } else {
+          // Use RajaOngkir API
+          const endpoint =
+            shippingType === 'domestic'
+              ? `/api/shipping/search-destination?search=${encodeURIComponent(destinationQuery.trim())}`
+              : `/api/shipping/search-international?search=${encodeURIComponent(destinationQuery.trim())}`;
+
+          const response = await fetch(endpoint);
+          const data = await response.json();
+          setDestinationResults(data.results ?? []);
+        }
       } catch (error) {
         console.error('Destination search failed:', error);
         setDestinationResults([]);
@@ -173,7 +205,7 @@ export default function CheckoutPage() {
       }
     }, 350);
     return () => clearTimeout(timeout);
-  }, [destinationQuery, shippingType]);
+  }, [destinationQuery, shippingType, transactionSettings.shipping.enabled]);
 
   const handleSelectDestination = (item: DestinationResult) => {
     const label = formatDestinationLabel(item);
@@ -209,6 +241,11 @@ export default function CheckoutPage() {
       }));
     }
   }, [user]);
+
+  // Load exchange rates on mount
+  useEffect(() => {
+    loadExchangeRates();
+  }, []);
 
   // Load transaction settings on mount
   useEffect(() => {
