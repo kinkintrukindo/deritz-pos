@@ -46,15 +46,17 @@ export function calculateShippingFee(
     return calculateFee(subtotal, settings.shipping.domestic);
   }
 
-  // International
-  const exception = settings.shipping.international.exceptions.find(
-    (exc) => exc.countryId === countryId
-  );
+  // International - check for country-specific exception first
+  if (countryId) {
+    const exception = settings.shipping.international.exceptions.find(
+      (exc) => exc.countryId === countryId
+    );
 
-  if (exception) {
-    return calculateFee(subtotal, exception.fee);
+    if (exception) {
+      return calculateFee(subtotal, exception.fee);
+    }
   }
 
-  // Use default
+  // Use default for all other countries
   return calculateFee(subtotal, settings.shipping.international.default);
 }

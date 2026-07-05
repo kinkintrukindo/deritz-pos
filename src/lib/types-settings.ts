@@ -2,9 +2,10 @@ export type FeeType = 'percentage' | 'fixed';
 
 export interface FeeConfig {
   type: FeeType;
-  value: number; // percentage (0-100) or fixed amount (IDR)
+  value: number; // percentage (0-100) or fixed amount
   minCap?: number; // minimum fee for percentage
   maxCap?: number; // maximum fee for percentage
+  currency?: string; // for international fees: USD, SGD, CNY, etc
 }
 
 export interface ShippingConfig {
@@ -42,10 +43,9 @@ export const DEFAULT_SHIPPING_CONFIG: ShippingConfig = {
   },
   international: {
     default: {
-      type: 'percentage',
+      type: 'fixed',
       value: 0,
-      minCap: 50000,
-      maxCap: 2000000,
+      currency: 'USD',
     },
     exceptions: [],
   },

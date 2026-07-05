@@ -10,7 +10,7 @@ import { submitOrderAction, confirmPaymentAction, submitOrderBypassAction, type 
 import { estimateShipping, type ShippingRate, getChargeableWeight } from "@/lib/shipping-real";
 import { COUNTRY_CODES } from "@/lib/countries";
 import { isValidEmail, isValidPhone, isValidName, isValidAddress, isValidCity, isValidCountry } from "@/lib/validation";
-import { calculateTransactionFee } from "@/lib/fee-calculator";
+import { calculateTransactionFee, calculateShippingFee } from "@/lib/fee-calculator";
 import type { TransactionSettings } from "@/lib/types-settings";
 import { DEFAULT_SETTINGS } from "@/lib/types-settings";
 
@@ -217,6 +217,29 @@ export default function CheckoutPage() {
   const selectedRate = shippingRates.find(r => r.id === selectedRateId);
   const shipping = selectedRate?.cost || 0;
 
+  // Get shipping fee currency (if using manual fees)
+  const getShippingFeeCurrency = (): string | null => {
+    if (transactionSettings.shipping.enabled) {
+      return null; // RajaOngkir uses IDR
+    }
+    if (shippingType === 'domestic') {
+      return null; // Domestic in IDR
+    }
+    // International - check for country-specific exception
+    if (destinationId) {
+      const exception = transactionSettings.shipping.international.exceptions.find(
+        (exc) => exc.countryId === destinationId
+      );
+      if (exception && exception.fee.currency) {
+        return exception.fee.currency;
+      }
+    }
+    // Return default currency
+    return transactionSettings.shipping.international.default.currency || 'USD';
+  };
+
+  const shippingCurrency = getShippingFeeCurrency();
+
   // Calculate transaction fee based on subtotal
   const transactionFee = calculateTransactionFee(subtotal, transactionSettings);
 
@@ -233,6 +256,22 @@ export default function CheckoutPage() {
 
     setLoadingRates(true);
     try {
+      // Check if Midtrans is enabled
+      if (!transactionSettings.shipping.enabled) {
+        // Midtrans disabled: use manual shipping fees
+        const manualFee = calculateShippingFee(subtotal, shippingType, destinationId, transactionSettings);
+        const rate: ShippingRate = {
+          id: 'manual-shipping',
+          name: shippingType === 'domestic' ? 'Manual Domestic Shipping' : 'Manual International Shipping',
+          cost: manualFee,
+          provider: 'Manual',
+        };
+        setShippingRates([rate]);
+        setSelectedRateId(rate.id);
+        return;
+      }
+
+      // Midtrans enabled: use RajaOngkir API
       // Calculate total weight and volumetric weight from cart items
       let totalActualWeightKg = 0;
       let totalChargeableWeightKg = 0;
@@ -831,8 +870,12 @@ export default function CheckoutPage() {
             <Price amountIdr={subtotal} />
           </div>
           <div className="flex justify-between text-graphite">
-            <span>Shipping</span>
-            <Price amountIdr={shipping} />
+            <span>Shipping {shippingCurrency && shippingCurrency !== 'IDR' && `(${shippingCurrency})`}</span>
+            {shippingCurrency && shippingCurrency !== 'IDR' ? (
+              <span>{shipping.toLocaleString('en-US')}</span>
+            ) : (
+              <Price amountIdr={shipping} />
+            )}
           </div>
           {transactionFee > 0 && (
             <div className="flex justify-between text-graphite">

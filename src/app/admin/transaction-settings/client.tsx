@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { updateTransactionSettingsAction } from "@/app/admin/actions";
 import type { TransactionSettings, FeeConfig } from "@/lib/types-settings";
+import { COUNTRY_CODES } from "@/lib/countries";
 
 interface Props {
   initialSettings: TransactionSettings;
@@ -124,6 +125,53 @@ export function TransactionSettingsClient({ initialSettings }: Props) {
   );
 }
 
+function AddCountryExceptionButton({
+  exceptions,
+  onAdd,
+}: {
+  exceptions: Array<{ countryId: string; countryName: string }>;
+  onAdd: (country: { id: string; name: string }) => void;
+}) {
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const usedCountries = new Set(exceptions.map(e => e.countryId));
+  const availableCountries = Object.entries(COUNTRY_CODES)
+    .filter(([code]) => !usedCountries.has(code))
+    .map(([code, name]) => ({ id: code, name }));
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setShowDropdown(!showDropdown)}
+        className="text-xs tracking-wide-label uppercase px-3 py-2 border border-mist hover:bg-surface transition-colors"
+      >
+        + Add Country
+      </button>
+
+      {showDropdown && (
+        <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-mist shadow-lg z-50 max-h-96 overflow-y-auto">
+          {availableCountries.length === 0 ? (
+            <div className="p-3 text-xs text-graphite">All countries already added</div>
+          ) : (
+            availableCountries.map(country => (
+              <button
+                key={country.id}
+                onClick={() => {
+                  onAdd(country);
+                  setShowDropdown(false);
+                }}
+                className="w-full text-left px-3 py-2 text-xs hover:bg-surface border-b border-mist last:border-b-0 transition-colors"
+              >
+                {country.name} ({country.id})
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ShippingSettings({
   settings,
   onUpdate,
@@ -170,56 +218,82 @@ function ShippingSettings({
             <h3 className="font-medium text-ink">International Shipping</h3>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-ink">Default (applies to all countries)</label>
+              <label className="block text-sm font-medium text-ink">Default (all countries, in USD)</label>
               <FeeConfigEditor
                 config={settings.international.default}
                 onChange={(fee) =>
                   onUpdate({
                     ...settings,
-                    international: { ...settings.international, default: fee },
+                    international: { ...settings.international, default: { ...fee, currency: 'USD' } },
                   })
                 }
-                label="Default International Shipping Fee"
+                label="Default International Shipping Fee (USD)"
+                isInternational
               />
             </div>
 
             {/* Exceptions */}
-            {settings.international.exceptions.length > 0 && (
-              <div className="mt-6 space-y-3 pt-6 border-t border-mist">
+            <div className="mt-6 pt-6 border-t border-mist space-y-4">
+              <div className="flex items-center justify-between">
                 <label className="block text-sm font-medium text-ink">Country Exceptions</label>
-                {settings.international.exceptions.map((exc, idx) => (
-                  <div key={idx} className="p-3 bg-surface border border-mist rounded space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-ink font-medium">{exc.countryName}</span>
-                      <button
-                        onClick={() => {
-                          const updated = settings.international.exceptions.filter((_, i) => i !== idx);
+                <AddCountryExceptionButton
+                  exceptions={settings.international.exceptions}
+                  onAdd={(country) => {
+                    const newException = {
+                      countryId: country.id,
+                      countryName: country.name,
+                      fee: { type: "fixed" as const, value: 0 },
+                    };
+                    onUpdate({
+                      ...settings,
+                      international: {
+                        ...settings.international,
+                        exceptions: [...settings.international.exceptions, newException],
+                      },
+                    });
+                  }}
+                />
+              </div>
+
+              {settings.international.exceptions.length > 0 && (
+                <div className="space-y-3">
+                  {settings.international.exceptions.map((exc, idx) => (
+                    <div key={idx} className="p-3 bg-surface border border-mist rounded space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-ink font-medium">{exc.countryName}</span>
+                        <button
+                          onClick={() => {
+                            const updated = settings.international.exceptions.filter((_, i) => i !== idx);
+                            onUpdate({
+                              ...settings,
+                              international: { ...settings.international, exceptions: updated },
+                            });
+                          }}
+                          className="text-xs text-red-600 hover:text-red-700"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <FeeConfigEditor
+                        config={exc.fee}
+                        onChange={(fee) => {
+                          const updated = [...settings.international.exceptions];
+                          updated[idx].fee = fee;
                           onUpdate({
                             ...settings,
                             international: { ...settings.international, exceptions: updated },
                           });
                         }}
-                        className="text-xs text-red-600 hover:text-red-700"
-                      >
-                        Remove
-                      </button>
+                        compact
+                      />
                     </div>
-                    <FeeConfigEditor
-                      config={exc.fee}
-                      onChange={(fee) => {
-                        const updated = [...settings.international.exceptions];
-                        updated[idx].fee = fee;
-                        onUpdate({
-                          ...settings,
-                          international: { ...settings.international, exceptions: updated },
-                        });
-                      }}
-                      compact
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+              {settings.international.exceptions.length === 0 && (
+                <p className="text-xs text-graphite italic">No country exceptions yet. Add one with the + button.</p>
+              )}
+            </div>
           </div>
         </>
       )}
@@ -275,12 +349,14 @@ function FeeConfigEditor({
   label,
   description,
   compact = false,
+  isInternational = false,
 }: {
   config: FeeConfig;
   onChange: (fee: FeeConfig) => void;
   label?: string;
   description?: string;
   compact?: boolean;
+  isInternational?: boolean;
 }) {
   return (
     <div className={`space-y-${compact ? 2 : 4}`}>
@@ -289,29 +365,57 @@ function FeeConfigEditor({
 
       <div className={`grid grid-cols-${compact ? 2 : 3} gap-3`}>
         {/* Type Selection */}
-        <div>
-          <label className="text-xs text-graphite block mb-1">Type</label>
-          <select
-            value={config.type}
-            onChange={(e) => onChange({ ...config, type: e.target.value as "percentage" | "fixed" })}
-            className="w-full border border-mist px-3 py-2 text-sm"
-          >
-            <option value="percentage">Percentage (%)</option>
-            <option value="fixed">Fixed (IDR)</option>
-          </select>
-        </div>
+        {!isInternational && (
+          <div>
+            <label className="text-xs text-graphite block mb-1">Type</label>
+            <select
+              value={config.type}
+              onChange={(e) => onChange({ ...config, type: e.target.value as "percentage" | "fixed" })}
+              className="w-full border border-mist px-3 py-2 text-sm"
+            >
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed (IDR)</option>
+            </select>
+          </div>
+        )}
 
         {/* Value */}
         <div>
-          <label className="text-xs text-graphite block mb-1">{config.type === "percentage" ? "Percent" : "Amount (IDR)"}</label>
+          <label className="text-xs text-graphite block mb-1">
+            {config.type === "percentage" ? "Percent" : isInternational ? `Amount (${config.currency || 'USD'})` : "Amount (IDR)"}
+          </label>
           <input
             type="number"
             value={config.value}
             onChange={(e) => onChange({ ...config, value: parseFloat(e.target.value) })}
             className="w-full border border-mist px-3 py-2 text-sm"
-            step={config.type === "percentage" ? 0.1 : 1000}
+            step={config.type === "percentage" ? 0.1 : 1}
           />
         </div>
+
+        {/* Currency (for international fixed fees) */}
+        {isInternational && config.type === "fixed" && (
+          <div>
+            <label className="text-xs text-graphite block mb-1">Currency</label>
+            <select
+              value={config.currency || 'USD'}
+              onChange={(e) => onChange({ ...config, currency: e.target.value })}
+              className="w-full border border-mist px-3 py-2 text-sm"
+            >
+              <option value="USD">USD</option>
+              <option value="SGD">SGD</option>
+              <option value="CNY">CNY</option>
+              <option value="JPY">JPY</option>
+              <option value="KRW">KRW</option>
+              <option value="AUD">AUD</option>
+              <option value="MYR">MYR</option>
+              <option value="THB">THB</option>
+              <option value="VND">VND</option>
+              <option value="PHP">PHP</option>
+              <option value="EUR">EUR</option>
+            </select>
+          </div>
+        )}
 
         {/* Min Cap (only for percentage) */}
         {config.type === "percentage" && (
@@ -354,6 +458,8 @@ function FeeConfigEditor({
               {config.maxCap && ` (max: Rp ${config.maxCap.toLocaleString("id-ID")})`}
             </p>
           </>
+        ) : isInternational ? (
+          <p>Fixed: {config.currency || 'USD'} {config.value.toLocaleString('en-US')}</p>
         ) : (
           <p>Fixed: Rp {config.value.toLocaleString("id-ID")}</p>
         )}
