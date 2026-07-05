@@ -916,7 +916,7 @@ export default function CheckoutPage() {
             <Price amountIdr={subtotal} />
           </div>
           <div className="flex justify-between text-graphite">
-            <span>Shipping {shippingCurrency && shippingCurrency !== 'IDR' && `(${shippingCurrency})`}</span>
+            <span>Shipping {currency && currency !== 'IDR' && `(${currency})`}</span>
             {shippingCurrency && shippingCurrency !== 'IDR' ? (
               // Convert from destination currency to IDR, then Price component handles user currency conversion
               <Price amountIdr={Math.round(convertCurrency(shipping, shippingCurrency, 'IDR'))} />
