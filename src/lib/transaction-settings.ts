@@ -7,7 +7,7 @@ const SETTINGS_KEY = "transaction_settings";
 
 export async function getTransactionSettings(): Promise<TransactionSettings> {
   try {
-    const settings = await readJson<TransactionSettings>(SETTINGS_KEY, null);
+    const settings = await readJson<TransactionSettings | null>(SETTINGS_KEY, null);
     if (!settings) {
       return DEFAULT_SETTINGS;
     }
