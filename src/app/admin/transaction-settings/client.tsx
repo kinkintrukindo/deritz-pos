@@ -152,15 +152,21 @@ function AddCountryExceptionButton({
 
   const usedCountries = new Set(exceptions.map(e => e.countryId));
 
-  // Get all supported country codes
+  // Get all supported country codes from all currencies
   const supportedCountryCodes = new Set<string>();
-  Object.values(SUPPORTED_CURRENCIES_TO_COUNTRIES).forEach(codes => {
+  Object.entries(SUPPORTED_CURRENCIES_TO_COUNTRIES).forEach(([currency, codes]) => {
     codes.forEach(code => supportedCountryCodes.add(code));
   });
 
+  // Filter countries that are supported and not already added
   const availableCountries = Object.entries(COUNTRY_CODES)
-    .filter(([code]) => supportedCountryCodes.has(code) && !usedCountries.has(code))
-    .map(([code, name]) => ({ id: code, name }));
+    .filter(([code]) => {
+      const isSupported = supportedCountryCodes.has(code);
+      const isNotUsed = !usedCountries.has(code);
+      return isSupported && isNotUsed;
+    })
+    .map(([code, name]) => ({ id: code, name }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const handleAddClick = (e: React.MouseEvent) => {
     e.preventDefault();
