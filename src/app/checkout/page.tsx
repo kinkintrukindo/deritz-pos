@@ -195,7 +195,21 @@ export default function CheckoutPage() {
 
           const response = await fetch(endpoint);
           const data = await response.json();
-          setDestinationResults(data.results ?? []);
+
+          // Check for rate limit error and fall back to manual mode
+          if (!response.ok || data.error?.includes('429') || data.error?.includes('limit exceeded')) {
+            console.warn('RajaOngkir rate limited, falling back to manual mode', data.error);
+            if (shippingType === 'international') {
+              // Fall back to hardcoded countries
+              const results = searchCountries(destinationQuery.trim());
+              setDestinationResults(results as unknown as DestinationResult[]);
+            } else {
+              // Domestic: skip search, use flat rate
+              setDestinationResults([]);
+            }
+          } else {
+            setDestinationResults(data.results ?? []);
+          }
         }
       } catch (error) {
         console.error('Destination search failed:', error);
@@ -390,18 +404,42 @@ export default function CheckoutPage() {
         items: lines.length,
       });
 
-      const rates = await estimateShipping({
-        destinationId,
-        weight: chargeableWeightInGrams, // Chargeable weight (volumetric or actual, whichever is higher)
-        type: shippingType,
-      });
-      console.log('Shipping rates received:', rates);
-      setShippingRates(rates);
-      if (rates.length > 0) {
-        setSelectedRateId(rates[0].id);
+      try {
+        const rates = await estimateShipping({
+          destinationId,
+          weight: chargeableWeightInGrams,
+          type: shippingType,
+        });
+
+        console.log('Shipping rates received:', rates);
+
+        // Check if we got fallback rates (when RajaOngkir is rate limited or fails)
+        if (rates.some(r => r.id.startsWith('fallback-') || r.id === 'dhl-express')) {
+          console.warn('⚠️ RajaOngkir API unavailable, using fallback rates');
+        }
+
+        setShippingRates(rates);
+        if (rates.length > 0) {
+          setSelectedRateId(rates[0].id);
+        }
+      } catch (estimateError) {
+        // If RajaOngkir completely fails, fall back to manual fees
+        console.error('❌ Shipping estimation failed, falling back to manual fees:', estimateError);
+        const manualFee = calculateShippingFee(subtotal, shippingType, destinationId, transactionSettings);
+        const rate: ShippingRate = {
+          id: 'manual-fallback',
+          courier: 'Manual Calculation',
+          service: shippingType === 'domestic' ? 'Domestic' : 'International',
+          description: 'Calculated shipping cost',
+          cost: manualFee,
+          etaText: 'Standard',
+          type: shippingType,
+        };
+        setShippingRates([rate]);
+        setSelectedRateId(rate.id);
       }
     } catch (error) {
-      console.error('Shipping estimation failed:', error);
+      console.error('Shipping handling failed:', error);
     } finally {
       setLoadingRates(false);
     }
