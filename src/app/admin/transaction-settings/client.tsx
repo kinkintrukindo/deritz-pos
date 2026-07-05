@@ -162,35 +162,46 @@ function AddCountryExceptionButton({
     .filter(([code]) => supportedCountryCodes.has(code) && !usedCountries.has(code))
     .map(([code, name]) => ({ id: code, name }));
 
+  const handleAddClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDropdown(!showDropdown);
+  };
+
+  const handleCountrySelect = (country: { id: string; name: string }, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onAdd(country);
+    setShowDropdown(false);
+  };
+
   return (
-    <div className="relative">
+    <div className="relative inline-block">
       <button
         type="button"
-        onClick={() => setShowDropdown(!showDropdown)}
+        onClick={handleAddClick}
         className="text-xs tracking-wide-label uppercase px-3 py-2 border border-mist hover:bg-surface transition-colors"
       >
-        + Add Country
+        + Add Country ({availableCountries.length})
       </button>
 
-      {showDropdown && (
-        <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-mist shadow-lg z-50 max-h-96 overflow-y-auto">
-          {availableCountries.length === 0 ? (
-            <div className="p-3 text-xs text-graphite">All countries already added</div>
-          ) : (
-            availableCountries.map(country => (
-              <button
-                key={country.id}
-                type="button"
-                onClick={() => {
-                  onAdd(country);
-                  setShowDropdown(false);
-                }}
-                className="w-full text-left px-3 py-2 text-xs hover:bg-surface border-b border-mist last:border-b-0 transition-colors"
-              >
-                {country.name} ({country.id})
-              </button>
-            ))
-          )}
+      {showDropdown && availableCountries.length > 0 && (
+        <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-mist shadow-lg z-50 max-h-96 overflow-y-auto rounded">
+          {availableCountries.map(country => (
+            <button
+              key={country.id}
+              type="button"
+              onClick={(e) => handleCountrySelect(country, e)}
+              className="w-full text-left px-3 py-2 text-xs hover:bg-surface border-b border-mist last:border-b-0 transition-colors"
+            >
+              {country.name} ({country.id})
+            </button>
+          ))}
+        </div>
+      )}
+      {showDropdown && availableCountries.length === 0 && (
+        <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-mist shadow-lg z-50 p-3 text-xs text-graphite rounded">
+          All supported countries already added
         </div>
       )}
     </div>
