@@ -2,37 +2,37 @@ import type { TransactionSettings, FeeConfig } from "@/lib/types-settings";
 
 const IDR_TO_USD_RATE = 15250; // Standard exchange rate for calculations
 
-// Map RajaOngkir country IDs to ISO country codes
+// Map RajaOngkir V2 country IDs to ISO country codes
 const RAJAONGKIR_ID_TO_ISO: Record<string, string> = {
-  '179': 'US',  // United States
+  '152': 'SG',  // Singapore
   '36': 'CN',   // China
   '9': 'AU',    // Australia
-  '184': 'SG',  // Singapore
-  '124': 'MY',  // Malaysia
-  '216': 'TH',  // Thailand
-  '246': 'VN',  // Vietnam
-  '82': 'DE',   // Germany
-  '81': 'FR',   // France
-  '106': 'IT',  // Italy
-  '201': 'ES',  // Spain
-  '160': 'NL',  // Netherlands
-  '12': 'BE',   // Belgium
-  '14': 'AT',   // Austria
-  '218': 'CH',  // Switzerland
-  '209': 'SE',  // Sweden
-  '157': 'NO',  // Norway
-  '58': 'DK',   // Denmark
-  '80': 'FI',   // Finland
-  '158': 'PL',  // Poland
-  '52': 'CZ',   // Czech Republic
-  '84': 'GR',   // Greece
-  '172': 'PT',  // Portugal
-  '175': 'PH',  // Philippines
-  '37': 'CA',   // Canada
-  '159': 'MX',  // Mexico
-  '23': 'KR',   // South Korea
-  '118': 'JP',  // Japan
+  '30': 'CA',   // Canada
+  '91': 'JP',   // Japan
+  '66': 'DE',   // Germany
+  '61': 'FR',   // France
+  '89': 'IT',   // Italy
+  '156': 'ES',  // Spain
+  '125': 'NL',  // Netherlands
+  '16': 'BE',   // Belgium
+  '10': 'AT',   // Austria
+  '223': 'CH',  // Switzerland (to verify)
+  '189': 'SE',  // Sweden (to verify)
+  '142': 'NO',  // Norway (to verify)
+  '51': 'DK',   // Denmark (to verify)
+  '54': 'FI',   // Finland (to verify)
+  '130': 'PL',  // Poland (to verify)
+  '39': 'CZ',   // Czech Republic (to verify)
+  '84': 'GR',   // Greece (to verify)
+  '144': 'PT',  // Portugal (to verify)
+  '131': 'PH',  // Philippines (to verify)
+  '147': 'MX',  // Mexico (to verify)
+  '241': 'VN',  // Vietnam (to verify)
+  '214': 'TH',  // Thailand (to verify)
+  '124': 'MY',  // Malaysia (to verify)
   '103': 'ID',  // Indonesia
+  '233': 'US',  // United States
+  '175': 'KR',  // South Korea (to verify)
 };
 
 export function calculateFee(

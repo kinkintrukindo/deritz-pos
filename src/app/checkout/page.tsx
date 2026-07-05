@@ -243,13 +243,14 @@ export default function CheckoutPage() {
   const IDR_TO_USD_RATE = 15250; // Match the rate in fee-calculator.ts
 
   // Map RajaOngkir country IDs to ISO country codes (for exception lookup)
+  // RajaOngkir V2 ID to ISO country code mapping
   const RAJAONGKIR_TO_ISO: Record<string, string> = {
-    '179': 'US', '36': 'CN', '9': 'AU', '184': 'SG', '124': 'MY',
-    '216': 'TH', '246': 'VN', '82': 'DE', '81': 'FR', '106': 'IT',
-    '201': 'ES', '160': 'NL', '12': 'BE', '14': 'AT', '218': 'CH',
-    '209': 'SE', '157': 'NO', '58': 'DK', '80': 'FI', '158': 'PL',
-    '52': 'CZ', '84': 'GR', '172': 'PT', '175': 'PH', '37': 'CA',
-    '159': 'MX', '23': 'KR', '118': 'JP', '103': 'ID',
+    '152': 'SG', '36': 'CN', '9': 'AU', '30': 'CA', '91': 'JP',
+    '66': 'DE', '61': 'FR', '89': 'IT', '156': 'ES', '125': 'NL',
+    '16': 'BE', '10': 'AT', '223': 'CH', '189': 'SE', '142': 'NO',
+    '51': 'DK', '54': 'FI', '130': 'PL', '39': 'CZ', '84': 'GR',
+    '144': 'PT', '131': 'PH', '147': 'MX', '241': 'VN', '214': 'TH',
+    '124': 'MY', '103': 'ID', '233': 'US', '175': 'KR',
   };
 
   // Get shipping fee currency (if using manual fees)
