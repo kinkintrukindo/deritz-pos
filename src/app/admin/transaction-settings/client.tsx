@@ -165,6 +165,7 @@ function AddCountryExceptionButton({
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => setShowDropdown(!showDropdown)}
         className="text-xs tracking-wide-label uppercase px-3 py-2 border border-mist hover:bg-surface transition-colors"
       >
@@ -179,6 +180,7 @@ function AddCountryExceptionButton({
             availableCountries.map(country => (
               <button
                 key={country.id}
+                type="button"
                 onClick={() => {
                   onAdd(country);
                   setShowDropdown(false);

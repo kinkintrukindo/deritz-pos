@@ -162,7 +162,7 @@ export default function CheckoutPage() {
     setDestinationResults([]);
   };
 
-  // Auto-calculate shipping when destination ID changes
+  // Auto-calculate shipping when destination ID or settings change
   useEffect(() => {
     if (destinationId) {
       handleEstimateShipping();
@@ -170,7 +170,7 @@ export default function CheckoutPage() {
       setShippingRates([]);
       setSelectedRateId('');
     }
-  }, [destinationId, shippingType]);
+  }, [destinationId, shippingType, transactionSettings]);
 
   const [submitting, setSubmitting] = useState(false);
   const [paymentResponse, setPaymentResponse] = useState<CheckoutResponse | null>(null);
