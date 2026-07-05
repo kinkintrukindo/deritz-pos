@@ -219,6 +219,16 @@ export default function CheckoutPage() {
 
   const IDR_TO_USD_RATE = 15250; // Match the rate in fee-calculator.ts
 
+  // Map RajaOngkir country IDs to ISO country codes (for exception lookup)
+  const RAJAONGKIR_TO_ISO: Record<string, string> = {
+    '179': 'US', '36': 'CN', '9': 'AU', '184': 'SG', '124': 'MY',
+    '216': 'TH', '246': 'VN', '82': 'DE', '81': 'FR', '106': 'IT',
+    '201': 'ES', '160': 'NL', '12': 'BE', '14': 'AT', '218': 'CH',
+    '209': 'SE', '157': 'NO', '58': 'DK', '80': 'FI', '158': 'PL',
+    '52': 'CZ', '84': 'GR', '172': 'PT', '175': 'PH', '37': 'CA',
+    '159': 'MX', '23': 'KR', '118': 'JP', '103': 'ID',
+  };
+
   // Get shipping fee currency (if using manual fees)
   const getShippingFeeCurrency = (): string | null => {
     if (transactionSettings.shipping.enabled) {
@@ -227,10 +237,11 @@ export default function CheckoutPage() {
     if (shippingType === 'domestic') {
       return null; // Domestic in IDR
     }
-    // International - check for country-specific exception
+    // International - convert RajaOngkir ID to ISO code and check for country-specific exception
     if (destinationId) {
+      const isoCode = RAJAONGKIR_TO_ISO[destinationId] || destinationId;
       const exception = transactionSettings.shipping.international.exceptions.find(
-        (exc) => exc.countryId === destinationId
+        (exc) => exc.countryId === isoCode
       );
       if (exception && exception.fee.currency) {
         return exception.fee.currency;
