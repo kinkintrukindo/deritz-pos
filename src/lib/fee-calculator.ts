@@ -5,13 +5,16 @@ const IDR_TO_USD_RATE = 15250; // Standard exchange rate for calculations
 export function calculateFee(
   basAmount: number,
   config: FeeConfig,
-  options?: { idr?: boolean }
+  options?: { idr?: boolean; isInternational?: boolean }
 ): number {
   if (config.type === 'percentage') {
     let workingAmount = basAmount;
 
-    // If amount is in IDR but config caps are in foreign currency, convert to USD
-    if (options?.idr && config.currency && config.currency !== 'IDR') {
+    // Determine currency (default to USD for international if not specified)
+    const currency = config.currency || (options?.isInternational ? 'USD' : 'IDR');
+
+    // If amount is in IDR but config is in foreign currency, convert
+    if (options?.idr && currency !== 'IDR') {
       workingAmount = basAmount / IDR_TO_USD_RATE;
     }
 
@@ -66,12 +69,13 @@ export function calculateShippingFee(
     );
 
     if (exception) {
-      return calculateFee(subtotal, exception.fee, { idr: true });
+      return calculateFee(subtotal, exception.fee, { idr: true, isInternational: true });
     }
   }
 
   // Use default for all other countries
   return calculateFee(subtotal, settings.shipping.international.default, {
     idr: true,
+    isInternational: true,
   });
 }

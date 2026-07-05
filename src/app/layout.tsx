@@ -27,13 +27,7 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://deritz-pos.vercel.app",
   },
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/brand/logo.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: "/brand/logo.png",
-  },
+  icons: "/favicon.ico",
 };
 
 export default function RootLayout({
@@ -43,9 +37,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-      </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <ToastProvider>
           <AuthProvider>
