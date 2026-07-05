@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { updateTransactionSettingsAction } from "@/app/admin/actions";
 import type { TransactionSettings, FeeConfig } from "@/lib/types-settings";
-import { COUNTRY_CODES } from "@/lib/countries";
 
 // Map supported currencies to country codes
 const SUPPORTED_CURRENCIES_TO_COUNTRIES: Record<string, string[]> = {
@@ -19,6 +18,39 @@ const SUPPORTED_CURRENCIES_TO_COUNTRIES: Record<string, string[]> = {
   JPY: ["JP"],
   KRW: ["KR"],
   IDR: ["ID"],
+};
+
+// ISO country code to country name mapping for supported countries
+const ISO_COUNTRY_CODES: Record<string, string> = {
+  US: "United States",
+  CA: "Canada",
+  MX: "Mexico",
+  SG: "Singapore",
+  AU: "Australia",
+  MY: "Malaysia",
+  TH: "Thailand",
+  VN: "Vietnam",
+  DE: "Germany",
+  FR: "France",
+  IT: "Italy",
+  ES: "Spain",
+  NL: "Netherlands",
+  BE: "Belgium",
+  AT: "Austria",
+  CH: "Switzerland",
+  SE: "Sweden",
+  NO: "Norway",
+  DK: "Denmark",
+  FI: "Finland",
+  PL: "Poland",
+  CZ: "Czech Republic",
+  GR: "Greece",
+  PT: "Portugal",
+  PH: "Philippines",
+  CN: "China",
+  JP: "Japan",
+  KR: "South Korea",
+  ID: "Indonesia",
 };
 
 interface Props {
@@ -159,7 +191,7 @@ function AddCountryExceptionButton({
   });
 
   // Filter countries that are supported and not already added
-  const availableCountries = Object.entries(COUNTRY_CODES)
+  const availableCountries = Object.entries(ISO_COUNTRY_CODES)
     .filter(([code]) => {
       const isSupported = supportedCountryCodes.has(code);
       const isNotUsed = !usedCountries.has(code);
