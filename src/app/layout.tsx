@@ -27,13 +27,6 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://deritz-pos.vercel.app",
   },
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "32x32 22x24", type: "image/x-icon" },
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-64.png", sizes: "64x64", type: "image/png" },
-    ],
-  },
 };
 
 export default function RootLayout({
