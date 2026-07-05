@@ -96,6 +96,7 @@ export type Order = {
   currency: string;
   subtotalIdr: number;
   shippingIdr: number;
+  transactionFeeIdr?: number;
   totalIdr: number;
 };
 

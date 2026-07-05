@@ -33,6 +33,15 @@ export async function submitOrderAction(
     },
   ];
 
+  if (order.transactionFeeIdr && order.transactionFeeIdr > 0) {
+    items.push({
+      id: "transaction_fee",
+      price: order.transactionFeeIdr,
+      quantity: 1,
+      name: "Transaction Fee",
+    });
+  }
+
   try {
     // Create payment transaction with real API
     const paymentResponse = await createPaymentTransaction(

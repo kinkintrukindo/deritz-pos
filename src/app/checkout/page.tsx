@@ -10,6 +10,9 @@ import { submitOrderAction, confirmPaymentAction, submitOrderBypassAction, type 
 import { estimateShipping, type ShippingRate, getChargeableWeight } from "@/lib/shipping-real";
 import { COUNTRY_CODES } from "@/lib/countries";
 import { isValidEmail, isValidPhone, isValidName, isValidAddress, isValidCity, isValidCountry } from "@/lib/validation";
+import { calculateTransactionFee } from "@/lib/fee-calculator";
+import type { TransactionSettings } from "@/lib/types-settings";
+import { DEFAULT_SETTINGS } from "@/lib/types-settings";
 
 interface DestinationResult {
   id?: string | number;
@@ -80,6 +83,10 @@ export default function CheckoutPage() {
   const [phoneCountryCode, setPhoneCountryCode] = useState('+62');
   const [specialCode, setSpecialCode] = useState('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  // Transaction settings
+  const [transactionSettings, setTransactionSettings] = useState<TransactionSettings>(DEFAULT_SETTINGS);
+  const [loadingSettings, setLoadingSettings] = useState(true);
 
   const validateCheckoutForm = (): boolean => {
     const errors: Record<string, string> = {};
@@ -180,6 +187,26 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
+  // Load transaction settings on mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await fetch('/api/transaction-settings');
+        if (response.ok) {
+          const data = await response.json();
+          setTransactionSettings(data);
+        }
+      } catch (error) {
+        console.warn('Failed to load transaction settings:', error);
+        // Use defaults if failed
+      } finally {
+        setLoadingSettings(false);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
   const subtotal = lines.reduce((sum, l) => {
     const basePrice = l.discountPercent
       ? Math.round(l.unitPriceIdr * (1 - l.discountPercent / 100))
@@ -189,7 +216,11 @@ export default function CheckoutPage() {
 
   const selectedRate = shippingRates.find(r => r.id === selectedRateId);
   const shipping = selectedRate?.cost || 0;
-  const total = subtotal + shipping;
+
+  // Calculate transaction fee based on subtotal
+  const transactionFee = calculateTransactionFee(subtotal, transactionSettings);
+
+  const total = subtotal + shipping + transactionFee;
 
   const handleEstimateShipping = async () => {
     // Only estimate if destination ID is available
@@ -308,6 +339,7 @@ export default function CheckoutPage() {
           currency,
           subtotalIdr: subtotal,
           shippingIdr: shipping,
+          transactionFeeIdr: transactionFee,
           totalIdr: total,
         });
 
@@ -350,6 +382,7 @@ export default function CheckoutPage() {
           currency,
           subtotalIdr: subtotal,
           shippingIdr: shipping,
+          transactionFeeIdr: transactionFee,
           totalIdr: total,
         },
         paymentMethod
@@ -801,6 +834,12 @@ export default function CheckoutPage() {
             <span>Shipping</span>
             <Price amountIdr={shipping} />
           </div>
+          {transactionFee > 0 && (
+            <div className="flex justify-between text-graphite">
+              <span>Transaction Fee</span>
+              <Price amountIdr={transactionFee} />
+            </div>
+          )}
           <div className="flex justify-between text-ink font-medium text-base pt-2">
             <span>Total</span>
             <Price amountIdr={total} />

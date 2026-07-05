@@ -36,6 +36,7 @@ export type NewOrderInput = {
   currency: string;
   subtotalIdr: number;
   shippingIdr: number;
+  transactionFeeIdr?: number;
   totalIdr: number;
 };
 
@@ -54,6 +55,7 @@ export async function createOrder(input: NewOrderInput): Promise<Order> {
     currency: input.currency,
     subtotalIdr: input.subtotalIdr,
     shippingIdr: input.shippingIdr,
+    transactionFeeIdr: input.transactionFeeIdr,
     totalIdr: input.totalIdr,
   };
 
