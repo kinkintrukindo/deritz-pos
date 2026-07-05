@@ -14,6 +14,29 @@ import { calculateTransactionFee, calculateShippingFee } from "@/lib/fee-calcula
 import type { TransactionSettings } from "@/lib/types-settings";
 import { DEFAULT_SETTINGS } from "@/lib/types-settings";
 
+// Exchange rates: all currencies to USD (base rate)
+const CURRENCY_TO_USD: Record<string, number> = {
+  USD: 1,
+  IDR: 1 / 15250,
+  CNY: 1 / 7,
+  SGD: 1 / 1.35,
+  AUD: 1 / 1.5,
+  MYR: 1 / 4.5,
+  THB: 1 / 33,
+  VND: 1 / 24000,
+  EUR: 1.1,
+  PHP: 1 / 55,
+  JPY: 1 / 110,
+  KRW: 1 / 1200,
+};
+
+// Convert from any currency to any other currency
+function convertCurrency(amount: number, fromCurrency: string, toCurrency: string): number {
+  if (fromCurrency === toCurrency) return amount;
+  const usdAmount = amount * (CURRENCY_TO_USD[fromCurrency] || 1);
+  return usdAmount / (CURRENCY_TO_USD[toCurrency] || 1);
+}
+
 interface DestinationResult {
   id?: string | number;
   label?: string;
@@ -797,7 +820,8 @@ export default function CheckoutPage() {
                     <div className="text-xs text-graphite">{rate.etaText}</div>
                   </div>
                   {shippingCurrency && shippingCurrency !== 'IDR' ? (
-                    <span className="font-medium text-ink flex-shrink-0">{shippingCurrency === 'CNY' ? '¥' : shippingCurrency === 'AUD' ? 'A$' : shippingCurrency}{rate.cost.toLocaleString('en-US')}</span>
+                    // Convert from destination currency to IDR, then Price component handles user currency conversion
+                    <Price amountIdr={Math.round(convertCurrency(rate.cost, shippingCurrency, 'IDR'))} className="font-medium text-ink flex-shrink-0" />
                   ) : (
                     <Price amountIdr={rate.cost} className="font-medium text-ink flex-shrink-0" />
                   )}
@@ -894,7 +918,8 @@ export default function CheckoutPage() {
           <div className="flex justify-between text-graphite">
             <span>Shipping {shippingCurrency && shippingCurrency !== 'IDR' && `(${shippingCurrency})`}</span>
             {shippingCurrency && shippingCurrency !== 'IDR' ? (
-              <span>{shipping.toLocaleString('en-US')}</span>
+              // Convert from destination currency to IDR, then Price component handles user currency conversion
+              <Price amountIdr={Math.round(convertCurrency(shipping, shippingCurrency, 'IDR'))} />
             ) : (
               <Price amountIdr={shipping} />
             )}
