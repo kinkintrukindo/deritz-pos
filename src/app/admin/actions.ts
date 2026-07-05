@@ -20,6 +20,8 @@ import {
   updateCollection,
 } from "@/lib/collections";
 import type { ProductImage } from "@/lib/types";
+import { updateTransactionSettings } from "@/lib/transaction-settings";
+import type { TransactionSettings } from "@/lib/types-settings";
 
 const SESSION_COOKIE = "deritz_admin_session";
 const SESSION_VALUE = "granted";
@@ -307,4 +309,20 @@ export async function updateFeaturedProductsAction(formData: FormData) {
 export async function getOrdersByEmailAction(email: string) {
   const allOrders = await getAllOrders();
   return allOrders.filter((order) => order.customer.email.toLowerCase() === email.toLowerCase());
+}
+
+export async function updateTransactionSettingsAction(formData: FormData) {
+  await requireAdminSession();
+
+  try {
+    const settingsJson = String(formData.get("settings") ?? "{}");
+    const settings = JSON.parse(settingsJson) as TransactionSettings;
+
+    await updateTransactionSettings(settings, "admin");
+
+    return { success: true, message: "Transaction settings updated successfully" };
+  } catch (error) {
+    console.error("Failed to update transaction settings:", error);
+    return { success: false, error: String(error) };
+  }
 }

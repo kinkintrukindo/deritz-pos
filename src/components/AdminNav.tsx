@@ -7,12 +7,13 @@ const TABS = [
   { key: "labels", label: "Labels", href: "/admin/labels" },
   { key: "orders", label: "Orders", href: "/admin/orders" },
   { key: "homepage", label: "Homepage", href: "/admin/homepage" },
+  { key: "transaction", label: "Transaction Settings", href: "/admin/transaction-settings" },
 ] as const;
 
 export function AdminNav({
   active,
 }: {
-  active: "catalogue" | "collections" | "featured" | "labels" | "orders" | "homepage";
+  active: "catalogue" | "collections" | "featured" | "labels" | "orders" | "homepage" | "transaction";
 }) {
   return (
     <div className="overflow-x-auto border-b border-mist mb-10">
