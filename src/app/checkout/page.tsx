@@ -796,7 +796,11 @@ export default function CheckoutPage() {
                     <div className="text-xs text-graphite">{rate.description}</div>
                     <div className="text-xs text-graphite">{rate.etaText}</div>
                   </div>
-                  <Price amountIdr={rate.cost} className="font-medium text-ink flex-shrink-0" />
+                  {shippingCurrency && shippingCurrency !== 'IDR' ? (
+                    <span className="font-medium text-ink flex-shrink-0">{shippingCurrency === 'CNY' ? '¥' : shippingCurrency === 'AUD' ? 'A$' : shippingCurrency}{rate.cost.toLocaleString('en-US')}</span>
+                  ) : (
+                    <Price amountIdr={rate.cost} className="font-medium text-ink flex-shrink-0" />
+                  )}
                 </label>
               ))}
             </div>
