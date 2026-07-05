@@ -262,9 +262,9 @@ export default function CheckoutPage() {
         const manualFee = calculateShippingFee(subtotal, shippingType, destinationId, transactionSettings);
         const rate: ShippingRate = {
           id: 'manual-shipping',
-          courier: 'Manual',
+          courier: 'Shipping Cost',
           service: shippingType === 'domestic' ? 'Domestic' : 'International',
-          description: shippingType === 'domestic' ? 'Manual Domestic Shipping' : 'Manual International Shipping',
+          description: shippingType === 'domestic' ? 'Domestic Shipping' : 'International Shipping',
           cost: manualFee,
           etaText: 'Standard',
           type: shippingType,
