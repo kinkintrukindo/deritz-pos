@@ -56,10 +56,10 @@ export const DEFAULT_SHIPPING_CONFIG: ShippingConfig = {
 export const DEFAULT_TRANSACTION_FEE_CONFIG: TransactionFeeConfig = {
   enabled: false,
   fee: {
-    type: 'percentage',
+    type: 'fixed',
     value: 0,
-    minCap: 5000,
-    maxCap: 100000,
+    minCap: 0,
+    maxCap: 0,
   },
 };
 
