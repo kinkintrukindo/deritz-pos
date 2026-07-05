@@ -1,8 +1,21 @@
 import type { TransactionSettings, FeeConfig } from "@/lib/types-settings";
 
-export function calculateFee(basAmount: number, config: FeeConfig): number {
+const IDR_TO_USD_RATE = 15250; // Standard exchange rate for calculations
+
+export function calculateFee(
+  basAmount: number,
+  config: FeeConfig,
+  options?: { idr?: boolean }
+): number {
   if (config.type === 'percentage') {
-    const feeAmount = Math.round(basAmount * (config.value / 100));
+    let workingAmount = basAmount;
+
+    // If amount is in IDR but config caps are in foreign currency, convert to USD
+    if (options?.idr && config.currency && config.currency !== 'IDR') {
+      workingAmount = basAmount / IDR_TO_USD_RATE;
+    }
+
+    const feeAmount = Math.round(workingAmount * (config.value / 100));
 
     // Apply min/max caps
     let finalFee = feeAmount;
@@ -43,7 +56,7 @@ export function calculateShippingFee(
   }
 
   if (shippingType === 'domestic') {
-    return calculateFee(subtotal, settings.shipping.domestic);
+    return calculateFee(subtotal, settings.shipping.domestic, { idr: true });
   }
 
   // International - check for country-specific exception first
@@ -53,10 +66,12 @@ export function calculateShippingFee(
     );
 
     if (exception) {
-      return calculateFee(subtotal, exception.fee);
+      return calculateFee(subtotal, exception.fee, { idr: true });
     }
   }
 
   // Use default for all other countries
-  return calculateFee(subtotal, settings.shipping.international.default);
+  return calculateFee(subtotal, settings.shipping.international.default, {
+    idr: true,
+  });
 }

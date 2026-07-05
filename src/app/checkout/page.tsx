@@ -217,6 +217,8 @@ export default function CheckoutPage() {
   const selectedRate = shippingRates.find(r => r.id === selectedRateId);
   const shipping = selectedRate?.cost || 0;
 
+  const IDR_TO_USD_RATE = 15250; // Match the rate in fee-calculator.ts
+
   // Get shipping fee currency (if using manual fees)
   const getShippingFeeCurrency = (): string | null => {
     if (transactionSettings.shipping.enabled) {
@@ -243,7 +245,9 @@ export default function CheckoutPage() {
   // Calculate transaction fee based on subtotal
   const transactionFee = calculateTransactionFee(subtotal, transactionSettings);
 
-  const total = subtotal + shipping + transactionFee;
+  // For total calculation: convert USD shipping to IDR if international
+  const shippingInIdr = shippingCurrency && shippingCurrency !== 'IDR' ? Math.round(shipping * IDR_TO_USD_RATE) : shipping;
+  const total = subtotal + shippingInIdr + transactionFee;
 
   const handleEstimateShipping = async () => {
     // Only estimate if destination ID is available
