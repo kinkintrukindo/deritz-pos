@@ -1,9 +1,12 @@
+export type BankTransferBank = 'bni' | 'bri' | 'permata' | 'cimb' | 'bsi' | 'mandiri';
+
 export interface PaymentRequest {
   orderId: string;
   amount: number;
   customerEmail: string;
   customerName: string;
   customerPhone?: string;
+  bankCode?: BankTransferBank;
   items: Array<{
     id: string;
     name: string;
@@ -18,6 +21,9 @@ export interface PaymentResponse {
   qrisUrl?: string;
   vaNumber?: string;
   vaBank?: string;
+  // Mandiri Bill Payment returns these instead of a va_number
+  billKey?: string;
+  billerCode?: string;
   status: 'pending' | 'success' | 'failed';
   method: 'card' | 'bank_transfer' | 'qris';
 }
@@ -98,6 +104,9 @@ async function coreApiCharge(payload: Record<string, unknown>): Promise<Record<s
 async function createQrisTransaction(request: PaymentRequest): Promise<PaymentResponse> {
   const data = await coreApiCharge({
     payment_type: 'qris',
+    qris: {
+      acquirer: 'gopay',
+    },
     transaction_details: {
       order_id: request.orderId,
       gross_amount: request.amount,
@@ -122,6 +131,41 @@ async function createQrisTransaction(request: PaymentRequest): Promise<PaymentRe
 }
 
 async function createBankTransferTransaction(request: PaymentRequest): Promise<PaymentResponse> {
+  const bank = request.bankCode || 'bni';
+
+  const customerDetails = {
+    ...splitName(request.customerName),
+    email: request.customerEmail,
+    phone: request.customerPhone,
+  };
+
+  // Mandiri doesn't use the standard bank_transfer/va_number mechanism —
+  // it's a separate "echannel" (Mandiri Bill Payment) flow that returns a
+  // bill_key + biller_code instead of a va_number.
+  if (bank === 'mandiri') {
+    const data = await coreApiCharge({
+      payment_type: 'echannel',
+      transaction_details: {
+        order_id: request.orderId,
+        gross_amount: request.amount,
+      },
+      item_details: toItemDetails(request.items),
+      customer_details: customerDetails,
+      echannel: {
+        bill_info1: 'Payment For:',
+        bill_info2: 'De Ritz Order',
+      },
+    });
+
+    return {
+      transactionId: String(data.transaction_id),
+      billKey: data.bill_key ? String(data.bill_key) : undefined,
+      billerCode: data.biller_code ? String(data.biller_code) : undefined,
+      status: 'pending',
+      method: 'bank_transfer',
+    };
+  }
+
   const data = await coreApiCharge({
     payment_type: 'bank_transfer',
     transaction_details: {
@@ -129,14 +173,10 @@ async function createBankTransferTransaction(request: PaymentRequest): Promise<P
       gross_amount: request.amount,
     },
     bank_transfer: {
-      bank: 'bca',
+      bank,
     },
     item_details: toItemDetails(request.items),
-    customer_details: {
-      ...splitName(request.customerName),
-      email: request.customerEmail,
-      phone: request.customerPhone,
-    },
+    customer_details: customerDetails,
   });
 
   const vaNumbers = data.va_numbers as Array<{ bank: string; va_number: string }> | undefined;
