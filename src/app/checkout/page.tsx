@@ -751,7 +751,14 @@ export default function CheckoutPage() {
                       setDestinationQuery(e.target.value);
                       setDestinationDropdownOpen(true);
                       setDestinationId('');
-                      setForm((prev) => ({ ...prev, city: '' }));
+                      // In flat-rate mode there's no RajaOngkir lookup, so the
+                      // dropdown never has matches to select. Let typed text
+                      // satisfy the field directly instead of requiring a
+                      // selection that can never happen.
+                      setForm((prev) => ({
+                        ...prev,
+                        city: transactionSettings.shipping.enabled ? '' : e.target.value,
+                      }));
                     }}
                     onFocus={() => setDestinationDropdownOpen(true)}
                     onBlur={() => setTimeout(() => setDestinationDropdownOpen(false), 150)}
@@ -763,7 +770,7 @@ export default function CheckoutPage() {
                   {validationErrors.city && <p className="text-xs text-red-500 mt-1">{validationErrors.city}</p>}
                 </label>
 
-                {destinationDropdownOpen && destinationQuery.trim().length >= 3 && (
+                {transactionSettings.shipping.enabled && destinationDropdownOpen && destinationQuery.trim().length >= 3 && (
                   <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-mist shadow-lg max-h-64 overflow-y-auto">
                     {searchingDestination && (
                       <p className="px-3 py-2.5 text-sm text-graphite">Searching…</p>
