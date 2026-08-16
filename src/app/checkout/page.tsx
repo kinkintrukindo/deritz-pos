@@ -744,15 +744,20 @@ export default function CheckoutPage() {
                     onChange={(e) => {
                       setDestinationQuery(e.target.value);
                       setDestinationDropdownOpen(true);
-                      setDestinationId('');
                       // In flat-rate mode there's no RajaOngkir lookup, so the
                       // dropdown never has matches to select. Let typed text
                       // satisfy the field directly instead of requiring a
-                      // selection that can never happen.
-                      setForm((prev) => ({
-                        ...prev,
-                        city: transactionSettings.shipping.enabled ? '' : e.target.value,
-                      }));
+                      // selection that can never happen. We also set a
+                      // placeholder destinationId so the manual shipping-rate
+                      // calculation (which only runs when destinationId is
+                      // truthy) actually fires.
+                      if (transactionSettings.shipping.enabled) {
+                        setDestinationId('');
+                        setForm((prev) => ({ ...prev, city: '' }));
+                      } else {
+                        setDestinationId(e.target.value.trim() ? 'manual-domestic' : '');
+                        setForm((prev) => ({ ...prev, city: e.target.value }));
+                      }
                     }}
                     onFocus={() => setDestinationDropdownOpen(true)}
                     onBlur={() => setTimeout(() => setDestinationDropdownOpen(false), 150)}
