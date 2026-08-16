@@ -589,17 +589,15 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {isQris && paymentResponse.qrisCode && (
+          {isQris && paymentResponse.qrisUrl && (
             <div className="border-t border-mist pt-6 text-center">
               <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Scan to Pay</h2>
               <div className="bg-white p-6 border border-mist rounded inline-block">
-                <div className="text-sm text-graphite mb-2">QRIS Code</div>
-                <div className="w-48 h-48 bg-gray-100 flex items-center justify-center">
-                  <span className="text-xs text-graphite">QR Code Image</span>
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={paymentResponse.qrisUrl} alt="QRIS QR Code" className="w-48 h-48" />
               </div>
               <p className="text-xs text-graphite mt-4">
-                Scan with your mobile banking or e-wallet app (GCash, Gcash, Dana, OVO, etc.)
+                Scan with your mobile banking or e-wallet app (GoPay, Dana, OVO, ShopeePay, etc.)
               </p>
             </div>
           )}
@@ -621,21 +619,17 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {paymentResponse.paymentMethod === 'bank_transfer' && (
+          {paymentResponse.paymentMethod === 'bank_transfer' && paymentResponse.vaNumber && (
             <div className="border-t border-mist pt-6">
               <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Bank Transfer Details</h2>
               <div className="bg-surface p-4 space-y-3 text-sm">
                 <div>
                   <p className="text-graphite">Bank Name</p>
-                  <p className="font-medium text-ink">Bank BCA</p>
+                  <p className="font-medium text-ink">{(paymentResponse.vaBank || 'bca').toUpperCase()} Virtual Account</p>
                 </div>
                 <div>
-                  <p className="text-graphite">Account Number</p>
-                  <p className="font-medium text-ink font-mono">1234567890</p>
-                </div>
-                <div>
-                  <p className="text-graphite">Account Name</p>
-                  <p className="font-medium text-ink">PT DE RITZ</p>
+                  <p className="text-graphite">Virtual Account Number</p>
+                  <p className="font-medium text-ink font-mono">{paymentResponse.vaNumber}</p>
                 </div>
                 <div>
                   <p className="text-graphite">Amount to Transfer</p>
@@ -643,7 +637,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
               <p className="text-xs text-graphite mt-4">
-                Please include your Order ID ({paymentResponse.orderId}) in the transfer reference/note.
+                Transfer the exact amount to this Virtual Account number. Your order will be confirmed automatically once payment is received.
               </p>
             </div>
           )}
