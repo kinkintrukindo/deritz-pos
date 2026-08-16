@@ -68,130 +68,11 @@ function splitName(fullName: string): { first_name: string; last_name?: string }
   return { first_name: parts[0], last_name: parts.slice(1).join(' ') };
 }
 
-async function coreApiCharge(payload: Record<string, unknown>): Promise<Record<string, unknown>> {
-  const { serverKey, coreApiBase } = getMidtransConfig();
-
-  const response = await fetch(`${coreApiBase}/v2/charge`, {
-    method: 'POST',
-    headers: {
-      Authorization: authHeader(serverKey),
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const data = await response.json();
-
-  // Midtrans's classic Core API can return HTTP 200 while still reporting
-  // failure via an internal status_code in the body (e.g. "400", "406").
-  // Only "200" and "201" mean the transaction was genuinely created.
-  const statusCode = String(data.status_code ?? '');
-  const isGenuineSuccess = response.ok && (statusCode === '200' || statusCode === '201');
-
-  if (!isGenuineSuccess) {
-    const message = data.status_message || data.error_messages?.join(', ') || response.statusText;
-    throw new Error(`Midtrans charge error (status_code ${statusCode || response.status}): ${message}`);
-  }
-
-  if (!data.transaction_id) {
-    throw new Error('Midtrans charge response missing transaction_id');
-  }
-
-  return data;
-}
-
-async function createQrisTransaction(request: PaymentRequest): Promise<PaymentResponse> {
-  const data = await coreApiCharge({
-    payment_type: 'qris',
-    qris: {
-      acquirer: 'gopay',
-    },
-    transaction_details: {
-      order_id: request.orderId,
-      gross_amount: request.amount,
-    },
-    item_details: toItemDetails(request.items),
-    customer_details: {
-      ...splitName(request.customerName),
-      email: request.customerEmail,
-      phone: request.customerPhone,
-    },
-  });
-
-  const actions = (data.actions as Array<{ name: string; url: string }>) || [];
-  const qrAction = actions.find((a) => a.name === 'generate-qr-code' || a.name === 'generate-qr-code-v2');
-
-  return {
-    transactionId: String(data.transaction_id),
-    qrisUrl: qrAction?.url,
-    status: 'pending',
-    method: 'qris',
-  };
-}
-
-async function createBankTransferTransaction(request: PaymentRequest): Promise<PaymentResponse> {
-  const bank = request.bankCode || 'bni';
-
-  const customerDetails = {
-    ...splitName(request.customerName),
-    email: request.customerEmail,
-    phone: request.customerPhone,
-  };
-
-  // Mandiri doesn't use the standard bank_transfer/va_number mechanism —
-  // it's a separate "echannel" (Mandiri Bill Payment) flow that returns a
-  // bill_key + biller_code instead of a va_number.
-  if (bank === 'mandiri') {
-    const data = await coreApiCharge({
-      payment_type: 'echannel',
-      transaction_details: {
-        order_id: request.orderId,
-        gross_amount: request.amount,
-      },
-      item_details: toItemDetails(request.items),
-      customer_details: customerDetails,
-      echannel: {
-        bill_info1: 'Payment For:',
-        bill_info2: 'De Ritz Order',
-      },
-    });
-
-    return {
-      transactionId: String(data.transaction_id),
-      billKey: data.bill_key ? String(data.bill_key) : undefined,
-      billerCode: data.biller_code ? String(data.biller_code) : undefined,
-      status: 'pending',
-      method: 'bank_transfer',
-    };
-  }
-
-  const data = await coreApiCharge({
-    payment_type: 'bank_transfer',
-    transaction_details: {
-      order_id: request.orderId,
-      gross_amount: request.amount,
-    },
-    bank_transfer: {
-      bank,
-    },
-    item_details: toItemDetails(request.items),
-    customer_details: customerDetails,
-  });
-
-  const vaNumbers = data.va_numbers as Array<{ bank: string; va_number: string }> | undefined;
-  const va = vaNumbers?.[0];
-
-  return {
-    transactionId: String(data.transaction_id),
-    vaNumber: va?.va_number,
-    vaBank: va?.bank,
-    status: 'pending',
-    method: 'bank_transfer',
-  };
-}
-
-async function createCardTransaction(request: PaymentRequest): Promise<PaymentResponse> {
+async function createSnapTransaction(
+  request: PaymentRequest,
+  enabledPayments: string[],
+  method: 'card' | 'bank_transfer' | 'qris'
+): Promise<PaymentResponse> {
   const { serverKey, snapApiBase } = getMidtransConfig();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.de-ritz.com';
 
@@ -213,7 +94,7 @@ async function createCardTransaction(request: PaymentRequest): Promise<PaymentRe
         email: request.customerEmail,
         phone: request.customerPhone,
       },
-      enabled_payments: ['credit_card'],
+      enabled_payments: enabledPayments,
       callbacks: {
         finish: `${appUrl}/order-confirmation/${request.orderId}`,
       },
@@ -231,8 +112,33 @@ async function createCardTransaction(request: PaymentRequest): Promise<PaymentRe
     transactionId: request.orderId,
     paymentUrl: data.redirect_url,
     status: 'pending',
-    method: 'card',
+    method,
   };
+}
+
+// Maps our internal bank codes to the Snap enabled_payments values Midtrans
+// expects for each Virtual Account channel.
+const BANK_TO_SNAP_PAYMENT: Record<BankTransferBank, string> = {
+  bni: 'bni_va',
+  bri: 'bri_va',
+  permata: 'permata_va',
+  cimb: 'cimb_va',
+  bsi: 'bsi_va',
+  mandiri: 'echannel',
+};
+
+async function createQrisTransaction(request: PaymentRequest): Promise<PaymentResponse> {
+  return createSnapTransaction(request, ['gopay'], 'qris');
+}
+
+async function createBankTransferTransaction(request: PaymentRequest): Promise<PaymentResponse> {
+  const bank = request.bankCode || 'bni';
+  const snapPayment = BANK_TO_SNAP_PAYMENT[bank];
+  return createSnapTransaction(request, [snapPayment], 'bank_transfer');
+}
+
+async function createCardTransaction(request: PaymentRequest): Promise<PaymentResponse> {
+  return createSnapTransaction(request, ['credit_card'], 'card');
 }
 
 export async function createPaymentTransaction(
