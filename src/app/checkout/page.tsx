@@ -7,6 +7,7 @@ import { useCurrency } from "@/components/CurrencyProvider";
 import { useAuth } from "@/components/AuthProvider";
 import { Price } from "@/components/Price";
 import { submitOrderAction, confirmPaymentAction, submitOrderBypassAction, type CheckoutResponse } from "@/app/checkout/actions";
+import type { BankTransferBank } from "@/lib/payment-real";
 import { estimateShipping, type ShippingRate, getChargeableWeight } from "@/lib/shipping-real";
 import { COUNTRY_CODES } from "@/lib/countries";
 import { isValidEmail, isValidPhone, isValidName, isValidAddress, isValidCity, isValidCountry } from "@/lib/validation";
@@ -245,6 +246,7 @@ export default function CheckoutPage() {
   const [paymentResponse, setPaymentResponse] = useState<CheckoutResponse | null>(null);
   const [confirmingPayment, setConfirmingPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'qris' | 'card' | 'bank_transfer'>('qris');
+  const [bankCode, setBankCode] = useState<BankTransferBank>('bni');
 
   useEffect(() => {
     if (user?.email) {
@@ -541,7 +543,8 @@ export default function CheckoutPage() {
           transactionFeeIdr: transactionFee,
           totalIdr: total,
         },
-        paymentMethod
+        paymentMethod,
+        bankCode
       );
 
       setPaymentResponse(response);
@@ -630,7 +633,7 @@ export default function CheckoutPage() {
               <div className="bg-surface p-4 space-y-3 text-sm">
                 <div>
                   <p className="text-graphite">Bank Name</p>
-                  <p className="font-medium text-ink">{(paymentResponse.vaBank || 'bca').toUpperCase()} Virtual Account</p>
+                  <p className="font-medium text-ink">{(paymentResponse.vaBank || 'bni').toUpperCase()} Virtual Account</p>
                 </div>
                 <div>
                   <p className="text-graphite">Virtual Account Number</p>
@@ -643,6 +646,29 @@ export default function CheckoutPage() {
               </div>
               <p className="text-xs text-graphite mt-4">
                 Transfer the exact amount to this Virtual Account number. Your order will be confirmed automatically once payment is received.
+              </p>
+            </div>
+          )}
+
+          {paymentResponse.paymentMethod === 'bank_transfer' && paymentResponse.billKey && (
+            <div className="border-t border-mist pt-6">
+              <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Bank Mandiri Bill Payment</h2>
+              <div className="bg-surface p-4 space-y-3 text-sm">
+                <div>
+                  <p className="text-graphite">Biller Code</p>
+                  <p className="font-medium text-ink font-mono">{paymentResponse.billerCode}</p>
+                </div>
+                <div>
+                  <p className="text-graphite">Bill Key</p>
+                  <p className="font-medium text-ink font-mono">{paymentResponse.billKey}</p>
+                </div>
+                <div>
+                  <p className="text-graphite">Amount to Transfer</p>
+                  <p className="font-medium text-ink"><Price amountIdr={total} /></p>
+                </div>
+              </div>
+              <p className="text-xs text-graphite mt-4">
+                Pay via Mandiri ATM, Internet Banking, or Mandiri Online using this Biller Code and Bill Key under "Bayar / Pembayaran → Multipayment". Your order will be confirmed automatically once payment is received.
               </p>
             </div>
           )}
@@ -943,6 +969,25 @@ export default function CheckoutPage() {
                 <div className="text-xs text-graphite">Direct bank transfer to De Ritz account</div>
               </div>
             </label>
+            {paymentMethod === 'bank_transfer' && (
+              <div className="pl-4">
+                <label className="block">
+                  <span className="text-xs tracking-wide-label uppercase text-graphite">Choose Bank</span>
+                  <select
+                    value={bankCode}
+                    onChange={(e) => setBankCode(e.target.value as BankTransferBank)}
+                    className="mt-1.5 w-full border border-mist px-3 py-2.5 text-sm bg-paper focus:outline-none focus:border-ink"
+                  >
+                    <option value="bni">BNI Virtual Account</option>
+                    <option value="bri">BRI Virtual Account</option>
+                    <option value="permata">Permata Virtual Account</option>
+                    <option value="cimb">CIMB Niaga Virtual Account</option>
+                    <option value="bsi">BSI Virtual Account</option>
+                    <option value="mandiri">Bank Mandiri (Bill Payment)</option>
+                  </select>
+                </label>
+              </div>
+            )}
             <label className="flex items-center gap-3 p-3 border border-mist cursor-pointer hover:bg-surface">
               <input
                 type="radio"
