@@ -77,9 +77,19 @@ async function coreApiCharge(payload: Record<string, unknown>): Promise<Record<s
 
   const data = await response.json();
 
-  if (!response.ok) {
+  // Midtrans's classic Core API can return HTTP 200 while still reporting
+  // failure via an internal status_code in the body (e.g. "400", "406").
+  // Only "200" and "201" mean the transaction was genuinely created.
+  const statusCode = String(data.status_code ?? '');
+  const isGenuineSuccess = response.ok && (statusCode === '200' || statusCode === '201');
+
+  if (!isGenuineSuccess) {
     const message = data.status_message || data.error_messages?.join(', ') || response.statusText;
-    throw new Error(`Midtrans charge error: ${message}`);
+    throw new Error(`Midtrans charge error (status_code ${statusCode || response.status}): ${message}`);
+  }
+
+  if (!data.transaction_id) {
+    throw new Error('Midtrans charge response missing transaction_id');
   }
 
   return data;
