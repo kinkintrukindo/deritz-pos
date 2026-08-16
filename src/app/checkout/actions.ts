@@ -1,7 +1,7 @@
 "use server";
 
 import { createOrder, type NewOrderInput, markOrderProcessed } from "@/lib/orders";
-import { createPaymentTransaction, verifyPaymentStatus } from "@/lib/payment-real";
+import { createPaymentTransaction, verifyPaymentStatus, type BankTransferBank } from "@/lib/payment-real";
 
 export interface CheckoutResponse {
   orderId: string;
@@ -10,12 +10,15 @@ export interface CheckoutResponse {
   qrisUrl?: string;
   vaNumber?: string;
   vaBank?: string;
+  billKey?: string;
+  billerCode?: string;
   paymentMethod: 'card' | 'bank_transfer' | 'qris';
 }
 
 export async function submitOrderAction(
   input: NewOrderInput,
-  paymentMethod: 'card' | 'bank_transfer' | 'qris' = 'qris'
+  paymentMethod: 'card' | 'bank_transfer' | 'qris' = 'qris',
+  bankCode?: BankTransferBank
 ): Promise<CheckoutResponse> {
   const order = await createOrder(input);
 
@@ -52,6 +55,7 @@ export async function submitOrderAction(
         customerEmail: order.customer.email,
         customerName: order.customer.name,
         customerPhone: order.customer.phone,
+        bankCode,
         items,
       },
       paymentMethod
@@ -64,6 +68,8 @@ export async function submitOrderAction(
       qrisUrl: paymentResponse.qrisUrl,
       vaNumber: paymentResponse.vaNumber,
       vaBank: paymentResponse.vaBank,
+      billKey: paymentResponse.billKey,
+      billerCode: paymentResponse.billerCode,
       paymentMethod,
     };
   } catch (error) {
