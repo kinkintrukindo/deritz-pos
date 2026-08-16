@@ -558,7 +558,12 @@ export default function CheckoutPage() {
     setConfirmingPayment(true);
 
     try {
-      await confirmPaymentAction(paymentResponse.orderId);
+      const result = await confirmPaymentAction(paymentResponse.orderId);
+      if (!result.success) {
+        setConfirmingPayment(false);
+        alert(result.message || "Payment has not been confirmed yet. Please complete payment first.");
+        return;
+      }
       clear();
       router.push(`/order-confirmation/${paymentResponse.orderId}`);
     } catch (error) {
