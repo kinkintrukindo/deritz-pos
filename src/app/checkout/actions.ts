@@ -1,14 +1,15 @@
 "use server";
 
 import { createOrder, type NewOrderInput, markOrderProcessed } from "@/lib/orders";
-import { createPaymentTransaction, getQrisCode } from "@/lib/payment-real";
+import { createPaymentTransaction } from "@/lib/payment-real";
 
 export interface CheckoutResponse {
   orderId: string;
   transactionId: string;
   paymentUrl?: string;
   qrisUrl?: string;
-  qrisCode?: string;
+  vaNumber?: string;
+  vaBank?: string;
   paymentMethod: 'card' | 'bank_transfer' | 'qris';
 }
 
@@ -43,31 +44,26 @@ export async function submitOrderAction(
   }
 
   try {
-    // Create payment transaction with real API
+    // Create payment transaction with real Midtrans API
     const paymentResponse = await createPaymentTransaction(
       {
         orderId: order.id,
         amount: order.totalIdr,
         customerEmail: order.customer.email,
         customerName: order.customer.name,
+        customerPhone: order.customer.phone,
         items,
       },
       paymentMethod
     );
-
-    // Generate QRIS code if payment method is QRIS
-    let qrisCode: string | undefined;
-    if (paymentMethod === 'qris') {
-      const code = await getQrisCode(order.id);
-      if (code) qrisCode = code;
-    }
 
     return {
       orderId: order.id,
       transactionId: paymentResponse.transactionId,
       paymentUrl: paymentResponse.paymentUrl,
       qrisUrl: paymentResponse.qrisUrl,
-      qrisCode,
+      vaNumber: paymentResponse.vaNumber,
+      vaBank: paymentResponse.vaBank,
       paymentMethod,
     };
   } catch (error) {
