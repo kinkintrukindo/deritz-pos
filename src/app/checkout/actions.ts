@@ -1,7 +1,7 @@
 "use server";
 
 import { createOrder, type NewOrderInput, markOrderProcessed } from "@/lib/orders";
-import { createPaymentTransaction } from "@/lib/payment-real";
+import { createPaymentTransaction, verifyPaymentStatus } from "@/lib/payment-real";
 
 export interface CheckoutResponse {
   orderId: string;
@@ -73,9 +73,26 @@ export async function submitOrderAction(
 }
 
 export async function confirmPaymentAction(orderId: string) {
-  // Mark order as processed
+  // SECURITY: never mark an order as paid just because this button was
+  // clicked. Always verify the real payment status with Midtrans first —
+  // otherwise anyone could reach this screen and get a free order by
+  // clicking through without ever paying.
+  const { status } = await verifyPaymentStatus(orderId);
+
+  if (status !== 'success') {
+    return {
+      success: false,
+      orderId,
+      status,
+      message:
+        status === 'pending'
+          ? 'Payment has not been received yet. If you already paid, this may take a moment to confirm — please check back shortly.'
+          : 'Payment could not be verified as successful.',
+    };
+  }
+
   await markOrderProcessed(orderId);
-  return { success: true, orderId };
+  return { success: true, orderId, status };
 }
 
 export async function submitOrderBypassAction(input: NewOrderInput): Promise<{ orderId: string }> {
