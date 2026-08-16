@@ -60,10 +60,10 @@ interface DestinationResult {
 }
 
 function formatDestinationLabel(item: DestinationResult | Country): string {
-  if (item.label) return item.label;
+  if ('label' in item && item.label) return item.label;
   // Handle Country objects from hardcoded list (have name property)
   if ('name' in item && 'iso' in item) {
-    return item.name;
+    return String(item.name);
   }
   // International response has country_name
   if ((item as Record<string, unknown>).country_name) {
@@ -78,7 +78,7 @@ function formatDestinationLabel(item: DestinationResult | Country): string {
 function getDestinationId(item: DestinationResult | Country): string {
   // Handle Country objects from hardcoded list (have rajaongkirId)
   if ('rajaongkirId' in item) {
-    return item.rajaongkirId;
+    return String(item.rajaongkirId);
   }
   // RajaOngkir API results use country_id for international
   const countryId = (item as Record<string, unknown>).country_id;
