@@ -577,8 +577,12 @@ export default function CheckoutPage() {
   }
 
   if (paymentResponse) {
-    const isQris = paymentResponse.paymentMethod === 'qris';
-    const isCard = paymentResponse.paymentMethod === 'card';
+    const methodLabel =
+      paymentResponse.paymentMethod === 'qris'
+        ? 'QRIS / GoPay'
+        : paymentResponse.paymentMethod === 'bank_transfer'
+        ? 'Bank Transfer'
+        : 'Card';
 
     return (
       <div className="mx-auto max-w-3xl px-6 lg:px-10 py-16">
@@ -597,24 +601,12 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {isQris && paymentResponse.qrisUrl && (
-            <div className="border-t border-mist pt-6 text-center">
-              <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Scan to Pay</h2>
-              <div className="bg-white p-6 border border-mist rounded inline-block">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={paymentResponse.qrisUrl} alt="QRIS QR Code" className="w-48 h-48" />
-              </div>
-              <p className="text-xs text-graphite mt-4">
-                Scan with your mobile banking or e-wallet app (GoPay, Dana, OVO, ShopeePay, etc.)
-              </p>
-            </div>
-          )}
-
-          {isCard && paymentResponse.paymentUrl && (
+          {paymentResponse.paymentUrl && (
             <div className="border-t border-mist pt-6">
-              <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Card Payment</h2>
+              <h2 className="text-xl font-medium tracking-tight text-ink mb-4">{methodLabel} Payment</h2>
               <p className="text-sm text-graphite mb-4">
-                You will be redirected to the secure payment gateway to enter your card details.
+                You will be redirected to Midtrans's secure payment page to complete your{' '}
+                {methodLabel.toLowerCase()} payment.
               </p>
               <a
                 href={paymentResponse.paymentUrl}
@@ -624,52 +616,6 @@ export default function CheckoutPage() {
               >
                 Go to Payment Gateway
               </a>
-            </div>
-          )}
-
-          {paymentResponse.paymentMethod === 'bank_transfer' && paymentResponse.vaNumber && (
-            <div className="border-t border-mist pt-6">
-              <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Bank Transfer Details</h2>
-              <div className="bg-surface p-4 space-y-3 text-sm">
-                <div>
-                  <p className="text-graphite">Bank Name</p>
-                  <p className="font-medium text-ink">{(paymentResponse.vaBank || 'bni').toUpperCase()} Virtual Account</p>
-                </div>
-                <div>
-                  <p className="text-graphite">Virtual Account Number</p>
-                  <p className="font-medium text-ink font-mono">{paymentResponse.vaNumber}</p>
-                </div>
-                <div>
-                  <p className="text-graphite">Amount to Transfer</p>
-                  <p className="font-medium text-ink"><Price amountIdr={total} /></p>
-                </div>
-              </div>
-              <p className="text-xs text-graphite mt-4">
-                Transfer the exact amount to this Virtual Account number. Your order will be confirmed automatically once payment is received.
-              </p>
-            </div>
-          )}
-
-          {paymentResponse.paymentMethod === 'bank_transfer' && paymentResponse.billKey && (
-            <div className="border-t border-mist pt-6">
-              <h2 className="text-xl font-medium tracking-tight text-ink mb-4">Bank Mandiri Bill Payment</h2>
-              <div className="bg-surface p-4 space-y-3 text-sm">
-                <div>
-                  <p className="text-graphite">Biller Code</p>
-                  <p className="font-medium text-ink font-mono">{paymentResponse.billerCode}</p>
-                </div>
-                <div>
-                  <p className="text-graphite">Bill Key</p>
-                  <p className="font-medium text-ink font-mono">{paymentResponse.billKey}</p>
-                </div>
-                <div>
-                  <p className="text-graphite">Amount to Transfer</p>
-                  <p className="font-medium text-ink"><Price amountIdr={total} /></p>
-                </div>
-              </div>
-              <p className="text-xs text-graphite mt-4">
-                Pay via Mandiri ATM, Internet Banking, or Mandiri Online using this Biller Code and Bill Key under "Bayar / Pembayaran → Multipayment". Your order will be confirmed automatically once payment is received.
-              </p>
             </div>
           )}
 
